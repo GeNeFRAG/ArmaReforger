@@ -1,0 +1,270 @@
+{
+    "bindAddress": "0.0.0.0",
+    "bindPort": 41134,
+    "game": {
+        "admins": [],
+        "crossPlatform": true,
+        "gameProperties": {
+            "VONDisableDirectSpeechUI": false,
+            "VONDisableUI": false,
+            "battlEye": "true",
+            "disableThirdPerson": "false",
+            "fastValidation": true,
+            "networkViewDistance": 1000,
+            "serverMaxViewDistance": 2500,
+            "serverMinGrassDistance": 50
+        },
+        "maxPlayers": 88,
+        "mods": [
+            {
+                "modId": "595F2BF2F44836FB",
+                "name": "RHS - Status Quo",
+                "version": ""
+            },
+            {
+                "modId": "60C4CE4888FF4621",
+                "name": "ACE Core",
+                "version": ""
+            },
+            {
+                "modId": "60E573C9B04CC408",
+                "name": "ACE Backblast",
+                "version": ""
+            },
+            {
+                "modId": "5DBD560C5148E1DA",
+                "name": "ACE Carrying",
+                "version": ""
+            },
+            {
+                "modId": "5EB744C5F42E0800",
+                "name": "ACE Chopping",
+                "version": ""
+            },
+            {
+                "modId": "60C53A9372ED3964",
+                "name": "ACE Compass",
+                "version": ""
+            },
+            {
+                "modId": "61B7763A8AEB53B7",
+                "name": "ACE Explosives",
+                "version": ""
+            },
+            {
+                "modId": "606C369BAC3F6CC3",
+                "name": "ACE Finger",
+                "version": ""
+            },
+            {
+                "modId": "611CB1D409001EB0",
+                "name": "ACE Magazine Repack",
+                "version": ""
+            },
+            {
+                "modId": "60C4C12DAE90727B",
+                "name": "ACE Medical",
+                "version": ""
+            },
+            {
+                "modId": "60EAEA0389DB3CC2",
+                "name": "ACE Trenches",
+                "version": ""
+            },
+            {
+                "modId": "5965550F24A0C152",
+                "name": "Where Am I",
+                "version": ""
+            },
+            {
+                "modId": "5E92F5A4A1B75A75",
+                "name": "Player Map Markers",
+                "version": ""
+            },
+            {
+                "modId": "609E8CAD8A403EA6",
+                "name": "Map Marker Menu Fix",
+                "version": ""
+            },
+            {
+                "modId": "62113AA293414DBA",
+                "name": "Keep Ragdoll Pose",
+                "version": ""
+            },
+            {
+                "modId": "5AAAC70D754245DD",
+                "name": "Server Admin Tools",
+                "version": ""
+            },
+            {
+                "modId": "5D071A427403AB2C",
+                "name": "Chat Message Roles",
+                "version": ""
+            },
+            {
+                "modId": "59EAA899751805DF",
+                "name": "Stun Grenade",
+                "version": ""
+            },
+            {
+                "modId": "61BA4EB5C886D396",
+                "name": "WCS_VehicleLock",
+                "version": ""
+            },
+            {
+                "modId": "629B2BA37EFFD577",
+                "name": "WCS_Armament",
+                "version": ""
+            },
+            {
+                "modId": "62CCD69DD17E4F2F",
+                "name": "AKI CORE",
+                "version": ""
+            },
+            {
+                "modId": "6273146ADFE8241D",
+                "name": "AH6M",
+                "version": ""
+            },
+            {
+                "modId": "628933A0D3A0D700",
+                "name": "WCS_Mi-24V",
+                "version": ""
+            },
+            {
+                "modId": "61CAB0067CC8ACE2",
+                "name": "BFV_Fix",
+                "version": ""
+            },
+            {
+                "modId": "6146FAED5AAD7C55",
+                "name": "WCS_Helicopters",
+                "version": ""
+            },
+            {
+                "modId": "615A80027C5C9170",
+                "name": "WCS_Vehicles",
+                "version": ""
+            },
+            {
+                "modId": "6152CB0BD0684837",
+                "name": "WCS_Clothing",
+                "version": ""
+            },
+            {
+                "modId": "61E42AE6714A3CC2",
+                "name": "WCS_Armbands",
+                "version": ""
+            },
+            {
+                "modId": "61C74A8B647617DA",
+                "name": "WCS_Attachments",
+                "version": ""
+            },
+            {
+                "modId": "62A668F513428630",
+                "name": "WCS_Scopes",
+                "version": ""
+            },
+            {
+                "modId": "615806DC6C57AF02",
+                "name": "WCS_NATO",
+                "version": ""
+            },
+            {
+                "modId": "615818DA7C0343FD",
+                "name": "WCS_RU",
+                "version": ""
+            },
+            {
+                "modId": "64610AFB74AA9842",
+                "name": "WCS_Core",
+                "version": ""
+            },
+            {
+                "modId": "615CC2D870A39838",
+                "name": "WCS_Arsenal",
+                "version": ""
+            },
+            {
+                "modId": "631C3C1AEE9C90BC",
+                "name": "WCS_Sounds",
+                "version": ""
+            },
+            {
+                "modId": "614C00DA7F8765F6",
+                "name": "WCS_SpawnProtection",
+                "version": ""
+            },
+            {
+                "modId": "61A25BD1C99515B5",
+                "name": "WCS_Commands",
+                "version": ""
+            },
+            {
+                "modId": "612F512CD4CB21D5",
+                "name": "WCS_Earplugs",
+                "version": ""
+            },
+            {
+                "modId": "614D1A3874A23AD9",
+                "name": "WCS_Interface",
+                "version": ""
+            },
+            {
+                "modId": "61D57616CAFBB23D",
+                "name": "WCS_LoadoutEditor",
+                "version": ""
+            },
+            {
+                "modId": "6122DD5CCF5C59E6",
+                "name": "WCS_AFKKick",
+                "version": ""
+            },
+            {
+                "modId": "617CBAD67DCDCBF8",
+                "name": "WCS_Rostov",
+                "version": ""
+            },
+            {
+                "modId": "644752E5603646BC",
+                "name": "WCS_DisableAttackHelicopters",
+                "version": ""
+            },
+            {
+                "modId": "614627BACB991914",
+                "name": "Prefab Optimizations - Core",
+                "version": ""
+            },
+            {
+                "modId": "6148E5A6D60AA2BA",
+                "name": "Prefab Optimizations - Glass",
+                "version": ""
+            },
+            {
+                "modId": "611773E9DBCA20AC",
+                "name": "Prefab Optimizations",
+                "version": ""
+            },
+            {
+                "modId": "613A878AD341C163",
+                "name": "WCS Script Optimizations",
+                "version": ""
+            }
+        ],
+        "name": "[EU] THE BAD REGIMENT / 3PP / NATO vs. RUS Rostov Conflict / PC / XBOX / MAX FPS",
+        "password": "",
+        "passwordAdmin": "Gerhard05",
+        "scenarioId": "{719992F9A54F6335}Missions/WCS_Rostov_Conflict_NEvSW_Layout1.conf",
+        "supportedPlatforms": [
+            "PLATFORM_PC",
+            "PLATFORM_XBL"
+        ],
+        "visible": "true"
+    },
+    "operating": {
+        "disableAI": true
+    },
+    "publicAddress": "136.243.77.202",
+    "publicPort": 41134
+}
