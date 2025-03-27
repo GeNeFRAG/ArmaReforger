@@ -1,0 +1,47 @@
+{
+    "admins": {
+        "00000000-0000-0000-0000-000000000001": "auto admin example"
+    },
+    "bans": {
+        "00000000-0000-0000-0000-000000000002": "banned player example"
+    },
+    "repeatedChatMessages": [
+        {
+            "message": "Welcome to [EU] THE BAD REGIMENT / 3PP / NATO vs. RUS Everon Conflict / PC / XBOX / MAX FPS",
+            "intervalMinutes": 15
+        }
+    ],
+    "scheduledChatMessages": [
+        {
+            "message": "Server will restart in 30 minutes",
+            "hour": 3,
+            "minute": 30
+        }
+    ],
+    "serverMessage": [
+         "<h2>Welcome to [EU] THE BAD REGIMENT / 3PP / NATO vs. RUS Everon Conflict / PC / XBOX / MAX FPS</h2>"
+    ],
+    "chatMessagesUtcTime": true,
+    "repeatedChatMessagesCycle": true,
+    "statsFileUpdateIntervalSeconds": 30,
+    "banReloadIntervalMinutes": 5,
+    "statsFileName": "$profile:ServerAdminTools_Stats.json",
+    "statsSaveConnectedPlayers": true,
+    "eventsApiToken": "",
+    "eventsApiAddress": "",
+    "eventsApiRatelimitSeconds": 10,
+    "serverMessageHeaderImage": "mission",
+    "serverMessageDiscordLink": "",
+    "serverMessageOpen": true,
+    "eventsApiEventsEnabled": [
+        "serveradmintools_admin_action",
+        "serveradmintools_conflict_base_captured",
+        "serveradmintools_game_ended",
+        "serveradmintools_game_started",
+        "serveradmintools_player_joined",
+        "serveradmintools_player_killed",
+        "serveradmintools_server_fps_low",
+        "serveradmintools_vote_ended",
+        "serveradmintools_vote_started"
+    ]
+}
