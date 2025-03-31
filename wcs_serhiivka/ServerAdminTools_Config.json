@@ -7,19 +7,20 @@
     },
     "repeatedChatMessages": [
         {
-            "message": "Welcome to [EU] THE BAD REGIMENT / 3PP / NATO vs. RUS Everon Conflict / PC / XBOX / MAX FPS",
-            "intervalMinutes": 15
+            "message": "Welcome [EU] Misfit Company Realism NATO/RUS Serhiivka Conflict",
+            "intervalMinutes": 30
         }
     ],
     "scheduledChatMessages": [
         {
             "message": "Server will restart in 30 minutes",
-            "hour": 3,
+            "hour": 4,
             "minute": 30
         }
     ],
     "serverMessage": [
-         "<h2>Welcome to [EU] THE BAD REGIMENT / 3PP / NATO vs. RUS Everon Conflict / PC / XBOX / MAX FPS</h2>"
+         "<h2>[EU] Misfit Company Realism NATO/RUS Serhiivka Conflict</h2>",
+         "<p><color rgba='255,200,0,255'>Have fun and watch your fire!</color></p>"
     ],
     "chatMessagesUtcTime": true,
     "repeatedChatMessagesCycle": true,

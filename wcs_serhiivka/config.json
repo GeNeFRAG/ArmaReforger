@@ -7,8 +7,8 @@
         "gameProperties": {
             "VONDisableDirectSpeechUI": false,
             "VONDisableUI": false,
-            "battlEye": "true",
-            "disableThirdPerson": "false",
+            "battlEye": true,
+            "disableThirdPerson": false,
             "fastValidation": true,
             "networkViewDistance": 1000,
             "serverMaxViewDistance": 2500,
@@ -24,11 +24,6 @@
             {
                 "modId": "60C4CE4888FF4621",
                 "name": "ACE Core",
-                "version": ""
-            },
-            {
-                "modId": "60E573C9B04CC408",
-                "name": "ACE Backblast",
                 "version": ""
             },
             {
@@ -87,8 +82,8 @@
                 "version": ""
             },
             {
-                "modId": "62113AA293414DBA",
-                "name": "Keep Ragdoll Pose",
+                "modId": "62FCEB51DF8527B6",
+                "name": "Improved Blood Effect",
                 "version": ""
             },
             {
@@ -102,18 +97,48 @@
                 "version": ""
             },
             {
-                "modId": "59EAA899751805DF",
-                "name": "Stun Grenade",
-                "version": ""
-            },
-            {
                 "modId": "61BA4EB5C886D396",
                 "name": "WCS_VehicleLock",
                 "version": ""
             },
             {
                 "modId": "629B2BA37EFFD577",
-                "name": "WCS_Armament",
+                "name": "WCS_Armaments",
+                "version": ""
+            },
+            {
+                "modId": "5E389BB9F58B79A6",
+                "name": "SpaceCore",
+                "version": ""
+            },
+            {
+                "modId": "5C721177A220B42F",
+                "name": "Joint Light Tactical Vehicle",
+                "version": ""
+            },
+            {
+                "modId": "63120AE07E6C0966",
+                "name": "M2 Bradley Fighting Vehicle",
+                "version": ""
+            },
+            {
+                "modId": "5D1880C4AD410C14",
+                "name": "M1 Abrams",
+                "version": ""
+            },
+            {
+                "modId": "64610AFB74AA9842",
+                "name": "WCS_Core",
+                "version": ""
+            },
+            {
+                "modId": "64F57AB37D531246",
+                "name": "WCS_TankMarkers",
+                "version": ""
+            },
+            {
+                "modId": "63294BA2D9F0339B",
+                "name": "WCS_ZU-23-2",
                 "version": ""
             },
             {
@@ -123,7 +148,12 @@
             },
             {
                 "modId": "6273146ADFE8241D",
-                "name": "AH6M",
+                "name": "WCS_AH6M",
+                "version": ""
+            },
+            {
+                "modId": "62AE96D92179F7A0",
+                "name": "WCS_AH-6M_Upgrade",
                 "version": ""
             },
             {
@@ -132,8 +162,23 @@
                 "version": ""
             },
             {
-                "modId": "61CAB0067CC8ACE2",
-                "name": "BFV_Fix",
+                "modId": "64CB39E57377C861",
+                "name": "WCS_AH-1S",
+                "version": ""
+            },
+            {
+                "modId": "6303360DA719E832",
+                "name": "WCS_AH-64D",
+                "version": ""
+            },
+            {
+                "modId": "6326F0C7E748AB8A",
+                "name": "WCS_AH-64D_Upgrade",
+                "version": ""
+            },
+            {
+                "modId": "64CB35D07BAEE60F",
+                "name": "WCS_KA-52",
                 "version": ""
             },
             {
@@ -177,11 +222,6 @@
                 "version": ""
             },
             {
-                "modId": "64610AFB74AA9842",
-                "name": "WCS_Core",
-                "version": ""
-            },
-            {
                 "modId": "615CC2D870A39838",
                 "name": "WCS_Arsenal",
                 "version": ""
@@ -222,48 +262,43 @@
                 "version": ""
             },
             {
-                "modId": "617CBAD67DCDCBF8",
-                "name": "WCS_Rostov",
+                "modId": "648B595F6C72B4CB",
+                "name": "WCS_Settings",
                 "version": ""
             },
             {
-                "modId": "644752E5603646BC",
-                "name": "WCS_DisableAttackHelicopters",
+                "modId": "648EF4DF7B2F7D3A",
+                "name": "WCS_Weather",
                 "version": ""
             },
             {
-                "modId": "614627BACB991914",
-                "name": "Prefab Optimizations - Core",
+                "modId": "5F0D245931200FD1",
+                "name": "Railway Generator",
                 "version": ""
             },
             {
-                "modId": "6148E5A6D60AA2BA",
-                "name": "Prefab Optimizations - Glass",
+                "modId": "5D84C738432BFE6A",
+                "name": "WolfsBuildingPack",
                 "version": ""
             },
             {
-                "modId": "611773E9DBCA20AC",
-                "name": "Prefab Optimizations",
-                "version": ""
-            },
-            {
-                "modId": "613A878AD341C163",
-                "name": "WCS Script Optimizations",
+                "modId": "61557578724DBE60",
+                "name": "WCS_Serhiivka",
                 "version": ""
             }
         ],
-        "name": "[EU] THE BAD REGIMENT / 3PP / NATO vs. RUS Rostov Conflict / PC / XBOX / MAX FPS",
+        "name": "[EU] Misfit Company Realism NATO/RUS Serhiivka Conflict",
         "password": "",
         "passwordAdmin": "",
-        "scenarioId": "{719992F9A54F6335}Missions/WCS_Rostov_Conflict_NEvSW_Layout1.conf",
+        "scenarioId": "{2CCBAEC8CE48CC32}Missions/WCS_Serhiivka_Conflict_NvS_Layout1.conf",
         "supportedPlatforms": [
             "PLATFORM_PC",
             "PLATFORM_XBL"
         ],
-        "visible": "true"
+        "visible": true
     },
     "operating": {
-        "disableAI": true
+        "disableAI": false
     },
     "publicAddress": "136.243.77.202",
     "publicPort": 41134
