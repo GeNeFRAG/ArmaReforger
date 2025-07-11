@@ -24,7 +24,7 @@ function storeFireMissionParameters() {
   
   // Get the current date
   var date = new Date();
-  var formattedDate = Utilities.formatDate(date, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
+  var formattedDate = Utilities.formatDate(date, Session.getScriptTimeZone(), "dd-MM-yyyy HH:mm:ss");
   
   // Add empty row before new calculation if there's existing data
   var lastRow = storageSheet.getLastRow();
@@ -46,12 +46,6 @@ function storeFireMissionParameters() {
     for (var i = 0; i < allValues.length; i++) {
       storageSheet.insertRowBefore(3 + i);
       storageSheet.getRange(3 + i, 1, 1, 2).setValues([allValues[i]]);
-      
-      // Apply number formatting to column B if it's a number
-      var cellValue = allValues[i][1];
-      if (typeof cellValue === 'number' && !isNaN(cellValue)) {
-        storageSheet.getRange(3 + i, 2).setNumberFormat("#,##0_);(#,##0)");
-      }
     }
     
     // Apply formatting only to the new header rows
@@ -70,6 +64,17 @@ function storeFireMissionParameters() {
       if (allValues.length > 0) storageSheet.getRange(3, 1, 1, 2).setBackground("#FFE599"); // Row 3
       if (allValues.length > 2) storageSheet.getRange(5, 1, 1, 2).setBackground("#FFE599"); // Row 5
       if (allValues.length > 3) storageSheet.getRange(6, 1, 1, 2).setBackground("#FFE599"); // Row 6
+      
+      // Apply number formatting to rows 3, 4, 5 (column B) if they contain numbers
+      if (allValues.length > 0 && typeof allValues[0][1] === 'number' && !isNaN(allValues[0][1])) {
+        storageSheet.getRange(3, 2).setNumberFormat("#,##0_);(#,##0)"); // Row 3
+      }
+      if (allValues.length > 1 && typeof allValues[1][1] === 'number' && !isNaN(allValues[1][1])) {
+        storageSheet.getRange(4, 2).setNumberFormat("#,##0_);(#,##0)"); // Row 4
+      }
+      if (allValues.length > 2 && typeof allValues[2][1] === 'number' && !isNaN(allValues[2][1])) {
+        storageSheet.getRange(5, 2).setNumberFormat("#,##0_);(#,##0)"); // Row 5
+      }
     }
   } else {
     // First mission - use appendRow
@@ -81,13 +86,6 @@ function storeFireMissionParameters() {
     
     for (var i = 0; i < allValues.length; i++) {
       storageSheet.appendRow(allValues[i]);
-      
-      // Apply number formatting to column B if it's a number
-      var cellValue = allValues[i][1];
-      if (typeof cellValue === 'number' && !isNaN(cellValue)) {
-        var currentRow = storageSheet.getLastRow();
-        storageSheet.getRange(currentRow, 2).setNumberFormat("#,##0_);(#,##0)");
-      }
     }
     
     // Apply formatting - only make the two header rows bold
@@ -107,6 +105,17 @@ function storeFireMissionParameters() {
     if (allValues.length > 0) storageSheet.getRange(dataStartRow, 1, 1, 2).setBackground("#FFE599"); // First data row
     if (allValues.length > 2) storageSheet.getRange(dataStartRow + 2, 1, 1, 2).setBackground("#FFE599"); // Third data row
     if (allValues.length > 3) storageSheet.getRange(dataStartRow + 3, 1, 1, 2).setBackground("#FFE599"); // Fourth data row
+    
+    // Apply number formatting to rows 3, 4, 5 relative to data start (column B) if they contain numbers
+    if (allValues.length > 0 && typeof allValues[0][1] === 'number' && !isNaN(allValues[0][1])) {
+      storageSheet.getRange(dataStartRow, 2).setNumberFormat("#,##0_);(#,##0)"); // First data row
+    }
+    if (allValues.length > 1 && typeof allValues[1][1] === 'number' && !isNaN(allValues[1][1])) {
+      storageSheet.getRange(dataStartRow + 1, 2).setNumberFormat("#,##0_);(#,##0)"); // Second data row
+    }
+    if (allValues.length > 2 && typeof allValues[2][1] === 'number' && !isNaN(allValues[2][1])) {
+      storageSheet.getRange(dataStartRow + 2, 2).setNumberFormat("#,##0_);(#,##0)"); // Third data row
+    }
   }
 }
 
