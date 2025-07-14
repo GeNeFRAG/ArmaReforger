@@ -117,6 +117,9 @@ function storeFireMissionParameters() {
       storageSheet.getRange(dataStartRow + 2, 2).setNumberFormat("#,##0_);(#,##0)"); // Third data row
     }
   }
+  
+  // Update dropdown after storing mission
+  updateFireMissionDropdown();
 }
 
 function clearFormattingIfEmpty() {
@@ -138,15 +141,213 @@ function addEmptyRowBetweenMissions(storageSheet) {
 function clearStorageSheet() {
   var storageSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Storage");
   storageSheet.clear();
+  
+  // Update dropdown after clearing storage
+  updateFireMissionDropdown();
+}
+
+function loadFireMissionParameters() {
+  var storageSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Storage");
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  
+  if (storageSheet.getLastRow() === 0) {
+    SpreadsheetApp.getUi().alert('No stored fire missions found.');
+    return;
+  }
+  
+  // Get all missions with their names and positions
+  var missions = [];
+  var currentRow = 1;
+  
+  while (currentRow <= storageSheet.getLastRow()) {
+    var cellValue = storageSheet.getRange(currentRow, 1).getValue();
+    
+    // Check if this is a mission header (contains date and mission name)
+    if (cellValue && cellValue.toString().includes(' - ')) {
+      var missionNameFull = cellValue.toString();
+      var missionName = missionNameFull.split(' - ')[1]; // Extract mission name after date
+      
+      // Find the data for this mission (should be 6 rows starting from currentRow + 2)
+      if (currentRow + 2 <= storageSheet.getLastRow()) {
+        var missionData = {
+          name: missionName,
+          startRow: currentRow + 2, // Data starts after header row
+          fullHeader: missionNameFull
+        };
+        missions.push(missionData);
+      }
+    }
+    currentRow++;
+  }
+  
+  if (missions.length === 0) {
+    SpreadsheetApp.getUi().alert('No valid fire missions found.');
+    return;
+  }
+  
+  // Create a list of mission names for user selection
+  var missionNames = missions.map(function(mission) {
+    return mission.fullHeader;
+  });
+  
+  // Show selection dialog
+  var ui = SpreadsheetApp.getUi();
+  var response = ui.showSelectionDialog('Select Fire Mission to Load', 
+                                        'Choose a fire mission to load:', 
+                                        missionNames);
+  
+  if (response.getSelectedButton() !== ui.Button.OK) {
+    return; // User cancelled
+  }
+  
+  var selectedIndex = missionNames.indexOf(response.getSelectedItem());
+  if (selectedIndex === -1) {
+    ui.alert('Invalid selection.');
+    return;
+  }
+  
+  var selectedMission = missions[selectedIndex];
+  
+  // Load the mission name to B4
+  sheet.getRange("B4").setValue(selectedMission.name);
+  
+  // Load the second range data (A5:B10) - which corresponds to rows 7-12 in storage
+  // The storage structure is: Header, "Fire Solution/Value", then 4 rows from A18:B21, then 6 rows from A5:B10
+  var dataStartRow = selectedMission.startRow + 4; // Skip the first 4 rows (A18:B21 data)
+  
+  if (dataStartRow + 5 <= storageSheet.getLastRow()) {
+    var loadData = storageSheet.getRange(dataStartRow, 1, 6, 2).getValues();
+    sheet.getRange("A5:B10").setValues(loadData);
+    
+    ui.alert('Fire mission "' + selectedMission.name + '" loaded successfully.');
+    
+    // Update dropdown after loading mission
+    updateFireMissionDropdown();
+  } else {
+    ui.alert('Error: Incomplete data for selected mission.');
+  }
+}
+
+function updateFireMissionDropdown() {
+  var storageSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Storage");
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var dropdownCell = sheet.getRange("A13"); // Cell for the dropdown
+  
+  if (storageSheet.getLastRow() === 0) {
+    // Clear dropdown if no missions
+    dropdownCell.clearDataValidations();
+    dropdownCell.setValue("No missions stored");
+    return;
+  }
+  
+  // Get all missions
+  var missions = [];
+  var currentRow = 1;
+  
+  while (currentRow <= storageSheet.getLastRow()) {
+    var cellValue = storageSheet.getRange(currentRow, 1).getValue();
+    
+    // Check if this is a mission header (contains date and mission name)
+    if (cellValue && cellValue.toString().includes(' - ')) {
+      var missionNameFull = cellValue.toString();
+      var missionName = missionNameFull.split(' - ')[1]; // Extract mission name after date
+      
+      if (currentRow + 2 <= storageSheet.getLastRow()) {
+        missions.push(missionNameFull);
+      }
+    }
+    currentRow++;
+  }
+  
+  if (missions.length === 0) {
+    dropdownCell.clearDataValidations();
+    dropdownCell.setValue("No valid missions");
+    return;
+  }
+  
+  // Add "Select Mission..." as first option
+  var dropdownOptions = ["Select Mission..."].concat(missions);
+  
+  // Create data validation rule for dropdown
+  var rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(dropdownOptions, true)
+    .setAllowInvalid(false)
+    .setHelpText("Select a fire mission to load")
+    .build();
+  
+  dropdownCell.setDataValidation(rule);
+  dropdownCell.setValue("Select Mission...");
+}
+
+function loadSelectedFireMission(selectedMission) {
+  var storageSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Storage");
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  
+  if (!selectedMission || selectedMission === "Select Mission..." || selectedMission === "No missions stored" || selectedMission === "No valid missions") {
+    return;
+  }
+  
+  // Find the mission in storage
+  var missions = [];
+  var currentRow = 1;
+  
+  while (currentRow <= storageSheet.getLastRow()) {
+    var cellValue = storageSheet.getRange(currentRow, 1).getValue();
+    
+    if (cellValue && cellValue.toString().includes(' - ')) {
+      var missionNameFull = cellValue.toString();
+      var missionName = missionNameFull.split(' - ')[1];
+      
+      if (currentRow + 2 <= storageSheet.getLastRow()) {
+        var missionData = {
+          name: missionName,
+          startRow: currentRow + 2,
+          fullHeader: missionNameFull
+        };
+        missions.push(missionData);
+      }
+    }
+    currentRow++;
+  }
+  
+  // Find the selected mission
+  var selectedMissionData = missions.find(function(mission) {
+    return mission.fullHeader === selectedMission;
+  });
+  
+  if (!selectedMissionData) {
+    SpreadsheetApp.getUi().alert('Mission not found.');
+    return;
+  }
+  
+  // Load the mission name to B4
+  sheet.getRange("B4").setValue(selectedMissionData.name);
+  
+  // Load the second range data (A5:B10)
+  var dataStartRow = selectedMissionData.startRow + 4; // Skip the first 4 rows (A18:B21 data)
+  
+  if (dataStartRow + 5 <= storageSheet.getLastRow()) {
+    var loadData = storageSheet.getRange(dataStartRow, 1, 6, 2).getValues();
+    sheet.getRange("A5:B10").setValues(loadData);
+    
+    // Reset dropdown to "Select Mission..."
+    sheet.getRange("D4").setValue("Select Mission...");
+  } else {
+    SpreadsheetApp.getUi().alert('Error: Incomplete data for selected mission.');
+  }
 }
 
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   ui.createMenu('Fire Mission')
       .addItem('📋 Store Fire Solution', 'storeFireMissionParameters')
+      .addItem('📁 Load Fire Solution', 'loadFireMissionParameters')
       .addSeparator()
       .addItem('🗑️ Clear Fire Solutions', 'clearStorageSheet')
       .addToUi();
+  
+  // Initialize the dropdown on open
+  updateFireMissionDropdown();
 }
 
 function counter() {
@@ -161,18 +362,14 @@ function onEdit(e) {
   var sheetName = activeCell.getSheet().getName();
   var activeValue = activeCell.getValue();
   
+  // Handle dropdown selection in D4
+  if (activeCell.getA1Notation() === "A13" && typeof activeValue === 'string') {
+    loadSelectedFireMission(activeValue);
+    return;
+  }
+  
   // Test triggers for all functions
   if (activeValue === true) {
-    // if (activeCell.getA1Notation() === "A11") {
-    //   counter();
-    //   activeCell.setValue(false); // Uncheck the checkbox after execution
-    // }
-    
-    // if (activeCell.getA1Notation() === "A12") {
-    //   counter();
-    //   activeCell.setValue(false); // Uncheck the checkbox after execution
-    // }
-    
     if (activeCell.getA1Notation() === "A11") {
       storeFireMissionParameters();
       activeCell.setValue(false); // Uncheck the checkbox after execution
@@ -180,6 +377,11 @@ function onEdit(e) {
     
     if (activeCell.getA1Notation() === "A12") {
       clearStorageSheet();
+      activeCell.setValue(false); // Uncheck the checkbox after execution
+    }
+    
+    if (activeCell.getA1Notation() === "A13") {
+      loadFireMissionParameters();
       activeCell.setValue(false); // Uncheck the checkbox after execution
     }
   }
