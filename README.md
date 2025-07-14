@@ -31,9 +31,23 @@ ArmaReforger/
 ## Usage
 
 **Mod Management**:
+
+Extract mod info from Steam Workshop (recursively includes dependencies):
 ```bash
-python modlist_to_json.py input.txt output.json --remove-version
-python extract_mods_workshop.py [mod_id]
+python extract_mods_workshop.py <mod_id>
+# Creates mods.json with mod details and all dependencies
+```
+
+Convert server mod list to JSON format:
+```bash
+python modlist_to_json.py input.txt output.json [--remove-version]
+# --remove-version: Omits version field from JSON output
+```
+
+Compare mod lists between server.txt and JSON:
+```bash
+python modlist_to_json.py server.txt diff.json --compare existing.json
+# Creates diff showing added/removed mods between files
 ```
 
 **Google Apps Script**: Import `Arma Reforger Mortar Calc.ods` to Google Sheets, then copy `Fire_Solution_Mgmt.gs` to Google Apps Script and configure cell references
