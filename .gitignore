@@ -2,3 +2,7 @@ server.txt
 out.json
 .DS_Store
 **/.DS_Store
+*.csv
+out/
+comparison_results/
+__pycache__/     
