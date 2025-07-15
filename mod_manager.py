@@ -140,55 +140,6 @@ class FileIOHandler:
                     row['Source File'] = mod.source_file
                 writer.writerow(row)
 
-    def read_tsv_file(self, input_file: Path) -> List[ModInfo]:
-        """Read TSV file and return list of ModInfo objects."""
-        mods = []
-
-        with open(input_file, 'r', encoding='utf-8') as f:
-            for line_num, line in enumerate(f, 1):
-                line = line.strip()
-                if not line:
-                    continue
-
-                parts = line.split('\t')
-                if len(parts) >= 3:
-                    mod_name, version, mod_id = parts[0], parts[1], parts[2]
-                    mods.append(ModInfo(mod_name, version, mod_id,
-                                        input_file.name))
-                else:
-                    print(f"Warning: Skipping malformed line {line_num}:"
-                          f" {line}")
-
-        return mods
-
-    def read_csv_file(self, input_file: Path) -> List[ModInfo]:
-        """Read CSV file and return list of ModInfo objects."""
-        mods = []
-
-        with open(input_file, 'r', encoding='utf-8', newline='') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                mod_name = row['Mod Name'].strip()
-                version = row['Version'].strip()
-                mod_id = row['Mod ID'].strip()
-                # Size might not exist in older files
-                size = row.get('Size', '').strip()
-                size = (DataFormatter.normalize_size_format(size)
-                        if size else "")
-                mods.append(ModInfo(mod_name, version, mod_id,
-                                    input_file.name, size))
-
-        return mods
-
-    def read_mod_file(self, input_file: Path) -> List[ModInfo]:
-        """Read mod file (TSV or CSV) and return list of ModInfo objects."""
-        if input_file.suffix.lower() == '.tsv':
-            return self.read_tsv_file(input_file)
-        if input_file.suffix.lower() == '.csv':
-            return self.read_csv_file(input_file)
-        raise ValueError(f"Unsupported file format: {input_file.suffix}")
-
-
 # =============================================================================
 # DATA FORMATTING AND UTILITY CLASSES
 # =============================================================================
