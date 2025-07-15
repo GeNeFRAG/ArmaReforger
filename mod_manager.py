@@ -191,7 +191,7 @@ class DataFormatter:
 
             if value == int(value):
                 return f"{int(value)} {unit}"
-            
+
             return f"{value:.2f} {unit}".rstrip('0').rstrip('.')
 
         size_patterns = [
@@ -207,7 +207,7 @@ class DataFormatter:
 
                 if value == int(value):
                     return f"{int(value)} {unit}"
-                
+
                 return f"{value:.2f} {unit}".rstrip('0').rstrip('.')
 
         return size_str
@@ -221,22 +221,22 @@ class DataFormatter:
     def generate_timestamped_filename(prefix: str, suffix: str = "", extension: str = "csv") -> str:
         """
         Generate a consistent timestamped filename.
-        
+
         Args:
             prefix: Base name for the file
             suffix: Optional suffix to add before timestamp
             extension: File extension (default: csv)
-            
+
         Returns:
             Filename in format: {prefix}_{suffix}_{timestamp}.{extension}
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
+
         # Sanitize prefix
         safe_prefix = DataFormatter.create_safe_filename(prefix)
         if not safe_prefix:
             safe_prefix = "output"
-            
+
         # Build filename parts
         parts = [safe_prefix]
         if suffix:
@@ -244,7 +244,7 @@ class DataFormatter:
             if safe_suffix:
                 parts.append(safe_suffix)
         parts.append(timestamp)
-        
+
         return f"{'_'.join(parts)}.{extension}"
 
     @staticmethod
@@ -259,12 +259,12 @@ class DataFormatter:
     def generate_comparison_filename(file_type: str, source1_name: str = "", source2_name: str = "") -> str:
         """
         Generate consistent filename for comparison files.
-        
+
         Args:
             file_type: Type of file ('common', 'unique_to', etc.)
             source1_name: Optional first source name
             source2_name: Optional second source name
-            
+
         Returns:
             Timestamped filename
         """
@@ -281,7 +281,7 @@ class DataFormatter:
             prefix = f"comp_unique_to_{safe_name}"
         else:
             prefix = f"comp_{file_type}"
-            
+
         return DataFormatter.generate_timestamped_filename(prefix)
 
     @staticmethod
@@ -838,7 +838,7 @@ class ReportGenerator:
 
     def print_comparison_results(self, source1_name: str, source2_name: str,
                                 comparison_data: ComparisonData,
-                                mods1_dict: Dict[str, ModInfo], 
+                                mods1_dict: Dict[str, ModInfo],
                                 mods2_dict: Dict[str, ModInfo]) -> None:
         """Print detailed comparison results."""
 
@@ -989,11 +989,11 @@ class ReportGenerator:
         # Common mods file with timestamped filename including both server names
         common_filename = DataFormatter.generate_comparison_filename("common", source1_name, source2_name)
         common_mods_file = output_dir / common_filename
-        comparison_data = ComparisonData(identical_mods, version_diff_mods, 
-                                       id_diff_mods, unique_to_source1, 
+        comparison_data = ComparisonData(identical_mods, version_diff_mods,
+                                       id_diff_mods, unique_to_source1,
                                        unique_to_source2)
         common_mods_data, fieldnames = comparison.build_common_mods_data(
-            source1_name, source2_name, comparison_data, 
+            source1_name, source2_name, comparison_data,
             include_size_columns=include_size_columns)
 
         # Write common mods file
@@ -1071,7 +1071,7 @@ class ModListManager:
         # Analyze differences
         identical_mods, version_diff_mods, id_diff_mods, unique_to_source1, unique_to_source2 = \
             self.mod_comparison.analyze_mod_differences(mods1_dict, mods2_dict)
-        
+
         comparison_data = ComparisonData(identical_mods, version_diff_mods,
                                        id_diff_mods, unique_to_source1,
                                        unique_to_source2)
@@ -1204,11 +1204,11 @@ Output files include timestamps for organization:
         # Optionally save individual server mod lists
         if args.save_files:
             print("📥 Saving individual server mod lists...")
-            
+
             # Use the output directory (now has a default of 'out/')
             output_dir_for_files = args.output_dir
             output_dir_for_files.mkdir(exist_ok=True)
-            
+
             server1_filename = DataFormatter.generate_server_filename(server1_name, args.server1_id)
             server1_file = output_dir_for_files / server1_filename
             manager.file_io.write_csv_file(server1_file, mods1, include_source=True)
