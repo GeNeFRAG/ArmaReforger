@@ -12,7 +12,7 @@ Google Apps Script for managing artillery fire mission parameters (requires `Arm
 
 ### Mod Management Tools
 - **`extract_mods_workshop.py`**: Extracts mod metadata and dependencies from Steam Workshop
-- **`modlist_to_json.py`**: Creates ready-to-go Arma Reforger server configurations from mod lists  
+- **`deep_clone_server.py`**: Deep clones Arma Reforger server configurations from multiple sources  
 - **`mod_manager.py`**: BattleMetrics server mod comparison tool with workshop enrichment
 
 ### Mortar Calculator (`Arma Reforger Mortar Calc.ods`)
@@ -24,7 +24,7 @@ OpenDocument Spreadsheet for artillery fire solution calculations (works with `F
 ArmaReforger/
 ├── Fire_Solution_Mgmt.gs           # Google Apps Script for fire solutions
 ├── extract_mods_workshop.py        # Steam Workshop mod extractor
-├── modlist_to_json.py              # Arma Reforger server config generator
+├── deep_clone_server.py            # Arma Reforger server deep cloning tool
 ├── mod_manager.py                  # BattleMetrics server comparison tool
 ├── Arma Reforger Mortar Calc.ods   # Mortar calculation spreadsheet
 └── README.md                       # This documentation
@@ -46,21 +46,27 @@ python extract_mods_workshop.py 123456789 --output custom_mods.json
 python extract_mods_workshop.py 123456789 --verbose
 ```
 
-**Arma Reforger Server Configuration (`modlist_to_json.py`)**:
+**Arma Reforger Server Deep Cloning (`deep_clone_server.py`)**:
 
-Generate ready-to-go server configurations for Arma Reforger custom servers:
+Deep clone and replicate Arma Reforger server configurations from multiple sources:
 ```bash
-# Create server config from mod list
-python modlist_to_json.py server_mods.txt server_config.json
+# Clone server config from mod list file
+python deep_clone_server.py server_mods.txt server_config.json
+
+# Clone server config directly from BattleMetrics server
+python deep_clone_server.py --battlemetrics 32653210 server_config.json
 
 # Generate config without version dependencies for compatibility
-python modlist_to_json.py server_mods.txt server_config.json --remove-version
+python deep_clone_server.py server_mods.txt server_config.json --remove-version
 
 # Compare current server config with new mod list
-python modlist_to_json.py new_mods.txt updated_config.json --compare current_config.json
+python deep_clone_server.py new_mods.txt updated_config.json --compare current_config.json
 
-# Generate production-ready config with formatting
-python modlist_to_json.py mods.txt production_config.json --pretty-print
+# Compare BattleMetrics server with existing JSON config
+python deep_clone_server.py --battlemetrics 32653210 diff_output.json --compare current_config.json
+
+# Use custom BattleMetrics API endpoint
+python deep_clone_server.py --battlemetrics --bmetrics-base-url https://custom.api.com 32653210 server_config.json
 ```
 
 **Comprehensive Mod List Management (`mod_manager.py`)**:
@@ -186,24 +192,31 @@ The `extract_mods_workshop.py` script provides comprehensive Steam Workshop mod 
 - Mod compatibility analysis for server migrations
 - Automated mod collection building
 
-### Arma Reforger Server Configuration Generator Features
+### Arma Reforger Server Deep Cloning Features
 
-The `modlist_to_json.py` script creates production-ready server configurations for Arma Reforger custom servers:
+The `deep_clone_server.py` script provides advanced server replication capabilities for Arma Reforger custom servers:
 
-**Server Configuration Generation**:
-- Direct conversion from mod lists to Arma Reforger server JSON format
+**Multiple Input Sources**:
+- Deep clone from server.txt mod lists to Arma Reforger server JSON format
+- BattleMetrics server integration for live server configuration cloning
 - Automatic mod ID and version parsing for server compatibility
 - Ready-to-deploy configuration files for custom servers
-- Support for standard Arma Reforger server.txt input format
 
-**Configuration Management**:
+**BattleMetrics Deep Cloning**:
+- Direct server configuration replication using server IDs
+- Real-time mod data retrieval from live servers
+- Native BattleMetrics comparison support (no temporary files needed)
+- Configurable BattleMetrics API endpoints
+- Seamless integration with existing BattleMetrics workflows
+
+**Configuration Cloning & Management**:
 - Version-flexible configs (with/without version constraints)
 - Production and development configuration profiles
 - Automatic mod dependency ordering and validation
 - Server-ready JSON structure generation
 
-**Server Deployment Features**:
-- One-click configuration deployment preparation
+**Server Replication Features**:
+- One-click server configuration cloning and deployment
 - Backup and rollback configuration management
 - Configuration versioning and change tracking
 - Integration with server management workflows
@@ -214,7 +227,7 @@ The `modlist_to_json.py` script creates production-ready server configurations f
 - Duplicate mod detection and cleanup
 - Invalid entry identification and error reporting
 
-**Configuration Comparison and Updates**:
+**Configuration Comparison and Synchronization**:
 - Server configuration diff generation for updates
 - Added/removed mod tracking between configurations
 - Version change analysis for server migrations
@@ -226,7 +239,7 @@ The `modlist_to_json.py` script creates production-ready server configurations f
 - Multiple formatting options (compact/readable)
 - Direct integration with Arma Reforger dedicated servers
 
-**Advanced Server Management**:
+**Advanced Server Cloning**:
 - Multi-server configuration synchronization
 - Template-based configuration generation
 - Automated server update preparation
@@ -234,7 +247,7 @@ The `modlist_to_json.py` script creates production-ready server configurations f
 
 **Use Cases**:
 - Custom Arma Reforger server setup and deployment
-- Server mod list management and updates
+- Server configuration cloning and replication
 - Production server configuration maintenance
 - Server migration and backup preparation
 - Automated server deployment pipelines
