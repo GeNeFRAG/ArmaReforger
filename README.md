@@ -12,7 +12,7 @@ Google Apps Script for managing artillery fire mission parameters (requires `Arm
 
 ### Mod Management Tools
 - **`extract_mods_workshop.py`**: Extracts mod metadata and dependencies from Steam Workshop
-- **`modlist_to_json.py`**: Converts server.txt mod lists to JSON format  
+- **`modlist_to_json.py`**: Creates ready-to-go Arma Reforger server configurations from mod lists  
 - **`mod_manager.py`**: BattleMetrics server mod comparison tool with workshop enrichment
 
 ### Mortar Calculator (`Arma Reforger Mortar Calc.ods`)
@@ -24,7 +24,7 @@ OpenDocument Spreadsheet for artillery fire solution calculations (works with `F
 ArmaReforger/
 ├── Fire_Solution_Mgmt.gs           # Google Apps Script for fire solutions
 ├── extract_mods_workshop.py        # Steam Workshop mod extractor
-├── modlist_to_json.py              # Mod list converter
+├── modlist_to_json.py              # Arma Reforger server config generator
 ├── mod_manager.py                  # BattleMetrics server comparison tool
 ├── Arma Reforger Mortar Calc.ods   # Mortar calculation spreadsheet
 └── README.md                       # This documentation
@@ -46,21 +46,21 @@ python extract_mods_workshop.py 123456789 --output custom_mods.json
 python extract_mods_workshop.py 123456789 --verbose
 ```
 
-**Server Mod List Conversion (`modlist_to_json.py`)**:
+**Arma Reforger Server Configuration (`modlist_to_json.py`)**:
 
-Convert and compare server mod lists between different formats:
+Generate ready-to-go server configurations for Arma Reforger custom servers:
 ```bash
-# Convert server.txt to JSON format
-python modlist_to_json.py input.txt output.json
+# Create server config from mod list
+python modlist_to_json.py server_mods.txt server_config.json
 
-# Remove version field from JSON output
-python modlist_to_json.py input.txt output.json --remove-version
+# Generate config without version dependencies for compatibility
+python modlist_to_json.py server_mods.txt server_config.json --remove-version
 
-# Compare server.txt against existing JSON and create diff
-python modlist_to_json.py server.txt diff.json --compare existing.json
+# Compare current server config with new mod list
+python modlist_to_json.py new_mods.txt updated_config.json --compare current_config.json
 
-# Convert with custom formatting
-python modlist_to_json.py input.txt output.json --pretty-print
+# Generate production-ready config with formatting
+python modlist_to_json.py mods.txt production_config.json --pretty-print
 ```
 
 **Comprehensive Mod List Management (`mod_manager.py`)**:
@@ -186,57 +186,59 @@ The `extract_mods_workshop.py` script provides comprehensive Steam Workshop mod 
 - Mod compatibility analysis for server migrations
 - Automated mod collection building
 
-### Server Mod List Converter Features
+### Arma Reforger Server Configuration Generator Features
 
-The `modlist_to_json.py` script provides flexible server mod list management and format conversion:
+The `modlist_to_json.py` script creates production-ready server configurations for Arma Reforger custom servers:
 
-**File Format Support**:
-- Server.txt format parsing (standard Arma Reforger format)
-- JSON output with structured data organization
-- Configurable field inclusion/exclusion
-- Multiple input encoding support (UTF-8, ASCII)
+**Server Configuration Generation**:
+- Direct conversion from mod lists to Arma Reforger server JSON format
+- Automatic mod ID and version parsing for server compatibility
+- Ready-to-deploy configuration files for custom servers
+- Support for standard Arma Reforger server.txt input format
 
-**Conversion Features**:
-- Automatic mod ID and version extraction
-- Optional version field removal for compatibility
-- Pretty-print JSON formatting for readability
-- Compact JSON output for production use
-- Custom field mapping and transformation
+**Configuration Management**:
+- Version-flexible configs (with/without version constraints)
+- Production and development configuration profiles
+- Automatic mod dependency ordering and validation
+- Server-ready JSON structure generation
 
-**Comparison Capabilities**:
-- Side-by-side mod list comparison
-- Added/removed mod detection
-- Version change tracking
-- Detailed diff generation with change summaries
-- Conflict identification and resolution suggestions
+**Server Deployment Features**:
+- One-click configuration deployment preparation
+- Backup and rollback configuration management
+- Configuration versioning and change tracking
+- Integration with server management workflows
 
-**Validation and Error Handling**:
-- Input file format validation
-- Malformed mod entry detection and reporting
-- Duplicate mod ID identification
-- Missing dependency warnings
-- Comprehensive error logging with line numbers
+**Validation and Quality Assurance**:
+- Server configuration syntax validation
+- Mod ID format verification and standardization
+- Duplicate mod detection and cleanup
+- Invalid entry identification and error reporting
 
-**Output Options**:
-- Multiple output format support (JSON, CSV, TXT)
-- Configurable field ordering and naming
-- Timestamped output files for version tracking
-- Backup creation for destructive operations
-- Integration with external tools and APIs
+**Configuration Comparison and Updates**:
+- Server configuration diff generation for updates
+- Added/removed mod tracking between configurations
+- Version change analysis for server migrations
+- Rollback preparation and conflict resolution
 
-**Advanced Features**:
-- Batch processing for multiple server files
-- Template-based output generation
-- Custom filtering and sorting options
-- Mod metadata enrichment from external sources
-- Integration with version control systems
+**Production Ready Output**:
+- Arma Reforger server-compatible JSON format
+- Optimized configuration structure for game server parsing
+- Multiple formatting options (compact/readable)
+- Direct integration with Arma Reforger dedicated servers
+
+**Advanced Server Management**:
+- Multi-server configuration synchronization
+- Template-based configuration generation
+- Automated server update preparation
+- Configuration validation against Arma Reforger requirements
 
 **Use Cases**:
-- Server configuration management and versioning
-- Mod list standardization across multiple servers
-- Configuration backup and restoration
-- Server deployment automation
-- Mod list auditing and compliance checking
+- Custom Arma Reforger server setup and deployment
+- Server mod list management and updates
+- Production server configuration maintenance
+- Server migration and backup preparation
+- Automated server deployment pipelines
+- Multi-server farm configuration management
 
 **Google Apps Script**: Import `Arma Reforger Mortar Calc.ods` to Google Sheets, then copy `Fire_Solution_Mgmt.gs` to Google Apps Script and configure cell references
 
