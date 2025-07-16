@@ -32,24 +32,35 @@ ArmaReforger/
 
 ## Usage
 
-**Mod Management**:
+**Steam Workshop Mod Extraction (`extract_mods_workshop.py`)**:
 
-Extract mod info from Steam Workshop (recursively includes dependencies):
+Extract comprehensive mod information from Steam Workshop with dependency resolution:
 ```bash
-python extract_mods_workshop.py <mod_id>
-# Creates mods.json with mod details and all dependencies
+# Extract single mod with all dependencies
+python extract_mods_workshop.py 123456789
+
+# Extract mod with custom output file
+python extract_mods_workshop.py 123456789 --output custom_mods.json
+
+# Verbose output for debugging
+python extract_mods_workshop.py 123456789 --verbose
 ```
 
-Convert server mod list to JSON format:
-```bash
-python modlist_to_json.py input.txt output.json [--remove-version]
-# --remove-version: Omits version field from JSON output
-```
+**Server Mod List Conversion (`modlist_to_json.py`)**:
 
-Compare mod lists between server.txt and JSON:
+Convert and compare server mod lists between different formats:
 ```bash
+# Convert server.txt to JSON format
+python modlist_to_json.py input.txt output.json
+
+# Remove version field from JSON output
+python modlist_to_json.py input.txt output.json --remove-version
+
+# Compare server.txt against existing JSON and create diff
 python modlist_to_json.py server.txt diff.json --compare existing.json
-# Creates diff showing added/removed mods between files
+
+# Convert with custom formatting
+python modlist_to_json.py input.txt output.json --pretty-print
 ```
 
 **Comprehensive Mod List Management (`mod_manager.py`)**:
@@ -129,6 +140,103 @@ This ensures easy identification of comparison context and prevents file conflic
 - Identifying missing or outdated mods between server configurations
 - Generating reports for mod compatibility analysis
 - Server migration planning and mod list auditing
+
+### Steam Workshop Mod Extractor Features
+
+The `extract_mods_workshop.py` script provides comprehensive Steam Workshop mod analysis with dependency tracking:
+
+**Workshop Integration**:
+- Direct Steam Workshop API integration for mod metadata retrieval
+- Automatic parsing of mod pages for detailed information
+- Support for both public and unlisted mods
+- Real-time data fetching with error handling
+
+**Dependency Resolution**:
+- Recursive dependency discovery and analysis
+- Complete dependency tree mapping
+- Circular dependency detection and handling
+- Hierarchical dependency structure preservation
+
+**Mod Information Extracted**:
+- Mod name, description, and author details
+- File size and download statistics
+- Creation and update timestamps
+- Steam Workshop ratings and subscriber counts
+- Dependency relationships and version requirements
+- Tags and category classifications
+
+**Output Features**:
+- Structured JSON output with nested dependency information
+- Human-readable formatting options
+- Configurable output file naming
+- Comprehensive error reporting and logging
+- Progress tracking for large dependency trees
+
+**Advanced Capabilities**:
+- Batch processing support for multiple mod IDs
+- Caching mechanism for improved performance on repeated queries
+- Dependency conflict detection and reporting
+- Mod compatibility analysis across different versions
+- Integration-ready output format for automated tools
+
+**Use Cases**:
+- Mod pack creation and dependency management
+- Server mod list validation and verification
+- Dependency conflict resolution
+- Mod compatibility analysis for server migrations
+- Automated mod collection building
+
+### Server Mod List Converter Features
+
+The `modlist_to_json.py` script provides flexible server mod list management and format conversion:
+
+**File Format Support**:
+- Server.txt format parsing (standard Arma Reforger format)
+- JSON output with structured data organization
+- Configurable field inclusion/exclusion
+- Multiple input encoding support (UTF-8, ASCII)
+
+**Conversion Features**:
+- Automatic mod ID and version extraction
+- Optional version field removal for compatibility
+- Pretty-print JSON formatting for readability
+- Compact JSON output for production use
+- Custom field mapping and transformation
+
+**Comparison Capabilities**:
+- Side-by-side mod list comparison
+- Added/removed mod detection
+- Version change tracking
+- Detailed diff generation with change summaries
+- Conflict identification and resolution suggestions
+
+**Validation and Error Handling**:
+- Input file format validation
+- Malformed mod entry detection and reporting
+- Duplicate mod ID identification
+- Missing dependency warnings
+- Comprehensive error logging with line numbers
+
+**Output Options**:
+- Multiple output format support (JSON, CSV, TXT)
+- Configurable field ordering and naming
+- Timestamped output files for version tracking
+- Backup creation for destructive operations
+- Integration with external tools and APIs
+
+**Advanced Features**:
+- Batch processing for multiple server files
+- Template-based output generation
+- Custom filtering and sorting options
+- Mod metadata enrichment from external sources
+- Integration with version control systems
+
+**Use Cases**:
+- Server configuration management and versioning
+- Mod list standardization across multiple servers
+- Configuration backup and restoration
+- Server deployment automation
+- Mod list auditing and compliance checking
 
 **Google Apps Script**: Import `Arma Reforger Mortar Calc.ods` to Google Sheets, then copy `Fire_Solution_Mgmt.gs` to Google Apps Script and configure cell references
 
