@@ -22,9 +22,6 @@ Usage:
     
     # Compare configurations
     python deep_clone_server.py --battlemetrics 32653210 diff.json --compare existing_config.json
-
-Author: Generated with GitHub Copilot
-License: MIT
 """
 
 import json
