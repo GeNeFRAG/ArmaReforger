@@ -62,11 +62,11 @@ python mod_manager.py 32653210 12345678
 # Compare servers with workshop enrichment (adds mod sizes):
 python mod_manager.py --enrich 32653210 12345678
 
-# Compare servers and save individual server files:
-python mod_manager.py --save-files 32653210 12345678
+# Compare with enrichment and specify output directory:
+python mod_manager.py --enrich --output-dir comparison_results 32653210 12345678
 
-# Compare with enrichment and save all output files:
-python mod_manager.py --enrich --save-files --output-dir comparison_results 32653210 12345678
+# Use custom API endpoints:
+python mod_manager.py --bmetrics-base-url https://api.battlemetrics.com --workshop-base-url https://reforger.armaplatform.com/workshop 32653210 12345678
 ```
 
 Advanced options:
@@ -74,8 +74,8 @@ Advanced options:
 # Verbose output for debugging
 python mod_manager.py --verbose 32653210 12345678
 
-# Use custom BattleMetrics URL
-python mod_manager.py --base-url https://www.battlemetrics.com/servers/reforger 32653210 12345678
+# All files are automatically saved to output directory (default: out/)
+python mod_manager.py --output-dir my_comparison_results 32653210 12345678
 ```
 
 ### Mod Manager Features
@@ -83,25 +83,28 @@ python mod_manager.py --base-url https://www.battlemetrics.com/servers/reforger 
 The `mod_manager.py` script provides comprehensive mod list management capabilities for Arma Reforger servers:
 
 **BattleMetrics Integration**:
-- Fetch mod lists directly from BattleMetrics server pages using server IDs
+- Fetch mod lists directly from BattleMetrics servers using server IDs only
 - Automatic server name detection and sanitization
-- Support for custom BattleMetrics URLs
+- Efficient API-based data retrieval without URL construction overhead
+- Support for custom BattleMetrics API endpoints
 
 **Workshop Enrichment**:
 - Optional enrichment with Steam Workshop data (mod sizes, dependencies)
-- Caching system for efficient repeated operations
+- Intelligent caching system for efficient repeated operations
 - Size information in human-readable format with byte conversion
+- Support for custom workshop URLs
 
 **Server Comparison Features**:
 - Compare mod lists between two BattleMetrics servers
-- Categorize mods as: Identical, Version Differences, ID Differences, Unique to each server
+- Categorize mods as: Identical, Version Differences, Unique to each server
 - Generate detailed analysis reports with statistics
 - Support for enriched comparisons with size information
+- Streamlined processing with single-pass file generation
 
-**Output Files Generated**:
+**Output Files Generated** (Always Saved):
+- `srv_{servername}_{serverid}_{timestamp}.csv`: Individual server mod lists with enrichment data
 - `comp_common_{server1}_vs_{server2}_{timestamp}.csv`: All mods present in both servers with status indicators and version comparison
 - `comp_unique_to_{servername}_{timestamp}.csv`: Mods exclusive to each server  
-- `srv_{servername}_{serverid}_{timestamp}.csv`: Individual server mod lists (when using `--save-files`)
 - All files include timestamps (YYYYMMDD_HHMMSS) for organization and avoiding conflicts
 - Detailed console output with formatted comparison results and size totals
 
@@ -112,6 +115,13 @@ All output files use consistent timestamped naming:
 - Unique mods: `comp_unique_to_{name}_{timestamp}.csv`
 
 This ensures easy identification of comparison context and prevents file conflicts when running multiple comparisons.
+
+**Recent Improvements**:
+- Simplified command-line interface with automatic file saving
+- Removed redundant URL construction (server IDs used directly)
+- Enhanced efficiency with optimized comparison workflow
+- Cleaner parameter naming (`--bmetrics-base-url` for API endpoints)
+- Conditional enriched output display based on `--enrich` flag
 
 **Use Cases**:
 - Server mod synchronization and management

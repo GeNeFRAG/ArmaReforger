@@ -59,7 +59,6 @@ class ComparisonData:
     """Data structure for mod comparison results."""
     identical_mods: List[ModInfo]
     version_diff_mods: List[Tuple[ModInfo, ModInfo]]
-    id_diff_mods: List[Tuple[ModInfo, ModInfo]]
     unique_to_source1: List[ModInfo]
     unique_to_source2: List[ModInfo]
 
@@ -386,8 +385,8 @@ class HTTPClient:
                         with open(debug_file, 'w', encoding='utf-8') as f:
                             f.write(response.text)
                         self.log(f"Raw response saved to {debug_file}")
-                    except:
-                        pass
+                    except (OSError, IOError) as file_error:
+                        self.log(f"Failed to save debug file: {file_error}")
                     return False, {}
             else:
                 self.log("Successfully retrieved HTML response")
@@ -406,26 +405,17 @@ class BattleMetricsAPI:
     """Handles BattleMetrics API operations."""
 
     # Compiled regex patterns for better performance
-    SERVER_ID_PATTERN = re.compile(r'/servers/reforger/(\d+)')
     BRACKET_PATTERN = re.compile(r'^\[([^\]]+)\]\s*(.*)')
     SERVER_SUFFIX_PATTERN = re.compile(r'\s*[-/|]\s*.*$')
     SERVER_PREFIX_PATTERN = re.compile(r'^\[.*?\]\s*')
 
-    def __init__(self, http_client: HTTPClient):
+    def __init__(self, http_client: HTTPClient, api_base_url: str = "https://api.battlemetrics.com"):
         self.http_client = http_client
-
-    def extract_server_id(self, url: str) -> str:
-        """Extract server ID from BattleMetrics URL."""
-        server_id_match = self.SERVER_ID_PATTERN.search(url)
-        if not server_id_match:
-            print("Error: Could not extract server ID from URL")
-            print("Expected format: https://www.battlemetrics.com/servers/reforger/[SERVER_ID]")
-            return ""
-        return server_id_match.group(1)
+        self.api_base_url = api_base_url.rstrip('/')  # Remove trailing slash if present
 
     def make_api_request(self, server_id: str) -> dict:
         """Make API request to BattleMetrics and return JSON response."""
-        api_url = f"https://api.battlemetrics.com/servers/{server_id}"
+        api_url = f"{self.api_base_url}/servers/{server_id}"
         success, data = self.http_client.make_http_request(api_url, expect_json=True)
         return data if success else {}
 
@@ -513,16 +503,11 @@ class BattleMetricsAPI:
 
         return name if name else "Unknown_Server"
 
-    def fetch_mods(self, url: str) -> Tuple[List[ModInfo], str]:
-        """Fetch mod data directly from BattleMetrics server page using the API."""
-        self.http_client.log(f"Fetching mod data from: {url}")
+    def fetch_mods_by_id(self, server_id: str) -> Tuple[List[ModInfo], str]:
+        """Fetch mod data directly using server ID."""
+        self.http_client.log(f"Fetching mod data for server ID: {server_id}")
 
         try:
-            # Extract server ID from URL
-            server_id = self.extract_server_id(url)
-            if not server_id:
-                return [], ""
-
             # Make API request
             api_data = self.make_api_request(server_id)
             if not api_data:
@@ -560,8 +545,9 @@ class BattleMetricsAPI:
 class WorkshopEnrichment:
     """Handles Steam Workshop data enrichment."""
 
-    def __init__(self, http_client: HTTPClient):
+    def __init__(self, http_client: HTTPClient, workshop_base_url: str = "https://reforger.armaplatform.com/workshop"):
         self.http_client = http_client
+        self.workshop_base_url = workshop_base_url.rstrip('/')  # Remove trailing slash if present
         self.workshop_cache = {}  # mod_id -> ModInfo
         self.workshop_fetch_attempts = set()  # mod_ids that we've attempted
 
@@ -598,15 +584,6 @@ class WorkshopEnrichment:
 
         return ""
 
-    def extract_workshop_dependencies(self, html: str) -> List[str]:
-        """Extract mod dependencies from workshop HTML."""
-        soup = BeautifulSoup(html, 'html.parser')
-        dependencies_section = soup.find("section", {"class": "py-8"})
-        if not dependencies_section:
-            return []
-        dependency_links = dependencies_section.find_all("a", {"class": "bg-black/75"})
-        return [link["href"].split("/")[-1].split("-")[0] for link in dependency_links if link.get("href")]
-
     def fetch_workshop_mod_details(self, mod_id: str) -> List[ModInfo]:
         """Fetch mod details from Arma Reforger workshop with caching."""
         if mod_id in self.workshop_cache:
@@ -624,7 +601,7 @@ class WorkshopEnrichment:
             self.http_client.log(f"Previously failed to fetch mod {mod_id}, skipping")
             return []
 
-        url = f"https://reforger.armaplatform.com/workshop/{mod_id}"
+        url = f"{self.workshop_base_url}/{mod_id}"
         self.workshop_fetch_attempts.add(mod_id)
 
         success, html = self.http_client.make_http_request(url, expect_json=False, timeout=10)
@@ -717,12 +694,12 @@ class ModComparison:
         self.file_io = file_io
 
     def analyze_mod_differences(self, mods1_dict: Dict[str, ModInfo], mods2_dict: Dict[str, ModInfo]) -> Tuple[
-            List[ModInfo], List[Tuple[ModInfo, ModInfo]], List[Tuple[ModInfo, ModInfo]], Set[str], Set[str]]:
+            List[ModInfo], List[Tuple[ModInfo, ModInfo]], Set[str], Set[str]]:
         """
         Analyze differences between two mod dictionaries.
 
         Returns:
-            Tuple of (identical_mods, version_diff_mods, id_diff_mods, unique_to_source1, unique_to_source2)
+            Tuple of (identical_mods, version_diff_mods, unique_to_source1, unique_to_source2)
         """
         # Find different categories of mods
         common_mod_names = set(mods1_dict.keys()) & set(mods2_dict.keys())
@@ -732,7 +709,6 @@ class ModComparison:
         # Analyze common mods
         identical_mods = []
         version_diff_mods = []
-        id_diff_mods = []
 
         for mod_name in sorted(common_mod_names):
             mod1 = mods1_dict[mod_name]
@@ -743,12 +719,11 @@ class ModComparison:
 
             if version_match and id_match:
                 identical_mods.append(mod1)
-            elif not version_match:
+            else:
+                # Any difference (version or ID) goes into version_diff_mods
                 version_diff_mods.append((mod1, mod2))
-            elif not id_match:
-                id_diff_mods.append((mod1, mod2))
 
-        return identical_mods, version_diff_mods, id_diff_mods, unique_to_source1, unique_to_source2
+        return identical_mods, version_diff_mods, unique_to_source1, unique_to_source2
 
     def build_common_mods_data(self, source1_name: str, source2_name: str,
                                comparison_data: ComparisonData,
@@ -807,22 +782,6 @@ class ModComparison:
                 row[source2_size_column] = mod2.size
             common_mods_data.append(row)
 
-        # Add ID diff mods
-        for mod1, mod2 in comparison_data.id_diff_mods:
-            row = {
-                'Mod Name': mod1.name,
-                'Status': 'ID Diff',
-                'Version': mod1.version,
-                'Mod ID': f"{mod1.mod_id} / {mod2.mod_id}",
-                'Size': mod1.size or mod2.size,
-                source1_column: mod1.version,
-                source2_column: mod2.version
-            }
-            if include_size_columns:
-                row[source1_size_column] = mod1.size
-                row[source2_size_column] = mod2.size
-            common_mods_data.append(row)
-
         return common_mods_data, fieldnames
 
 
@@ -865,34 +824,20 @@ class ReportGenerator:
             print("  None")
         print()
 
-        print("MODS WITH SAME VERSION BUT DIFFERENT MOD IDs:")
-        print("-" * 50)
-        if comparison_data.id_diff_mods:
-            for mod1, mod2 in comparison_data.id_diff_mods:
-                print(f"  {mod1.name:<40} | v{mod1.version}")
-                print(f"    {source1_name:<30}: {mod1.mod_id}")
-                print(f"    {source2_name:<30}: {mod2.mod_id}")
-                print()
-        else:
-            print("  None")
-        print()
-
         # Summary statistics
         print("SUMMARY:")
         print("-" * 20)
         print(f"Total mods in {source1_name}: {len(mods1_dict)}")
         print(f"Total mods in {source2_name}: {len(mods2_dict)}")
-        print(f"Common mods: {len(comparison_data.identical_mods) + len(comparison_data.version_diff_mods) + len(comparison_data.id_diff_mods)}")
+        print(f"Common mods: {len(comparison_data.identical_mods) + len(comparison_data.version_diff_mods)}")
         print(f"  - Identical (same version & ID): {len(comparison_data.identical_mods)}")
         print(f"  - Different versions: {len(comparison_data.version_diff_mods)}")
-        print(f"  - Same version, different ID: {len(comparison_data.id_diff_mods)}")
         print(f"Unique to {source1_name}: {len(comparison_data.unique_to_source1)}")
         print(f"Unique to {source2_name}: {len(comparison_data.unique_to_source2)}")
         print()
 
     def print_enriched_comparison_results(self, source1_name: str, source2_name: str, identical_mods: List[ModInfo],
                                          version_diff_mods: List[Tuple[ModInfo, ModInfo]],
-                                         id_diff_mods: List[Tuple[ModInfo, ModInfo]],
                                          unique_to_source1: Set[str], unique_to_source2: Set[str],
                                          mods1_dict: Dict[str, ModInfo], mods2_dict: Dict[str, ModInfo]) -> None:
         """Print detailed comparison results with size information."""
@@ -923,27 +868,13 @@ class ReportGenerator:
             print("  None")
         print()
 
-        print("MODS WITH SAME VERSION BUT DIFFERENT MOD IDs:")
-        print("-" * 50)
-        if id_diff_mods:
-            for mod1, mod2 in id_diff_mods:
-                size_info = f" | {mod1.size}" if mod1.size else ""
-                print(f"  {mod1.name:<40} | v{mod1.version}{size_info}")
-                print(f"    {source1_name:<30}: {mod1.mod_id}")
-                print(f"    {source2_name:<30}: {mod2.mod_id}")
-                print()
-        else:
-            print("  None")
-        print()
-
         print("SUMMARY:")
         print("-" * 20)
         print(f"Total mods in {source1_name}: {len(mods1_dict)}")
         print(f"Total mods in {source2_name}: {len(mods2_dict)}")
-        print(f"Common mods: {len(identical_mods) + len(version_diff_mods) + len(id_diff_mods)}")
+        print(f"Common mods: {len(identical_mods) + len(version_diff_mods)}")
         print(f"  - Identical (same version & ID): {len(identical_mods)}")
         print(f"  - Different versions: {len(version_diff_mods)}")
-        print(f"  - Same version, different ID: {len(id_diff_mods)}")
         print(f"Unique to {source1_name}: {len(unique_to_source1)}")
         print(f"Unique to {source2_name}: {len(unique_to_source2)}")
 
@@ -980,7 +911,6 @@ class ReportGenerator:
                                  comparison: ModComparison,
                                  identical_mods: List[ModInfo],
                                  version_diff_mods: List[Tuple[ModInfo, ModInfo]],
-                                 id_diff_mods: List[Tuple[ModInfo, ModInfo]],
                                  unique_to_source1: Set[str], unique_to_source2: Set[str],
                                  mods1_dict: Dict[str, ModInfo], mods2_dict: Dict[str, ModInfo],
                                  include_size_columns: bool = False) -> None:
@@ -990,8 +920,7 @@ class ReportGenerator:
         common_filename = DataFormatter.generate_comparison_filename("common", source1_name, source2_name)
         common_mods_file = output_dir / common_filename
         comparison_data = ComparisonData(identical_mods, version_diff_mods,
-                                       id_diff_mods, unique_to_source1,
-                                       unique_to_source2)
+                                       unique_to_source1, unique_to_source2)
         common_mods_data, fieldnames = comparison.build_common_mods_data(
             source1_name, source2_name, comparison_data,
             include_size_columns=include_size_columns)
@@ -1018,30 +947,15 @@ class ReportGenerator:
 class ModListManager:
     """Main orchestrator class that coordinates all components."""
 
-    def __init__(self, verbose: bool = False):
+    def __init__(self, verbose: bool = False, api_base_url: str = "https://api.battlemetrics.com", 
+                 workshop_base_url: str = "https://reforger.armaplatform.com/workshop"):
         self.verbose = verbose
         self.file_io = FileIOHandler(verbose)
         self.http_client = HTTPClient(verbose)
-        self.battlemetrics_api = BattleMetricsAPI(self.http_client)
-        self.workshop_enrichment = WorkshopEnrichment(self.http_client)
+        self.battlemetrics_api = BattleMetricsAPI(self.http_client, api_base_url)
+        self.workshop_enrichment = WorkshopEnrichment(self.http_client, workshop_base_url)
         self.mod_comparison = ModComparison(self.file_io)
         self.report_generator = ReportGenerator(self.file_io)
-
-    def read_mod_source(self, source: str) -> Tuple[List[ModInfo], str]:
-        """
-        Read mod data from various sources (file or URL).
-
-        Args:
-            source: Path to file or BattleMetrics URL
-
-        Returns:
-            Tuple of (List of ModInfo objects, source_name)
-        """
-        if source.startswith('http'):
-            return self.battlemetrics_api.fetch_mods(source)
-        else:
-            file_path = Path(source)
-            return self.file_io.read_mod_file(file_path), file_path.name
 
     def unified_comparison(self, mods1: List[ModInfo], mods2: List[ModInfo],
                            source1_name: str, source2_name: str, output_dir: Path = None,
@@ -1069,20 +983,19 @@ class ModListManager:
         print()
 
         # Analyze differences
-        identical_mods, version_diff_mods, id_diff_mods, unique_to_source1, unique_to_source2 = \
+        identical_mods, version_diff_mods, unique_to_source1, unique_to_source2 = \
             self.mod_comparison.analyze_mod_differences(mods1_dict, mods2_dict)
 
         comparison_data = ComparisonData(identical_mods, version_diff_mods,
-                                       id_diff_mods, unique_to_source1,
-                                       unique_to_source2)
+                                       unique_to_source1, unique_to_source2)
 
-        print(f"Common mods found: {len(identical_mods) + len(version_diff_mods) + len(id_diff_mods)}")
+        print(f"Common mods found: {len(identical_mods) + len(version_diff_mods)}")
         print()
 
         # Display results based on enrichment level
         if show_enriched_output:
             self.report_generator.print_enriched_comparison_results(source1_name, source2_name, identical_mods, version_diff_mods,
-                                                  id_diff_mods, unique_to_source1, unique_to_source2,
+                                                  unique_to_source1, unique_to_source2,
                                                   mods1_dict, mods2_dict)
         else:
             self.report_generator.print_comparison_results(source1_name, source2_name,
@@ -1096,7 +1009,7 @@ class ModListManager:
             # Generate comparison files with appropriate level of detail
             self.report_generator.generate_comparison_files(source1_name, source2_name, output_dir,
                                            self.mod_comparison, identical_mods,
-                                           version_diff_mods, id_diff_mods,
+                                           version_diff_mods,
                                            unique_to_source1, unique_to_source2,
                                            mods1_dict, mods2_dict,
                                            include_size_columns=show_enriched_output)
@@ -1104,7 +1017,6 @@ class ModListManager:
         return {
             'common_identical': identical_mods,
             'common_version_diff': version_diff_mods,
-            'common_id_diff': id_diff_mods,
             'unique_to_source1': unique_to_source1,
             'unique_to_source2': unique_to_source2,
             'mods1_dict': mods1_dict,
@@ -1112,11 +1024,6 @@ class ModListManager:
             'source1_name': source1_name,
             'source2_name': source2_name
         }
-
-    def perform_enriched_comparison(self, mods1: List[ModInfo], mods2: List[ModInfo],
-                                   source1_name: str, source2_name: str, output_dir: Path = None) -> None:
-        """Perform comparison with potentially enriched mod data."""
-        self.unified_comparison(mods1, mods2, source1_name, source2_name, output_dir, show_enriched_output=True)
 
 
 # =============================================================================
@@ -1136,11 +1043,11 @@ Examples:
   # Compare servers with workshop enrichment (adds mod sizes):
   python mod_manager.py --enrich 32653210 12345678
 
-  # Compare servers and save individual server files (timestamped):
-  python mod_manager.py --save-files 32653210 12345678
+  # Compare with enrichment and specify output directory:
+  python mod_manager.py --enrich --output-dir comparison_results 32653210 12345678
 
-  # Compare with enrichment and save all output files with timestamps:
-  python mod_manager.py --enrich --save-files --output-dir comparison_results 32653210 12345678
+  # Use custom API endpoints:
+  python mod_manager.py --bmetrics-base-url https://api.battlemetrics.com --workshop-base-url https://reforger.armaplatform.com/workshop 32653210 12345678
 
 Output files include timestamps for organization:
 - srv_{name}_{id}_{timestamp}.csv (individual server mod lists)
@@ -1156,34 +1063,32 @@ Output files include timestamps for organization:
     # Options
     parser.add_argument('--enrich', action='store_true',
                        help='Enrich mod data with workshop information (size, etc.)')
-    parser.add_argument('--save-files', action='store_true',
-                       help='Save individual server mod lists as CSV files')
     parser.add_argument('--output-dir', type=Path, default=Path('out'),
                        help='Directory for output CSV files (default: out/)')
-    parser.add_argument('--base-url', default='https://www.battlemetrics.com/servers/reforger',
-                       help='Base URL for BattleMetrics servers (default: reforger servers)')
+    parser.add_argument('--bmetrics-base-url', default='https://api.battlemetrics.com',
+                       help='Base URL for BattleMetrics API (default: https://api.battlemetrics.com)')
+    parser.add_argument('--workshop-base-url', default='https://reforger.armaplatform.com/workshop',
+                       help='Base URL for workshop (default: https://reforger.armaplatform.com/workshop)')
     parser.add_argument('--verbose', '-v', action='store_true',
                        help='Enable verbose output')
 
     args = parser.parse_args()
 
-    manager = ModListManager(verbose=args.verbose)
+    manager = ModListManager(verbose=args.verbose, 
+                           api_base_url=args.bmetrics_base_url,
+                           workshop_base_url=args.workshop_base_url)
 
     try:
-        # Build full URLs for both servers
-        server1_url = f"{args.base_url}/{args.server1_id}"
-        server2_url = f"{args.base_url}/{args.server2_id}"
-
-        print(f"🔍 Comparing BattleMetrics servers:")
-        print(f"   Server 1: {args.server1_id} ({server1_url})")
-        print(f"   Server 2: {args.server2_id} ({server2_url})")
+        print("🔍 Comparing BattleMetrics servers:")
+        print(f"   Server 1: {args.server1_id}")
+        print(f"   Server 2: {args.server2_id}")
         if args.enrich:
             print("   🌐 Workshop enrichment: ENABLED")
         print("=" * 80)
 
-        # Fetch mod data from both servers
-        mods1, server1_name = manager.battlemetrics_api.fetch_mods(server1_url)
-        mods2, server2_name = manager.battlemetrics_api.fetch_mods(server2_url)
+        # Fetch mod data from both servers using server IDs directly
+        mods1, server1_name = manager.battlemetrics_api.fetch_mods_by_id(args.server1_id)
+        mods2, server2_name = manager.battlemetrics_api.fetch_mods_by_id(args.server2_id)
 
         if not mods1:
             print(f"❌ Failed to fetch mod data from server {args.server1_id}")
@@ -1201,27 +1106,28 @@ Output files include timestamps for organization:
             mods2 = manager.workshop_enrichment.enrich_mods_with_workshop_data(mods2)
             print()
 
-        # Optionally save individual server mod lists
-        if args.save_files:
-            print("📥 Saving individual server mod lists...")
+        # Perform the comparison and generate all output files
+        print("� Performing mod comparison and generating output files...")
+        
+        # Use the output directory (now has a default of 'out/')
+        output_dir_for_files = args.output_dir
+        output_dir_for_files.mkdir(exist_ok=True)
 
-            # Use the output directory (now has a default of 'out/')
-            output_dir_for_files = args.output_dir
-            output_dir_for_files.mkdir(exist_ok=True)
+        # Save individual server mod lists
+        server1_filename = DataFormatter.generate_server_filename(server1_name, args.server1_id)
+        server1_file = output_dir_for_files / server1_filename
+        manager.file_io.write_csv_file(server1_file, mods1, include_source=True)
+        print(f"✅ Server {args.server1_id} ({server1_name}) mods saved to: {server1_file.name}")
 
-            server1_filename = DataFormatter.generate_server_filename(server1_name, args.server1_id)
-            server1_file = output_dir_for_files / server1_filename
-            manager.file_io.write_csv_file(server1_file, mods1, include_source=True)
-            print(f"✅ Server {args.server1_id} ({server1_name}) mods saved to: {server1_file.name}")
+        server2_filename = DataFormatter.generate_server_filename(server2_name, args.server2_id)
+        server2_file = output_dir_for_files / server2_filename
+        manager.file_io.write_csv_file(server2_file, mods2, include_source=True)
+        print(f"✅ Server {args.server2_id} ({server2_name}) mods saved to: {server2_file.name}")
+        print()
 
-            server2_filename = DataFormatter.generate_server_filename(server2_name, args.server2_id)
-            server2_file = output_dir_for_files / server2_filename
-            manager.file_io.write_csv_file(server2_file, mods2, include_source=True)
-            print(f"✅ Server {args.server2_id} ({server2_name}) mods saved to: {server2_file.name}")
-            print()
-
-        # Perform the comparison using the enriched data
-        manager.perform_enriched_comparison(mods1, mods2, server1_name, server2_name, args.output_dir)
+        # Perform comparison and generate comparison files
+        manager.unified_comparison(mods1, mods2, server1_name, server2_name, args.output_dir, 
+                                 show_enriched_output=args.enrich)
 
     except Exception as e:
         print(f"Error: {e}")
