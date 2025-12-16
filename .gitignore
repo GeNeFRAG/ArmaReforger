@@ -5,4 +5,6 @@ out.json
 *.csv
 out/
 comparison_results/
-__pycache__/     
+__pycache__/    
+*_tiles_*/ 
+*.png
