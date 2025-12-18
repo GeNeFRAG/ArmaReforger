@@ -166,7 +166,7 @@
             <input type="number" id="grid-size" value="10" min="10" max="1000" step="10" placeholder="Grid size (meters)">
         </div>
         <div class="tile-status">
-            <strong>Tiled Mode:</strong> Tiles generated from source images
+            <strong>Tiles only:</strong> Generate tiles first with generate_tiles.py
         </div>
     </div>
     
@@ -224,22 +224,36 @@
             });
         }
         
+        // Custom CRS for tiled maps
+        function createTileCRS(paddedSize) {
+            return L.extend({}, L.CRS.Simple, {
+                transformation: new L.Transformation(1, 0, 1, 0),
+                scale: function(zoom) {
+                    return Math.pow(2, zoom) * 256 / paddedSize;
+                },
+                zoom: function(scale) {
+                    return Math.log(scale * paddedSize / 256) / Math.LN2;
+                }
+            });
+        }
+        
         // Calculate appropriate grid size for current zoom level
         function updateGridSizeForZoom() {
             const zoom = map.getZoom();
             let gridSize;
             
-            if (zoom < -1) {
+            // Wider zoom ranges for each grid size
+            if (zoom < 1.5) {
                 gridSize = 1000;
-            } else if (zoom < 0) {
+            } else if (zoom < 2.5) {
                 gridSize = 500;
-            } else if (zoom < 1) {
+            } else if (zoom < 3.5) {
                 gridSize = 200;
-            } else if (zoom < 2) {
+            } else if (zoom < 4.5) {
                 gridSize = 100;
-            } else if (zoom < 3) {
+            } else if (zoom < 5.5) {
                 gridSize = 50;
-            } else if (zoom < 4) {
+            } else if (zoom < 6.5) {
                 gridSize = 20;
             } else {
                 gridSize = 10;
@@ -287,8 +301,8 @@
             });
         }
         
-        // Load a specific map using image overlay instead of tiles
-        function loadMap(index) {
+        // Load a specific map - only use local tiles
+        async function loadMap(index) {
             const mapData = mapsData[index];
             if (!mapData) return;
             
@@ -299,22 +313,91 @@
                 map.removeLayer(currentLayer);
             }
             
-            // For L.CRS.Simple, bounds are [[y1, x1], [y2, x2]]
-            // Origin is top-left, y increases downward
             const [width, height] = mapData.size;
-            const bounds = [[0, 0], [height, width]];
+            const maxDim = Math.max(width, height);
+            const paddedSize = Math.pow(2, Math.ceil(Math.log2(maxDim)));
             
-            // Use image overlay for simplicity - works better for non-power-of-2 sizes
-            const imageUrl = mapData.resources.map_image;
-            currentLayer = L.imageOverlay(imageUrl, bounds, {
-                opacity: 1,
-                interactive: false
+            // Check if tiles exist
+            const testTileUrl = `tiles/${mapData.namespace}/0/0/0.png`;
+            const tilesExist = await fetch(testTileUrl, { method: 'HEAD' })
+                .then(r => r.ok)
+                .catch(() => false);
+            
+            if (!tilesExist) {
+                alert(`Tiles not generated for ${mapData.name}.\nRun: python3 generate_tiles.py ${mapData.namespace}`);
+                return;
+            }
+            
+            // Use tiled version with custom CRS
+            const tileCRS = createTileCRS(paddedSize);
+            
+            // Recreate map with correct CRS for this specific map
+            map.remove();
+            map = L.map('map', {
+                crs: tileCRS,
+                minZoom: 0,
+                maxZoom: mapData.max_zoom,
+                zoomControl: true,
+                attributionControl: false
+            });
+            
+            // Re-attach event listeners
+            map.on('mousemove', (e) => {
+                if (!currentMapData) return;
+                const coords = e.latlng;
+                const [w, h] = currentMapData.size;
+                const east = Math.round(coords.lng);
+                const north = Math.round(h - coords.lat);
+                document.getElementById('info-coords').textContent = `${north} / ${east}`;
+            });
+            
+            map.on('mouseout', () => {
+                document.getElementById('info-coords').textContent = '-';
+            });
+            
+            map.on('zoomend', () => {
+                if (gridEnabled) {
+                    updateGridSizeForZoom();
+                    drawGrid(currentMapData);
+                }
+            });
+            
+            // Create tile layer
+            currentLayer = L.tileLayer(`tiles/${mapData.namespace}/{z}/{x}/{y}.png`, {
+                minZoom: 0,
+                maxZoom: mapData.max_zoom,
+                tileSize: 256,
+                noWrap: true,
+                bounds: [[0, 0], [paddedSize, paddedSize]],
+                errorTileUrl: ''
             });
             
             currentLayer.addTo(map);
             
-            // Fit map to bounds
-            map.fitBounds(bounds);
+            // Set view to actual map bounds - use paddedSize for zoom calculation
+            // but center on actual map area
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            // Calculate zoom to fit actual map in view
+            // At zoom Z, visible area = paddedSize / (2^Z * 256 / paddedSize) = paddedSize^2 / (2^Z * 256)
+            // We want to fit width x height in the view
+            const mapContainer = document.getElementById('map');
+            const containerWidth = mapContainer.clientWidth;
+            const containerHeight = mapContainer.clientHeight;
+            
+            // Calculate zoom that fits the map
+            const zoomX = Math.log2((paddedSize * containerWidth) / (width * 256));
+            const zoomY = Math.log2((paddedSize * containerHeight) / (height * 256));
+            const fitZoom = Math.min(zoomX, zoomY, mapData.max_zoom);
+            
+            map.setView([centerY, centerX], fitZoom);
+            map.setMaxBounds([[0, 0], [height, width]]);
+            
+            // Redraw grid if it was enabled
+            if (gridEnabled) {
+                drawGrid(mapData);
+            }
             
             // Update max zoom
             map.setMaxZoom(mapData.max_zoom);
@@ -336,41 +419,59 @@
             }
             
             const gridSizeMeters = parseInt(document.getElementById('grid-size').value) || 10;
-            // For Arma Reforger maps: 1 pixel = 1 meter (standard convention)
             const gridSizePixels = gridSizeMeters;
             
             const [width, height] = mapData.size;
+            
+            // Get padded size - grid needs to use padded coordinate space
+            const maxDim = Math.max(width, height);
+            const paddedSize = Math.pow(2, Math.ceil(Math.log2(maxDim)));
+            const scale = paddedSize / maxDim;  // Scale to padded coordinates
+            
             const lines = [];
             
-            // Vertical lines
-            for (let x = 0; x <= width; x += gridSizePixels) {
+            console.log(`Drawing grid: size=${gridSizeMeters}m, map=${width}x${height}, padded=${paddedSize}, scale=${scale.toFixed(3)}, zoom=${map.getZoom().toFixed(2)}`);
+            
+            // Draw grid in PADDED coordinates to match custom CRS
+            const scaledWidth = width * scale;
+            const scaledHeight = height * scale;
+            const scaledGridSize = gridSizePixels * scale;
+            
+            let vLineCount = 0;
+            for (let x = 0; x <= scaledWidth; x += scaledGridSize) {
                 lines.push([
                     [0, x],
-                    [height, x]
+                    [scaledHeight, x]
                 ]);
+                vLineCount++;
             }
             
-            // Horizontal lines
-            for (let y = 0; y <= height; y += gridSizePixels) {
+            let hLineCount = 0;
+            for (let y = 0; y <= scaledHeight; y += scaledGridSize) {
                 lines.push([
                     [y, 0],
-                    [y, width]
+                    [y, scaledWidth]
                 ]);
+                hLineCount++;
             }
+            
+            console.log(`Grid lines: ${vLineCount} vertical, ${hLineCount} horizontal, total=${lines.length}`);
             
             gridLayer = L.layerGroup();
             
-            lines.forEach(coords => {
-                L.polyline(coords, {
+            lines.forEach((coords, idx) => {
+                const line = L.polyline(coords, {
                     color: '#ffffff',
                     weight: 2,
                     opacity: 0.4,
                     dashArray: '5, 5',
                     interactive: false
-                }).addTo(gridLayer);
+                });
+                line.addTo(gridLayer);
             });
             
             gridLayer.addTo(map);
+            console.log('Grid added, scaled coords - first:', lines[0], 'extent:', [scaledHeight, scaledWidth]);
         }
         
         // Toggle grid visibility
