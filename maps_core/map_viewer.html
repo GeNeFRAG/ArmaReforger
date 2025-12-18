@@ -215,6 +215,7 @@
             <div><label>Max Zoom:</label><span id="info-zoom">-</span></div>
             <div><label>Namespace:</label><span id="info-namespace">-</span></div>
             <div><label>N / E:</label><span id="info-coords">-</span></div>
+            <div><label>Elevation:</label><span id="info-elevation">-</span></div>
         </div>
         <div class="grid-controls">
             <button id="grid-toggle">Show Grid (10m)</button>
@@ -236,6 +237,7 @@
         let gridLayer = null;       // Grid overlay layer group
         let gridEnabled = false;    // Grid visibility state
         let currentMapData = null;  // Active map configuration
+        let heightData = null;      // Current height map data
         
         // ===== Map Initialization =====
         function initMap() {
@@ -249,7 +251,7 @@
             
             map.setView([0, 0], 0);
             
-            // Track mouse coordinates
+            // Track mouse coordinates and elevation
             map.on('mousemove', (e) => {
                 if (!currentMapData) return;
                 
@@ -261,10 +263,23 @@
                 const north = Math.round(height - coords.lat);
                 
                 document.getElementById('info-coords').textContent = `${north} / ${east}`;
+                
+                // Get elevation at cursor position
+                if (heightData && Array.isArray(heightData)) {
+                    const elevation = getElevationAt(east, north);
+                    if (elevation !== null && !isNaN(elevation)) {
+                        document.getElementById('info-elevation').textContent = `${elevation.toFixed(1)}m`;
+                    } else {
+                        document.getElementById('info-elevation').textContent = '-';
+                    }
+                } else {
+                    document.getElementById('info-elevation').textContent = 'N/A';
+                }
             });
             
             map.on('mouseout', () => {
                 document.getElementById('info-coords').textContent = '-';
+                document.getElementById('info-elevation').textContent = '-';
             });
             
             // Auto-adjust grid on zoom change
@@ -290,6 +305,90 @@
                     return Math.log(scale * paddedSize / 256) / Math.LN2;
                 }
             });
+        }
+        
+        // Get elevation at specific map coordinates
+        function getElevationAt(east, north) {
+            if (!heightData || !Array.isArray(heightData) || heightData.length === 0) {
+                return null;
+            }
+            
+            // Height data is a 2D array without metadata
+            // Calculate grid spacing from map size and grid dimensions
+            const gridSize = heightData.length;
+            const mapSize = currentMapData ? currentMapData.size[0] : 0;
+            
+            if (mapSize === 0) return null;
+            
+            // Grid spacing = map_size / (grid_size - 1)
+            const gridSpacing = mapSize / (gridSize - 1);
+            
+            // Convert map coordinates to grid indices
+            const gridX = Math.round(east / gridSpacing);
+            const gridY = Math.round(north / gridSpacing);
+            
+            // Validate bounds
+            if (gridX < 0 || gridX >= gridSize || gridY < 0 || gridY >= gridSize) {
+                return null;
+            }
+            
+            // Grid Y is inverted (0 = south, gridSize-1 = north)
+            const invertedY = gridSize - 1 - gridY;
+            
+            // Get elevation from grid
+            if (!heightData[invertedY] || !Array.isArray(heightData[invertedY])) {
+                console.error('Invalid row:', invertedY);
+                return null;
+            }
+            
+            const elevation = heightData[invertedY][gridX];
+            
+            // Debug first call
+            if (!window.elevationDebugShown) {
+                console.log('getElevationAt debug:', {
+                    east, north, gridSize, mapSize, gridSpacing,
+                    gridX, gridY, invertedY, elevation
+                });
+                window.elevationDebugShown = true;
+            }
+            
+            return typeof elevation === 'number' ? elevation : (typeof elevation === 'string' ? parseFloat(elevation) : null);
+        }
+        
+        // Load height map data for current map
+        async function loadHeightData(namespace) {
+            heightData = null;
+            document.getElementById('info-elevation').textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(`height_data/${namespace}_height.json`);
+                if (!response.ok) {
+                    console.log(`No height data available for ${namespace} (${response.status})`);
+                    document.getElementById('info-elevation').textContent = 'N/A';
+                    return;
+                }
+                
+                console.log(`Loading height data for ${namespace}...`);
+                const startTime = Date.now();
+                heightData = await response.json();
+                const loadTime = ((Date.now() - startTime) / 1000).toFixed(1);
+                
+                if (Array.isArray(heightData) && heightData.length > 0) {
+                    const gridSize = heightData.length;
+                    const mapSize = currentMapData ? currentMapData.size[0] : 0;
+                    const spacing = mapSize > 0 ? (mapSize / (gridSize - 1)).toFixed(1) : '?';
+                    console.log(`✓ Loaded height data for ${namespace}: ${gridSize}×${gridSize} grid, ${spacing}m spacing (${loadTime}s)`);
+                    document.getElementById('info-elevation').textContent = '-';
+                } else {
+                    console.log(`Invalid height data format for ${namespace}`);
+                    document.getElementById('info-elevation').textContent = 'N/A';
+                    heightData = null;
+                }
+            } catch (error) {
+                console.error(`Failed to load height data for ${namespace}:`, error);
+                document.getElementById('info-elevation').textContent = 'Error';
+                heightData = null;
+            }
         }
         
         // Show error message in HTML instead of alert
@@ -384,6 +483,9 @@
             
             currentMapData = mapData;
             
+            // Load height data for this map
+            await loadHeightData(mapData.namespace);
+            
             // Remove previous layer if exists
             if (currentLayer) {
                 map.removeLayer(currentLayer);
@@ -428,11 +530,25 @@
                 const [w, h] = currentMapData.size;
                 const east = Math.round(coords.lng);
                 const north = Math.round(h - coords.lat);
+                
                 document.getElementById('info-coords').textContent = `${north} / ${east}`;
+                
+                // Get elevation at cursor position
+                if (heightData && Array.isArray(heightData)) {
+                    const elevation = getElevationAt(east, north);
+                    if (elevation !== null) {
+                        document.getElementById('info-elevation').textContent = `${elevation.toFixed(1)}m`;
+                    } else {
+                        document.getElementById('info-elevation').textContent = '-';
+                    }
+                } else {
+                    document.getElementById('info-elevation').textContent = 'N/A';
+                }
             });
             
             map.on('mouseout', () => {
                 document.getElementById('info-coords').textContent = '-';
+                document.getElementById('info-elevation').textContent = '-';
             });
             
             map.on('zoomend', () => {
