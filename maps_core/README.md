@@ -28,22 +28,31 @@ Interactive web-based map viewer with Leaflet.js.
 - 📍 Real-time North/East coordinate display
 - 🗺️ Adaptive grid overlay (10m-1000m spacing)
 - 🔍 Zoom-responsive grid (auto-scales with zoom level)
-- 🎨 High-quality satellite imagery from CDN
+- � Tile-based rendering for optimal performance
 - 🖱️ Smooth pan/zoom controls
+- ⚠️ Inline error messages (no popups)
 
 **Grid Zoom Levels:**
-- Zoom < -1: 1000m grid
-- Zoom 0: 200m grid
-- Zoom 1: 100m grid
-- Zoom 2: 50m grid
-- Zoom 3: 20m grid
-- Zoom 4+: 10m grid
+- Zoom < 1.5: 1000m grid
+- Zoom 1.5-2.5: 500m grid
+- Zoom 2.5-3.5: 200m grid
+- Zoom 3.5-4.5: 100m grid
+- Zoom 4.5-5.5: 50m grid
+- Zoom 5.5-6.5: 20m grid
+- Zoom 6.5+: 10m grid
 
 **Controls:**
 - Select map from dropdown
 - Toggle grid with "Show/Hide Grid" button
 - Adjust grid spacing (10-1000m)
 - Mouse position shows N/E coordinates
+- Error messages appear inline (top-right corner)
+
+**Notes:**
+- Requires tiles to be generated first (see `generate_tiles.py`)
+- Uses local tile files from `tiles/` directory
+- Custom CRS with proper coordinate scaling for non-power-of-2 maps
+- Auto-detects missing tiles and displays helpful error messages
 
 ### `generate_tiles.py`
 Generate tile pyramids from high-resolution map images.
@@ -85,6 +94,7 @@ tiles/
 - Automatic power-of-2 padding for web compatibility
 - Optimized 256×256 PNG tiles
 - Complete zoom pyramid generation
+- Resume capability (skips existing tiles)
 
 **Requirements:**
 - Python 3.7+
@@ -200,6 +210,13 @@ print(f"Elevation at 1000m N, 1000m E: {elevation}m")
 ```
 
 ## Technical Details
+
+**Map Viewer Implementation:**
+- Custom Leaflet CRS based on L.CRS.Simple
+- Dynamic scale function: `2^zoom * 256 / paddedSize`
+- Grid coordinates scaled to match padded dimensions
+- Tile bounds prevent negative coordinate requests
+- View calculation handles non-square maps correctly
 
 **Map Coordinate System:**
 - 1 pixel = 1 meter (standard Arma Reforger scale)
