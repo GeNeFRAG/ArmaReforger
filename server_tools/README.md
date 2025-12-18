@@ -1,33 +1,51 @@
-# ArmaReforger
+# Server Tools
 
-Tools and scripts for Arma Reforger server management and artillery calculations.
+Arma Reforger dedicated server management utilities.
 
 ## Tools
 
-### Fire Solution Management (`Fire_Solution_Mgmt.gs`)
-Google Apps Script for managing artillery fire mission parameters (requires `Arma Reforger Mortar Calc.ods`):
-- Store and load fire solutions with timestamps
-- Dropdown selection for quick mission access
-- Menu-driven interface with validation
+### `mod_manager.py`
+BattleMetrics server mod comparison and workshop enrichment tool.
 
-### Mod Management Tools
-- **`extract_mods_workshop.py`**: Extracts mod metadata and dependencies from Steam Workshop
-- **`deep_clone_server.py`**: Deep clones Arma Reforger server configurations from multiple sources  
-- **`mod_manager.py`**: BattleMetrics server mod comparison tool with workshop enrichment
+**Features:**
+- Compare mod lists between servers
+- Enrich with Steam Workshop metadata
+- Dependency resolution
+- Automatic workshop ID extraction
 
-### Mortar Calculator (`Arma Reforger Mortar Calc.ods`)
-OpenDocument Spreadsheet for artillery fire solution calculations (works with `Fire_Solution_Mgmt.gs`).
+**Usage:**
+```bash
+python mod_manager.py <server_id_1> <server_id_2>
+```
+
+### `extract_mods_workshop.py`
+Steam Workshop mod metadata extractor with dependency resolution.
+
+**Features:**
+- Extract mod information from workshop IDs
+- Resolve and download all dependencies
+- Export to JSON format
+- Verbose logging option
+
+**Usage:**
+```bash
+# Extract single mod with dependencies
+python extract_mods_workshop.py 123456789
+
+# Custom output file
+python extract_mods_workshop.py 123456789 --output mods.json
+
+# Verbose mode
+python extract_mods_workshop.py 123456789 --verbose
+```
 
 ## File Structure
 
 ```
-ArmaReforger/
-├── Fire_Solution_Mgmt.gs           # Google Apps Script for fire solutions
-├── extract_mods_workshop.py        # Steam Workshop mod extractor
-├── deep_clone_server.py            # Arma Reforger server deep cloning tool
-├── mod_manager.py                  # BattleMetrics server comparison tool
-├── Arma Reforger Mortar Calc.ods   # Mortar calculation spreadsheet
-└── README.md                       # This documentation
+server_tools/
+├── mod_manager.py              # BattleMetrics server comparison
+├── extract_mods_workshop.py    # Steam Workshop extractor
+└── README.md                   # This documentation
 ```
 
 ## Usage

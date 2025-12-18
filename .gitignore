@@ -8,3 +8,5 @@ comparison_results/
 __pycache__/    
 *_tiles_*/ 
 *.png
+maps_core/height_data/
+/helper_scripts

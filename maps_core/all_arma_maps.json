@@ -1,0 +1,288 @@
+[
+  {
+    "max_zoom": 7,
+    "name": "Everon",
+    "namespace": "everon",
+    "size": [
+      12800,
+      12800
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/everon_sat_z7_full.png",
+      "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/everon_height.json"
+    }
+  },
+  {
+    "max_zoom": 6,
+    "name": "Arland",
+    "namespace": "arland",
+    "size": [
+      4095,
+      4095
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/arland_sat_z6_full.png",
+      "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/arland_height.json"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Kolguev",
+    "namespace": "kolguev",
+    "size": [
+      12800,
+      12800
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/kolguev_sat_z7_full.png",
+      "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/kolguev_height.json"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Anizay",
+    "namespace": "anizay",
+    "size": [
+      10240,
+      10240
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/anizay_sat_z7_full.png",
+      "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/anizay_height.json"
+    }
+  },
+  {
+    "max_zoom": 6,
+    "name": "Bad Orb",
+    "namespace": "badorb",
+    "size": [
+      5120,
+      5120
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/badorb_sat_z6_full.png"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Belleau Wood",
+    "namespace": "belleau",
+    "size": [
+      12032,
+      12032
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/belleau_sat_z7_full.png"
+    }
+  },
+  {
+    "max_zoom": 6,
+    "name": "Fallujah",
+    "namespace": "fallujah",
+    "size": [
+      4095,
+      4095
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/fallujah_sat_z6_full.png"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Gogland",
+    "namespace": "gogland",
+    "size": [
+      12286,
+      12286
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/gogland_sat_z7_full.png",
+      "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/gogland_height.json"
+    }
+  },
+  {
+    "max_zoom": 6,
+    "name": "Khanh Trung",
+    "namespace": "khanh_trung",
+    "size": [
+      4095,
+      4095
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/khanh_trung_sat_z6_full.png"
+    }
+  },
+  {
+    "max_zoom": 5,
+    "name": "Kunar",
+    "namespace": "kunar",
+    "size": [
+      4000,
+      4000
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/kunar_sat_z5_full.png",
+      "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/kunar_height.json"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Myccano",
+    "namespace": "myccano",
+    "size": [
+      6655,
+      6655
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/myccano_sat_z7_full.png"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Nizla Island",
+    "namespace": "nizla",
+    "size": [
+      17150,
+      17150
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/nizla_sat_z7_full.png"
+    }
+  },
+  {
+    "max_zoom": 5,
+    "name": "Novka",
+    "namespace": "novka",
+    "size": [
+      2900,
+      2900
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/novka_sat_z5_full.png"
+    }
+  },
+  {
+    "max_zoom": 6,
+    "name": "Rooikat 89",
+    "namespace": "rooikat",
+    "size": [
+      5120,
+      5120
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/rooikat_sat_z6_full.png"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Rostov",
+    "namespace": "rostov",
+    "size": [
+      7935,
+      7935
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/rostov_sat_z7_full.png"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Ruha",
+    "namespace": "ruha",
+    "size": [
+      8150,
+      8150
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/ruha_sat_z7_full.png"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Saigon",
+    "namespace": "saigon",
+    "size": [
+      17150,
+      17150
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/saigon_sat_z7_full.png",
+      "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/saigon_height.json"
+    }
+  },
+  {
+    "max_zoom": 6,
+    "name": "Seitenbuch",
+    "namespace": "seitenbuch",
+    "size": [
+      2000,
+      4000
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/seitenbuch_sat_z6_full.png"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Serhiivka",
+    "namespace": "serhiivka",
+    "size": [
+      10240,
+      10240
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/serhiivka_sat_z7_full.png"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Takistan",
+    "namespace": "takistan",
+    "size": [
+      12900,
+      12900
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/takistan_sat_z7_full.png",
+      "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/takistan_height.json"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Udachne",
+    "namespace": "udachne",
+    "size": [
+      5120,
+      10240
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/udachne_sat_z7_full.png"
+    }
+  },
+  {
+    "max_zoom": 6,
+    "name": "Zarichne",
+    "namespace": "zarichne",
+    "size": [
+      4095,
+      4095
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/zarichne_sat_z6_full.png",
+      "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/zarichne_height.json"
+    }
+  },
+  {
+    "max_zoom": 7,
+    "name": "Zimnitrita",
+    "namespace": "zimnitrita",
+    "size": [
+      16384,
+      16384
+    ],
+    "resources": {
+      "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/zimnitrita_sat_z7_full.png",
+      "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/zimnitrita_height.json"
+    }
+  }
+]
