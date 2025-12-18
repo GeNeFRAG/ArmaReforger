@@ -2,6 +2,8 @@
 
 Mortar ballistics calculation data and tools for Arma Reforger artillery systems.
 
+Part of the [ArmaReforger](../README.md) project - tools and resources for Arma Reforger.
+
 ## Contents
 
 ### `ballistic-data.json`

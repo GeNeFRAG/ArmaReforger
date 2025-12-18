@@ -2,6 +2,8 @@
 
 Arma Reforger dedicated server management utilities.
 
+Part of the [ArmaReforger](../README.md) project - tools and resources for Arma Reforger.
+
 ## Tools
 
 ### `mod_manager.py`
@@ -37,6 +39,13 @@ python extract_mods_workshop.py 123456789 --output mods.json
 
 # Verbose mode
 python extract_mods_workshop.py 123456789 --verbose
+```
+
+## Installation
+
+```bash
+# From project root
+pip install requests beautifulsoup4
 ```
 
 ## File Structure

@@ -2,6 +2,8 @@
 
 Core map data and elevation information for all Arma Reforger maps.
 
+Part of the [ArmaReforger](../README.md) project - tools and resources for Arma Reforger.
+
 ## Contents
 
 ### `all_arma_maps.json`
@@ -16,7 +18,7 @@ Master configuration file containing metadata for all 23 Arma Reforger maps:
   "size": [12800, 12800],
   "resources": {
     "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/everon_sat_z7_full.png",
-    "height_data": "maps_core/height_data/everon_height.json"
+    "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/everon_height.json"
   }
 }
 ```
@@ -27,7 +29,7 @@ Master configuration file containing metadata for all 23 Arma Reforger maps:
 - `namespace`: Unique identifier used in filenames and URLs
 - `size`: Map dimensions in meters [width, height]
 - `resources.map_image`: Public R2 CDN URL for full satellite image
-- `resources.height_data`: Relative path to elevation JSON (if available)
+- `resources.height_data`: R2 CDN URL for elevation JSON (if available)
 
 ### `height_data/`
 Elevation data for maps (10m×10m grid resolution) hosted on Cloudflare R2.
