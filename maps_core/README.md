@@ -30,10 +30,15 @@ Master configuration file containing metadata for all 23 Arma Reforger maps:
 - `resources.height_data`: Relative path to elevation JSON (if available)
 
 ### `height_data/`
-Elevation data for maps (10m×10m grid resolution):
+Elevation data for maps (10m×10m grid resolution) hosted on Cloudflare R2.
 
 **Available maps (10):**
 - anizay, arland, everon, gogland, kolguev, kunar, saigon, takistan, zarichne, zimnitrita
+
+**Access via CDN:**
+```
+https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/{namespace}_height.json
+```
 
 **Format:**
 ```json
@@ -77,8 +82,10 @@ print(f"Map: {everon['name']}, Size: {everon['size']}")
 
 **Load elevation data:**
 ```python
-with open('maps_core/height_data/everon_height.json') as f:
-    heights = json.load(f)
+import requests
+
+url = "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/everon_height.json"
+heights = requests.get(url).json()
 
 elevation = float(heights[100][100])  # Get elevation at grid (100, 100)
 ```
