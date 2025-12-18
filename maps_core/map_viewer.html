@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+    Arma Reforger Interactive Map Viewer
+    
+    Features:
+    - Displays all 23 Arma Reforger satellite maps
+    - Interactive map controls (pan, zoom, drag)
+    - Adaptive grid overlay with auto-scaling based on zoom level
+    - Real-time North/East coordinate display
+    - Optimized for large map images (up to 2.6GB)
+    
+    Technical:
+    - Leaflet.js with L.CRS.Simple for pixel-based coordinates
+    - 1 pixel = 1 meter scale (standard Arma Reforger mapping)
+    - Grid overlay with configurable spacing (10m-1000m)
+    - Dynamic grid scaling: zoomed out = wide grid, zoomed in = fine grid
+    
+    Data Source:
+    - Map metadata: all_arma_maps.json
+    - Satellite images: Cloudflare R2 CDN
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arma Reforger Map Viewer (Tiled - Fixed)</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            max-width: 300px;
+        }
+        
+        #controls h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        
+        #map-selector {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        #map-info {
+            font-size: 12px;
+            line-height: 1.6;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+        
+        #map-info div {
+            margin: 4px 0;
+        }
+        
+        #map-info label {
+            color: #888;
+            display: inline-block;
+            width: 80px;
+        }
+        
+        #map-info span {
+            color: #4CAF50;
+        }
+        
+        .grid-controls {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+        
+        .grid-controls button {
+            width: 100%;
+            padding: 8px;
+            background: #2a2a2a;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .grid-controls button:hover {
+            background: #3a3a3a;
+        }
+        
+        .grid-controls button.active {
+            background: #4CAF50;
+            color: #000;
+        }
+        
+        .grid-controls input {
+            width: 100%;
+            margin-top: 8px;
+            padding: 6px;
+            background: #2a2a2a;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 12px;
+        }
+        
+        .tile-status {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+            font-size: 11px;
+            color: #888;
+        }
+        
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #0a0a0a;
+        }
+        
+        .leaflet-container {
+            background: #0a0a0a;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <h2>🗺️ Arma Reforger Maps</h2>
+        <select id="map-selector">
+            <option value="">Loading maps...</option>
+        </select>
+        <div id="map-info">
+            <div><label>Size:</label><span id="info-size">-</span></div>
+            <div><label>Max Zoom:</label><span id="info-zoom">-</span></div>
+            <div><label>Namespace:</label><span id="info-namespace">-</span></div>
+            <div><label>N / E:</label><span id="info-coords">-</span></div>
+        </div>
+        <div class="grid-controls">
+            <button id="grid-toggle">Show Grid (10m)</button>
+            <input type="number" id="grid-size" value="10" min="10" max="1000" step="10" placeholder="Grid size (meters)">
+        </div>
+        <div class="tile-status">
+            <strong>Tiled Mode:</strong> Tiles generated from source images
+        </div>
+    </div>
+    
+    <div id="map"></div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // ===== State Management =====
+        let map;                    // Leaflet map instance
+        let currentLayer;           // Current image overlay layer
+        let mapsData = [];          // All map configurations from JSON
+        let gridLayer = null;       // Grid overlay layer group
+        let gridEnabled = false;    // Grid visibility state
+        let currentMapData = null;  // Active map configuration
+        
+        // ===== Map Initialization =====
+        function initMap() {
+            map = L.map('map', {
+                crs: L.CRS.Simple,
+                minZoom: -2,
+                maxZoom: 7,
+                zoomControl: true,
+                attributionControl: false
+            });
+            
+            map.setView([0, 0], 0);
+            
+            // Track mouse coordinates
+            map.on('mousemove', (e) => {
+                if (!currentMapData) return;
+                
+                const coords = e.latlng;
+                const [width, height] = currentMapData.size;
+                
+                // East = X (horizontal), North = Y inverted (from bottom)
+                const east = Math.round(coords.lng);
+                const north = Math.round(height - coords.lat);
+                
+                document.getElementById('info-coords').textContent = `${north} / ${east}`;
+            });
+            
+            map.on('mouseout', () => {
+                document.getElementById('info-coords').textContent = '-';
+            });
+            
+            // Auto-adjust grid on zoom change
+            map.on('zoomend', () => {
+                if (gridEnabled) {
+                    updateGridSizeForZoom();
+                    const currentIndex = document.getElementById('map-selector').selectedIndex;
+                    if (currentIndex >= 0 && mapsData[currentIndex]) {
+                        drawGrid(mapsData[currentIndex]);
+                    }
+                }
+            });
+        }
+        
+        // Calculate appropriate grid size for current zoom level
+        function updateGridSizeForZoom() {
+            const zoom = map.getZoom();
+            let gridSize;
+            
+            if (zoom < -1) {
+                gridSize = 1000;
+            } else if (zoom < 0) {
+                gridSize = 500;
+            } else if (zoom < 1) {
+                gridSize = 200;
+            } else if (zoom < 2) {
+                gridSize = 100;
+            } else if (zoom < 3) {
+                gridSize = 50;
+            } else if (zoom < 4) {
+                gridSize = 20;
+            } else {
+                gridSize = 10;
+            }
+            
+            document.getElementById('grid-size').value = gridSize;
+            const button = document.getElementById('grid-toggle');
+            if (gridEnabled) {
+                button.textContent = `Hide Grid (${gridSize}m)`;
+            } else {
+                button.textContent = `Show Grid (${gridSize}m)`;
+            }
+        }
+        
+        // Load maps data from JSON
+        async function loadMapsData() {
+            try {
+                const response = await fetch('all_arma_maps.json');
+                if (!response.ok) throw new Error('Failed to load maps data');
+                
+                mapsData = await response.json();
+                populateMapSelector();
+                
+                // Load first map by default
+                if (mapsData.length > 0) {
+                    loadMap(0);
+                }
+            } catch (error) {
+                console.error('Error loading maps:', error);
+                document.getElementById('map-selector').innerHTML = 
+                    '<option class="error">Error loading maps</option>';
+            }
+        }
+        
+        // Populate the map selector dropdown
+        function populateMapSelector() {
+            const selector = document.getElementById('map-selector');
+            selector.innerHTML = '';
+            
+            mapsData.forEach((mapData, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = mapData.name;
+                selector.appendChild(option);
+            });
+        }
+        
+        // Load a specific map using image overlay instead of tiles
+        function loadMap(index) {
+            const mapData = mapsData[index];
+            if (!mapData) return;
+            
+            currentMapData = mapData;
+            
+            // Remove previous layer if exists
+            if (currentLayer) {
+                map.removeLayer(currentLayer);
+            }
+            
+            // For L.CRS.Simple, bounds are [[y1, x1], [y2, x2]]
+            // Origin is top-left, y increases downward
+            const [width, height] = mapData.size;
+            const bounds = [[0, 0], [height, width]];
+            
+            // Use image overlay for simplicity - works better for non-power-of-2 sizes
+            const imageUrl = mapData.resources.map_image;
+            currentLayer = L.imageOverlay(imageUrl, bounds, {
+                opacity: 1,
+                interactive: false
+            });
+            
+            currentLayer.addTo(map);
+            
+            // Fit map to bounds
+            map.fitBounds(bounds);
+            
+            // Update max zoom
+            map.setMaxZoom(mapData.max_zoom);
+            
+            // Update info panel
+            updateInfo(mapData);
+            
+            // Redraw grid if enabled
+            if (gridEnabled) {
+                drawGrid(mapData);
+            }
+        }
+        
+        // Draw grid overlay
+        function drawGrid(mapData) {
+            // Remove existing grid
+            if (gridLayer) {
+                map.removeLayer(gridLayer);
+            }
+            
+            const gridSizeMeters = parseInt(document.getElementById('grid-size').value) || 10;
+            // For Arma Reforger maps: 1 pixel = 1 meter (standard convention)
+            const gridSizePixels = gridSizeMeters;
+            
+            const [width, height] = mapData.size;
+            const lines = [];
+            
+            // Vertical lines
+            for (let x = 0; x <= width; x += gridSizePixels) {
+                lines.push([
+                    [0, x],
+                    [height, x]
+                ]);
+            }
+            
+            // Horizontal lines
+            for (let y = 0; y <= height; y += gridSizePixels) {
+                lines.push([
+                    [y, 0],
+                    [y, width]
+                ]);
+            }
+            
+            gridLayer = L.layerGroup();
+            
+            lines.forEach(coords => {
+                L.polyline(coords, {
+                    color: '#ffffff',
+                    weight: 2,
+                    opacity: 0.4,
+                    dashArray: '5, 5',
+                    interactive: false
+                }).addTo(gridLayer);
+            });
+            
+            gridLayer.addTo(map);
+        }
+        
+        // Toggle grid visibility
+        function toggleGrid() {
+            gridEnabled = !gridEnabled;
+            const button = document.getElementById('grid-toggle');
+            
+            if (gridEnabled) {
+                button.classList.add('active');
+                updateGridSizeForZoom();
+                const currentIndex = document.getElementById('map-selector').selectedIndex;
+                if (currentIndex >= 0 && mapsData[currentIndex]) {
+                    drawGrid(mapsData[currentIndex]);
+                }
+            } else {
+                button.classList.remove('active');
+                const gridSize = document.getElementById('grid-size').value;
+                button.textContent = `Show Grid (${gridSize}m)`;
+                if (gridLayer) {
+                    map.removeLayer(gridLayer);
+                    gridLayer = null;
+                }
+            }
+        }
+        
+        // Update the info panel
+        function updateInfo(mapData) {
+            document.getElementById('info-size').textContent = 
+                `${mapData.size[0]} × ${mapData.size[1]}`;
+            document.getElementById('info-zoom').textContent = 
+                mapData.max_zoom;
+            document.getElementById('info-namespace').textContent = 
+                mapData.namespace;
+        }
+        
+        // Event listener for map selection
+        document.getElementById('map-selector').addEventListener('change', (e) => {
+            const index = parseInt(e.target.value);
+            if (!isNaN(index)) {
+                loadMap(index);
+            }
+        });
+        
+        // Event listeners for grid controls
+        document.getElementById('grid-toggle').addEventListener('click', toggleGrid);
+        
+        document.getElementById('grid-size').addEventListener('change', (e) => {
+            const gridSize = e.target.value;
+            const button = document.getElementById('grid-toggle');
+            if (gridEnabled) {
+                button.textContent = `Hide Grid (${gridSize}m)`;
+                const currentIndex = document.getElementById('map-selector').selectedIndex;
+                if (currentIndex >= 0 && mapsData[currentIndex]) {
+                    drawGrid(mapsData[currentIndex]);
+                }
+            } else {
+                button.textContent = `Show Grid (${gridSize}m)`;
+            }
+        });
+        
+        // Initialize everything
+        initMap();
+        loadMapsData();
+    </script>
+</body>
+</html>
