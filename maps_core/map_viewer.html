@@ -288,8 +288,7 @@
         <div id="map-info">
             <div><label>Map Size:</label><span id="info-size">-</span></div>
             <div><label>Max Zoom:</label><span id="info-zoom">-</span></div>
-            <div><label>Data Grid:</label><span id="info-grid-dim">-</span></div>
-            <div><label>Offset:</label><span id="info-offset">0</span></div>
+            <div><label>Offset:</label><span id="info-offset">E:0 / N:0</span></div>
             <div><label>Coordinates:</label><span id="info-coords">-</span></div>
             <div><label>Elevation:</label><span id="info-elevation">-</span></div>
         </div>
@@ -367,19 +366,11 @@
                 currentOffset = Math.floor((gridSize - mapSize) / 2);
                 arrayX = Math.round(east + currentOffset);
                 arrayY = Math.round(north + currentOffset);
-
-                const offsetEl = document.getElementById('info-offset');
-                offsetEl.textContent = `+${currentOffset}`;
-                offsetEl.classList.add('highlight-offset');
             } else {
                 currentOffset = 0;
                 const ratio = (gridSize - 1) / mapSize;
                 arrayX = Math.round(east * ratio);
                 arrayY = Math.round(north * ratio);
-
-                const offsetEl = document.getElementById('info-offset');
-                offsetEl.textContent = "0 (Scaled)";
-                offsetEl.classList.remove('highlight-offset');
             }
 
             if (arrayX < 0 || arrayX >= gridSize || arrayY < 0 || arrayY >= gridSize) return null;
@@ -396,7 +387,6 @@
         async function loadHeightData(namespace) {
             heightData = null;
             document.getElementById('info-elevation').textContent = 'Loading...';
-            document.getElementById('info-grid-dim').textContent = '-';
 
             try {
                 const response = await fetch(`height_data/${namespace}_height.json`);
@@ -410,9 +400,7 @@
                 if (Array.isArray(heightData) && heightData.length > 0) {
                     const gridSize = heightData.length;
                     console.log(`[height] ${namespace} gridSize=${gridSize}`);
-                    document.getElementById('info-grid-dim').textContent = `${gridSize} x ${gridSize}`;
                     document.getElementById('info-elevation').textContent = '-';
-                    getElevationAt(0, 0);
                 } else {
                     document.getElementById('info-elevation').textContent = 'N/A';
                     heightData = null;
@@ -615,6 +603,10 @@
             document.getElementById('info-size').textContent =
                 `${gameWidth} × ${gameHeight}`;
             document.getElementById('info-zoom').textContent = mapData.max_zoom;
+            
+            const offsetEast = mapData.coordinate_offset?.east || 0;
+            const offsetNorth = mapData.coordinate_offset?.north || 0;
+            document.getElementById('info-offset').textContent = `E:${offsetEast} / N:${offsetNorth}`;
 
             if (gridEnabled) drawGrid(mapData);
         }
