@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arma Reforger Map Viewer v2 (1:1 Calibrated)</title>
+    <title>Arma Reforger Map Viewer</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * {
@@ -317,7 +317,7 @@
             <div id="calibration-result" class="result" style="display: none;"></div>
         </div>
         <div class="tile-status">
-            <strong>v2:</strong> 1:1 calibrated with arma-mortar.com
+            <strong id="current-map-name">-</strong>
         </div>
     </div>
 
@@ -381,15 +381,12 @@
             try {
                 const response = await fetch(`height_data/${namespace}_height.json`);
                 if (!response.ok) {
-                    console.log(`No height data available for ${namespace} (${response.status})`);
                     document.getElementById('info-elevation').textContent = 'N/A';
                     return;
                 }
 
                 heightData = await response.json();
                 if (Array.isArray(heightData) && heightData.length > 0) {
-                    const gridSize = heightData.length;
-                    console.log(`[height] ${namespace} gridSize=${gridSize}`);
                     document.getElementById('info-elevation').textContent = '-';
                 } else {
                     document.getElementById('info-elevation').textContent = 'N/A';
@@ -431,7 +428,6 @@
             else if (zoom <= -0.5) gridSize = 50;
             else gridSize = 20;
 
-            console.log(`[zoom] level=${zoom}, gridSize=${gridSize}m`);
             document.getElementById('grid-size').value = gridSize;
             const button = document.getElementById('grid-toggle');
             button.textContent = gridEnabled ? `Hide Grid (${gridSize}m)` : `Show Grid (${gridSize}m)`;
@@ -442,7 +438,6 @@
                 const response = await fetch('all_arma_maps.json');
                 if (!response.ok) throw new Error('Failed to load maps data');
                 mapsData = await response.json();
-                console.log('[maps] loaded configs:', mapsData);
                 const selector = document.getElementById('map-selector');
                 selector.innerHTML = '';
                 mapsData.forEach((mapData, index) => {
@@ -463,9 +458,6 @@
             const mapData = mapsData[index];
             if (!mapData) return;
 
-            console.log('========== loadMap ==========');
-            console.log('[map] selected:', mapData);
-
             currentMapData = mapData;
             await loadHeightData(mapData.namespace);
 
@@ -477,12 +469,10 @@
             const [gameWidth, gameHeight] = mapData.size;
             const maxGenZoom = mapData.max_zoom;
             const tileImageSize = 256 * Math.pow(2, maxGenZoom);
-            console.log(`[map] gameWidth=${gameWidth}, gameHeight=${gameHeight}, tileImageSize=${tileImageSize}`);
 
             const testTileUrl = `tiles/${mapData.namespace}/0/0/0.png`;
             const tilesExist = await fetch(testTileUrl, { method: 'HEAD' })
                 .then(r => r.ok).catch(() => false);
-            console.log(`[tiles] test ${testTileUrl} -> ${tilesExist}`);
             if (!tilesExist) {
                 showError('Tiles Not Generated',
                     `Tiles are not available for ${mapData.name}.`,
@@ -494,7 +484,6 @@
 
             // Calculate scale: tiles are in tileImageSize space, game coords in gameWidth space
             const scale = tileImageSize / gameWidth;
-            console.log(`[map] scale factor: ${scale.toFixed(3)} (${tileImageSize}/${gameWidth})`);
 
             // Identity CRS - scaling handled in tile layer
             const crs = L.extend({}, L.CRS.Simple, {
@@ -506,11 +495,9 @@
                 L.latLng(0, 0),
                 L.latLng(gameHeight, gameWidth)
             );
-            console.log('[map] imageBounds:', imageBounds);
 
             // Remove old map if present
             if (map) {
-                console.log('[map] removing previous map instance');
                 map.remove();
             }
 
@@ -526,7 +513,6 @@
                 zoomControl: true,
                 attributionControl: false
             });
-            console.log('[map] new map created');
 
             // Tile layer with scaled tileSize
             const urlTemplate = `tiles/${mapData.namespace}/{z}/{x}/{y}.png`;
@@ -545,19 +531,12 @@
                 return L.Util.template(urlTemplate, { z: dirZ, x: coords.x, y: coords.y });
             };
             currentLayer.addTo(map);
-            console.log('[tiles] layer added with tileSize:', 256 / scale);
 
             map.setMaxBounds(imageBounds);
             map.fitBounds(imageBounds);
-            console.log('[map] fitBounds imageBounds');
 
             map.on('mousemove', (e) => {
                 const coords = pixelToGame(e.latlng.lng, e.latlng.lat, currentMapData);
-
-                console.log(
-                    `Pixel: (${e.latlng.lng.toFixed(2)}, ${e.latlng.lat.toFixed(2)}) → ` +
-                    `Game: (${coords.east}, ${coords.north})`
-                );
 
                 document.getElementById('info-coords').textContent =
                     `${coords.east} / ${coords.north}`;
@@ -600,7 +579,6 @@
             });
 
             map.on('zoomend', () => {
-                console.log('[zoomend] zoom=', map.getZoom());
                 if (gridEnabled) {
                     updateGridSizeForZoom();
                     drawGrid(currentMapData);
@@ -610,6 +588,7 @@
             document.getElementById('info-size').textContent =
                 `${gameWidth} × ${gameHeight}`;
             document.getElementById('info-zoom').textContent = mapData.max_zoom;
+            document.getElementById('current-map-name').textContent = mapData.name;
             
             const offsetEast = mapData.coordinate_offset?.east || 0;
             const offsetNorth = mapData.coordinate_offset?.north || 0;
@@ -623,8 +602,6 @@
 
             const gridSizeMeters = parseInt(document.getElementById('grid-size').value) || 10;
             const [gameWidth, gameHeight] = mapData.size;
-
-            console.log('[grid] gridSize=', gridSizeMeters, 'gameSize=', gameWidth, 'x', gameHeight);
 
             const lines = [];
             // Vertical lines (constant east/lng, varying north/lat)
