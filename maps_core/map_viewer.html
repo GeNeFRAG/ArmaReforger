@@ -585,6 +585,22 @@
                     document.getElementById('manual-result').innerHTML =
                         `📍 Clicked: <b>E:${clickedCoords.east} / N:${clickedCoords.north}</b>`;
                     document.getElementById('manual-result').style.color = '#ff9800';
+                } else {
+                    const coords = pixelToGame(e.latlng.lng, e.latlng.lat, currentMapData);
+                    const coordText = `${coords.east} / ${coords.north}`;
+                    
+                    navigator.clipboard.writeText(coordText).then(() => {
+                        const coordsDisplay = document.getElementById('info-coords');
+                        const originalText = coordsDisplay.textContent;
+                        coordsDisplay.textContent = `📋 Copied: ${coordText}`;
+                        coordsDisplay.style.color = '#4CAF50';
+                        
+                        setTimeout(() => {
+                            coordsDisplay.style.color = '#4CAF50';
+                        }, 1500);
+                    }).catch(err => {
+                        console.error('Failed to copy coordinates:', err);
+                    });
                 }
             });
 
