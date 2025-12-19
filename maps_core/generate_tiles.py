@@ -268,10 +268,39 @@ def main():
         print(f"Size: {map_data['size'][0]}x{map_data['size'][1]}")
         print(f"{'='*60}")
         
+        # Check if tiles already exist
+        tile_dir = output_dir / map_data['namespace']
+        if tile_dir.exists() and any(tile_dir.iterdir()):
+            print(f"⚠️  Tiles already exist for {map_data['name']}")
+            response = input("Regenerate tiles? (y/N): ").strip().lower()
+            if response != 'y':
+                print(f"Skipping {map_data['name']}")
+                continue
+        
+        # Check if source image exists locally
+        local_image_path = Path(__file__).parent / map_data['dir'] / "sat_full.png"
+        
+        if not local_image_path.exists():
+            # Try to download from CDN if available
+            if 'resources' in map_data and 'map_image' in map_data['resources']:
+                cdn_url = map_data['resources']['map_image']
+                print(f"Local image not found, downloading from CDN...")
+                try:
+                    image = download_image(cdn_url)
+                except Exception as e:
+                    print(f"\n✗ Error downloading from {cdn_url}: {e}")
+                    print(f"Please ensure the satellite image exists locally at {local_image_path}")
+                    continue
+            else:
+                print(f"\n✗ Error: Source image not found at {local_image_path}")
+                print(f"Please ensure the satellite image exists in the {map_data['dir']} directory")
+                continue
+        else:
+            # Load local image
+            print(f"Loading image from {local_image_path}...")
+            image = Image.open(local_image_path)
+        
         try:
-            # Download image
-            image = download_image(map_data['resources']['map_image'])
-            
             # Generate tiles
             generate_tiles(
                 image,

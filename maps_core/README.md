@@ -164,6 +164,7 @@ Each JSON is a 2D array where:
 **Map Sizes:**
 - Smallest: Novka (2900m × 2900m)
 - Largest: Nizla Island, Saigon (17150m × 17150m)
+- Non-square maps: Seitenbuch (4000m × 2000m), Udachne (10240m × 5120m)
 
 ## Usage Examples
 

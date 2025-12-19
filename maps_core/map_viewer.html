@@ -1,29 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<!--
-    Arma Reforger Interactive Map Viewer
-    
-    Features:
-    - Displays all 23 Arma Reforger satellite maps
-    - Interactive map controls (pan, zoom, drag)
-    - Adaptive grid overlay with auto-scaling based on zoom level
-    - Real-time North/East coordinate display
-    - Optimized for large map images (up to 2.6GB)
-    
-    Technical:
-    - Leaflet.js with L.CRS.Simple for pixel-based coordinates
-    - 1 pixel = 1 meter scale (standard Arma Reforger mapping)
-    - Grid overlay with configurable spacing (10m-1000m)
-    - Dynamic grid scaling: zoomed out = wide grid, zoomed in = fine grid
-    
-    Data Source:
-    - Map metadata: all_arma_maps.json
-    - Satellite images: Cloudflare R2 CDN
--->
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arma Reforger Map Viewer (Tiled - Fixed)</title>
+    <title>Arma Reforger Map Viewer v2 (1:1 Calibrated)</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * {
@@ -31,13 +12,13 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #1a1a1a;
             color: #fff;
         }
-        
+
         #controls {
             position: absolute;
             top: 10px;
@@ -48,14 +29,15 @@
             border-radius: 8px;
             backdrop-filter: blur(10px);
             max-width: 300px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
-        
+
         #controls h2 {
             font-size: 18px;
             margin-bottom: 10px;
             color: #4CAF50;
         }
-        
+
         #map-selector {
             width: 100%;
             padding: 8px;
@@ -66,7 +48,7 @@
             color: #fff;
             font-size: 14px;
         }
-        
+
         #map-info {
             font-size: 12px;
             line-height: 1.6;
@@ -74,21 +56,22 @@
             padding-top: 10px;
             border-top: 1px solid #333;
         }
-        
+
         #map-info div {
             margin: 4px 0;
+            display: flex;
+            justify-content: space-between;
         }
-        
+
         #map-info label {
             color: #888;
-            display: inline-block;
-            width: 80px;
         }
-        
+
         #map-info span {
             color: #4CAF50;
+            font-family: 'Courier New', monospace;
         }
-        
+
         #error-message {
             position: absolute;
             top: 10px;
@@ -103,11 +86,11 @@
             backdrop-filter: blur(10px);
             border: 2px solid #dc3545;
         }
-        
+
         #error-message.show {
             display: block;
         }
-        
+
         #error-message .close-btn {
             float: right;
             font-size: 20px;
@@ -117,17 +100,17 @@
             margin-left: 10px;
             opacity: 0.8;
         }
-        
+
         #error-message .close-btn:hover {
             opacity: 1;
         }
-        
+
         #error-message strong {
             display: block;
             margin-bottom: 8px;
             font-size: 14px;
         }
-        
+
         #error-message code {
             display: block;
             background: rgba(0, 0, 0, 0.3);
@@ -137,13 +120,13 @@
             font-family: 'Courier New', monospace;
             font-size: 12px;
         }
-        
+
         .grid-controls {
             margin-top: 10px;
             padding-top: 10px;
             border-top: 1px solid #333;
         }
-        
+
         .grid-controls button {
             width: 100%;
             padding: 8px;
@@ -155,16 +138,16 @@
             font-size: 13px;
             transition: all 0.2s;
         }
-        
+
         .grid-controls button:hover {
             background: #3a3a3a;
         }
-        
+
         .grid-controls button.active {
             background: #4CAF50;
             color: #000;
         }
-        
+
         .grid-controls input {
             width: 100%;
             margin-top: 8px;
@@ -175,7 +158,18 @@
             color: #fff;
             font-size: 12px;
         }
-        
+
+        .grid-controls input.inline {
+            width: 48%;
+            display: inline-block;
+            vertical-align: top;
+            margin-top: 8px;
+        }
+
+        .grid-controls input.inline:first-of-type {
+            margin-right: 4%;
+        }
+
         .tile-status {
             margin-top: 10px;
             padding-top: 10px;
@@ -183,7 +177,82 @@
             font-size: 11px;
             color: #888;
         }
-        
+
+        .calibration-panel {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+            display: none;
+        }
+
+        .calibration-panel.active {
+            display: block;
+        }
+
+        .calibration-panel h3 {
+            font-size: 14px;
+            color: #ff9800;
+            margin-bottom: 8px;
+        }
+
+        .calibration-panel input {
+            width: 100%;
+            margin-bottom: 6px;
+            padding: 6px;
+            background: #2a2a2a;
+            border: 1px solid #ff9800;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 12px;
+        }
+
+        .calibration-panel button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            background: #2a2a2a;
+            border: 1px solid #ff9800;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .calibration-panel button:hover {
+            background: #3a3a3a;
+        }
+
+        .calibration-panel button.calculate {
+            background: #ff9800;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .calibration-panel .result {
+            margin-top: 10px;
+            padding: 8px;
+            background: #2a2a2a;
+            border: 1px solid #ff9800;
+            border-radius: 4px;
+            font-size: 11px;
+            line-height: 1.6;
+            font-family: 'Courier New', monospace;
+        }
+
+        .calibration-panel .result div {
+            margin: 4px 0;
+        }
+
+        .calibration-panel .result .current {
+            color: #888;
+        }
+
+        .calibration-panel .result .suggested {
+            color: #ff9800;
+            font-weight: bold;
+        }
+
         #map {
             position: absolute;
             top: 0;
@@ -192,174 +261,143 @@
             height: 100vh;
             background: #0a0a0a;
         }
-        
+
         .leaflet-container {
             background: #0a0a0a;
+            cursor: crosshair !important;
+        }
+
+        .highlight-offset {
+            color: #ff9800 !important;
         }
     </style>
 </head>
+
 <body>
     <div id="error-message">
         <span class="close-btn" onclick="this.parentElement.classList.remove('show')">&times;</span>
         <strong id="error-title">Error</strong>
         <div id="error-text"></div>
     </div>
-    
+
     <div id="controls">
-        <h2>🗺️ Arma Reforger Maps</h2>
+        <h2>🗺️ Arma Reforger Maps v2</h2>
         <select id="map-selector">
             <option value="">Loading maps...</option>
         </select>
         <div id="map-info">
-            <div><label>Size:</label><span id="info-size">-</span></div>
+            <div><label>Map Size:</label><span id="info-size">-</span></div>
             <div><label>Max Zoom:</label><span id="info-zoom">-</span></div>
-            <div><label>Namespace:</label><span id="info-namespace">-</span></div>
-            <div><label>N / E:</label><span id="info-coords">-</span></div>
+            <div><label>Data Grid:</label><span id="info-grid-dim">-</span></div>
+            <div><label>Offset:</label><span id="info-offset">0</span></div>
+            <div><label>Coordinates:</label><span id="info-coords">-</span></div>
             <div><label>Elevation:</label><span id="info-elevation">-</span></div>
         </div>
         <div class="grid-controls">
             <button id="grid-toggle">Show Grid (10m)</button>
-            <input type="number" id="grid-size" value="10" min="10" max="1000" step="10" placeholder="Grid size (meters)">
+            <input type="number" id="grid-size" value="10" min="10" max="1000" step="10"
+                placeholder="Grid size (meters)">
+        </div>
+        <div class="grid-controls">
+            <input type="number" id="manual-east" placeholder="East (X)" class="inline">
+            <input type="number" id="manual-north" placeholder="North (Y)" class="inline">
+            <button id="check-elevation" style="margin-top: 8px;">Check Elevation</button>
+            <div id="manual-result" style="margin-top: 8px; font-size: 11px; color: #4CAF50;"></div>
+        </div>
+        <div class="grid-controls">
+            <button id="calibration-toggle">🎯 Calibration Mode</button>
+        </div>
+        <div class="calibration-panel" id="calibration-panel">
+            <h3>📍 Map Calibration Helper</h3>
+            <p style="font-size: 11px; color: #888; margin-bottom: 8px;">
+                Find a landmark on arma-mortar.com, note reference coords, then click same point on this map.
+            </p>
+            <input type="number" id="ref-east" placeholder="Reference East (from arma-mortar.com)">
+            <input type="number" id="ref-north" placeholder="Reference North (from arma-mortar.com)">
+            <button class="calculate" id="calculate-offset">Calculate Offset</button>
+            <div id="calibration-result" class="result" style="display: none;"></div>
         </div>
         <div class="tile-status">
-            <strong>Tiles only:</strong> Generate tiles first with generate_tiles.py
+            <strong>v2:</strong> 1:1 calibrated with arma-mortar.com
         </div>
     </div>
-    
+
     <div id="map"></div>
-    
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ===== State Management =====
-        let map;                    // Leaflet map instance
-        let currentLayer;           // Current image overlay layer
-        let mapsData = [];          // All map configurations from JSON
-        let gridLayer = null;       // Grid overlay layer group
-        let gridEnabled = false;    // Grid visibility state
-        let currentMapData = null;  // Active map configuration
-        let heightData = null;      // Current height map data
-        
-        // ===== Map Initialization =====
-        function initMap() {
-            map = L.map('map', {
-                crs: L.CRS.Simple,
-                minZoom: -2,
-                maxZoom: 7,
-                zoomControl: true,
-                attributionControl: false
-            });
+        // ===== State =====
+        let map;
+        let currentLayer;
+        let mapsData = [];
+        let gridLayer = null;
+        let gridEnabled = false;
+        let currentMapData = null;
+        let heightData = null;
+        let currentOffset = 0;
+        let calibrationMode = false;
+        let clickedCoords = null;
+
+        // ===== Coordinate Transformation =====
+        function pixelToGame(pixelLng, pixelLat, ns) {
+            // With scaled tileSize (256/scale), e.latlng coords are already ~game space
+            // Invert Y-axis: arma-mortar has north decreasing downward, Leaflet lat increases downward
+            const [gameWidth, gameHeight] = ns.size;
+            const offsetEast = ns?.coordinate_offset?.east || 0;
+            const offsetNorth = ns?.coordinate_offset?.north || 0;
             
-            map.setView([0, 0], 0);
-            
-            // Track mouse coordinates and elevation
-            map.on('mousemove', (e) => {
-                if (!currentMapData) return;
-                
-                const coords = e.latlng;
-                const [width, height] = currentMapData.size;
-                
-                // East = X (horizontal), North = Y inverted (from bottom)
-                const east = Math.round(coords.lng);
-                const north = Math.round(height - coords.lat);
-                
-                document.getElementById('info-coords').textContent = `${north} / ${east}`;
-                
-                // Get elevation at cursor position
-                if (heightData && Array.isArray(heightData)) {
-                    const elevation = getElevationAt(east, north);
-                    if (elevation !== null && !isNaN(elevation)) {
-                        document.getElementById('info-elevation').textContent = `${elevation.toFixed(1)}m`;
-                    } else {
-                        document.getElementById('info-elevation').textContent = '-';
-                    }
-                } else {
-                    document.getElementById('info-elevation').textContent = 'N/A';
-                }
-            });
-            
-            map.on('mouseout', () => {
-                document.getElementById('info-coords').textContent = '-';
-                document.getElementById('info-elevation').textContent = '-';
-            });
-            
-            // Auto-adjust grid on zoom change
-            map.on('zoomend', () => {
-                if (gridEnabled) {
-                    updateGridSizeForZoom();
-                    const currentIndex = document.getElementById('map-selector').selectedIndex;
-                    if (currentIndex >= 0 && mapsData[currentIndex]) {
-                        drawGrid(mapsData[currentIndex]);
-                    }
-                }
-            });
+            return {
+                east: Math.round(pixelLng + offsetEast),
+                north: Math.round((gameHeight - pixelLat) + offsetNorth)
+            };
         }
-        
-        // Custom CRS for tiled maps
-        function createTileCRS(paddedSize) {
-            return L.extend({}, L.CRS.Simple, {
-                transformation: new L.Transformation(1, 0, 1, 0),
-                scale: function(zoom) {
-                    return Math.pow(2, zoom) * 256 / paddedSize;
-                },
-                zoom: function(scale) {
-                    return Math.log(scale * paddedSize / 256) / Math.LN2;
-                }
-            });
-        }
-        
-        // Get elevation at specific map coordinates
+
+        // ===== Elevation lookup =====
         function getElevationAt(east, north) {
-            if (!heightData || !Array.isArray(heightData) || heightData.length === 0) {
-                return null;
-            }
-            
-            // Height data is a 2D array without metadata
-            // Calculate grid spacing from map size and grid dimensions
+            if (!heightData || !Array.isArray(heightData) || heightData.length === 0) return null;
+
             const gridSize = heightData.length;
             const mapSize = currentMapData ? currentMapData.size[0] : 0;
-            
             if (mapSize === 0) return null;
-            
-            // Grid spacing = map_size / (grid_size - 1)
-            const gridSpacing = mapSize / (gridSize - 1);
-            
-            // Convert map coordinates to grid indices
-            const gridX = Math.round(east / gridSpacing);
-            const gridY = Math.round(north / gridSpacing);
-            
-            // Validate bounds
-            if (gridX < 0 || gridX >= gridSize || gridY < 0 || gridY >= gridSize) {
-                return null;
+
+            let arrayX, arrayY;
+            currentOffset = 0;
+
+            if (gridSize > mapSize * 1.2) {
+                currentOffset = Math.floor((gridSize - mapSize) / 2);
+                arrayX = Math.round(east + currentOffset);
+                arrayY = Math.round(north + currentOffset);
+
+                const offsetEl = document.getElementById('info-offset');
+                offsetEl.textContent = `+${currentOffset}`;
+                offsetEl.classList.add('highlight-offset');
+            } else {
+                currentOffset = 0;
+                const ratio = (gridSize - 1) / mapSize;
+                arrayX = Math.round(east * ratio);
+                arrayY = Math.round(north * ratio);
+
+                const offsetEl = document.getElementById('info-offset');
+                offsetEl.textContent = "0 (Scaled)";
+                offsetEl.classList.remove('highlight-offset');
             }
-            
-            // Grid Y is inverted (0 = south, gridSize-1 = north)
-            const invertedY = gridSize - 1 - gridY;
-            
-            // Get elevation from grid
-            if (!heightData[invertedY] || !Array.isArray(heightData[invertedY])) {
-                console.error('Invalid row:', invertedY);
-                return null;
-            }
-            
-            const elevation = heightData[invertedY][gridX];
-            
-            // Debug first call
-            if (!window.elevationDebugShown) {
-                console.log('getElevationAt debug:', {
-                    east, north, gridSize, mapSize, gridSpacing,
-                    gridX, gridY, invertedY, elevation
-                });
-                window.elevationDebugShown = true;
-            }
-            
-            return typeof elevation === 'number' ? elevation : (typeof elevation === 'string' ? parseFloat(elevation) : null);
+
+            if (arrayX < 0 || arrayX >= gridSize || arrayY < 0 || arrayY >= gridSize) return null;
+
+            const invertedY = gridSize - 1 - arrayY;
+            if (!heightData[invertedY]) return null;
+
+            const elevation = heightData[invertedY][arrayX];
+            return typeof elevation === 'number'
+                ? elevation
+                : (typeof elevation === 'string' ? parseFloat(elevation) : null);
         }
-        
-        // Load height map data for current map
+
         async function loadHeightData(namespace) {
             heightData = null;
             document.getElementById('info-elevation').textContent = 'Loading...';
-            
+            document.getElementById('info-grid-dim').textContent = '-';
+
             try {
                 const response = await fetch(`height_data/${namespace}_height.json`);
                 if (!response.ok) {
@@ -367,20 +405,15 @@
                     document.getElementById('info-elevation').textContent = 'N/A';
                     return;
                 }
-                
-                console.log(`Loading height data for ${namespace}...`);
-                const startTime = Date.now();
+
                 heightData = await response.json();
-                const loadTime = ((Date.now() - startTime) / 1000).toFixed(1);
-                
                 if (Array.isArray(heightData) && heightData.length > 0) {
                     const gridSize = heightData.length;
-                    const mapSize = currentMapData ? currentMapData.size[0] : 0;
-                    const spacing = mapSize > 0 ? (mapSize / (gridSize - 1)).toFixed(1) : '?';
-                    console.log(`✓ Loaded height data for ${namespace}: ${gridSize}×${gridSize} grid, ${spacing}m spacing (${loadTime}s)`);
+                    console.log(`[height] ${namespace} gridSize=${gridSize}`);
+                    document.getElementById('info-grid-dim').textContent = `${gridSize} x ${gridSize}`;
                     document.getElementById('info-elevation').textContent = '-';
+                    getElevationAt(0, 0);
                 } else {
-                    console.log(`Invalid height data format for ${namespace}`);
                     document.getElementById('info-elevation').textContent = 'N/A';
                     heightData = null;
                 }
@@ -390,347 +423,375 @@
                 heightData = null;
             }
         }
-        
-        // Show error message in HTML instead of alert
+
         function showError(title, message, command = null) {
             const errorDiv = document.getElementById('error-message');
             const errorTitle = document.getElementById('error-title');
             const errorText = document.getElementById('error-text');
-            
+
             errorTitle.textContent = title;
             if (command) {
                 errorText.innerHTML = `${message}<code>${command}</code>`;
             } else {
                 errorText.textContent = message;
             }
-            
+
             errorDiv.classList.add('show');
-            
-            // Auto-hide after 10 seconds
-            setTimeout(() => {
-                errorDiv.classList.remove('show');
-            }, 10000);
+            setTimeout(() => { errorDiv.classList.remove('show'); }, 10000);
         }
-        
-        // Calculate appropriate grid size for current zoom level
+
         function updateGridSizeForZoom() {
+            if (!map) return;
+            
             const zoom = map.getZoom();
             let gridSize;
-            
-            // Wider zoom ranges for each grid size
-            if (zoom < 1.5) {
-                gridSize = 1000;
-            } else if (zoom < 2.5) {
-                gridSize = 500;
-            } else if (zoom < 3.5) {
-                gridSize = 200;
-            } else if (zoom < 4.5) {
-                gridSize = 100;
-            } else if (zoom < 5.5) {
-                gridSize = 50;
-            } else if (zoom < 6.5) {
-                gridSize = 20;
-            } else {
-                gridSize = 10;
-            }
-            
+            // Zoom ranges: -5 (most zoomed out) to 0 (most zoomed in)
+            if (zoom <= -4) gridSize = 1000;
+            else if (zoom <= -3) gridSize = 500;
+            else if (zoom <= -2) gridSize = 200;
+            else if (zoom <= -1) gridSize = 100;
+            else if (zoom <= -0.5) gridSize = 50;
+            else gridSize = 20;
+
+            console.log(`[zoom] level=${zoom}, gridSize=${gridSize}m`);
             document.getElementById('grid-size').value = gridSize;
             const button = document.getElementById('grid-toggle');
-            if (gridEnabled) {
-                button.textContent = `Hide Grid (${gridSize}m)`;
-            } else {
-                button.textContent = `Show Grid (${gridSize}m)`;
-            }
+            button.textContent = gridEnabled ? `Hide Grid (${gridSize}m)` : `Show Grid (${gridSize}m)`;
         }
-        
-        // Load maps data from JSON
+
         async function loadMapsData() {
             try {
                 const response = await fetch('all_arma_maps.json');
                 if (!response.ok) throw new Error('Failed to load maps data');
-                
                 mapsData = await response.json();
-                populateMapSelector();
-                
-                // Load first map by default
-                if (mapsData.length > 0) {
-                    loadMap(0);
-                }
+                console.log('[maps] loaded configs:', mapsData);
+                const selector = document.getElementById('map-selector');
+                selector.innerHTML = '';
+                mapsData.forEach((mapData, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = mapData.name;
+                    selector.appendChild(option);
+                });
+                if (mapsData.length > 0) loadMap(0);
             } catch (error) {
                 console.error('Error loading maps:', error);
-                document.getElementById('map-selector').innerHTML = 
+                document.getElementById('map-selector').innerHTML =
                     '<option class="error">Error loading maps</option>';
             }
         }
-        
-        // Populate the map selector dropdown
-        function populateMapSelector() {
-            const selector = document.getElementById('map-selector');
-            selector.innerHTML = '';
-            
-            mapsData.forEach((mapData, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = mapData.name;
-                selector.appendChild(option);
-            });
-        }
-        
-        // Load a specific map - only use local tiles
+
         async function loadMap(index) {
             const mapData = mapsData[index];
             if (!mapData) return;
-            
+
+            console.log('========== loadMap ==========');
+            console.log('[map] selected:', mapData);
+
             currentMapData = mapData;
-            
-            // Load height data for this map
             await loadHeightData(mapData.namespace);
-            
-            // Remove previous layer if exists
-            if (currentLayer) {
+
+            if (currentLayer && map) {
+                console.log('[map] removing previous layer');
                 map.removeLayer(currentLayer);
             }
-            
-            const [width, height] = mapData.size;
-            const maxDim = Math.max(width, height);
-            const paddedSize = Math.pow(2, Math.ceil(Math.log2(maxDim)));
-            
-            // Check if tiles exist
+
+            const [gameWidth, gameHeight] = mapData.size;
+            const maxGenZoom = mapData.max_zoom;
+            const tileImageSize = 256 * Math.pow(2, maxGenZoom);
+            console.log(`[map] gameWidth=${gameWidth}, gameHeight=${gameHeight}, tileImageSize=${tileImageSize}`);
+
             const testTileUrl = `tiles/${mapData.namespace}/0/0/0.png`;
             const tilesExist = await fetch(testTileUrl, { method: 'HEAD' })
-                .then(r => r.ok)
-                .catch(() => false);
-            
+                .then(r => r.ok).catch(() => false);
+            console.log(`[tiles] test ${testTileUrl} -> ${tilesExist}`);
             if (!tilesExist) {
-                showError(
-                    'Tiles Not Generated',
+                showError('Tiles Not Generated',
                     `Tiles are not available for ${mapData.name}.`,
-                    `python3 generate_tiles.py ${mapData.namespace}`
-                );
+                    `python3 generate_tiles.py ${mapData.namespace}`);
                 return;
             }
-            
-            // Use tiled version with custom CRS
-            const tileCRS = createTileCRS(paddedSize);
-            
-            // Recreate map with correct CRS for this specific map
-            map.remove();
+
+            // ---- arma-mortar style CRS and bounds ----
+
+            // Calculate scale: tiles are in tileImageSize space, game coords in gameWidth space
+            const scale = tileImageSize / gameWidth;
+            console.log(`[map] scale factor: ${scale.toFixed(3)} (${tileImageSize}/${gameWidth})`);
+
+            // Identity CRS - scaling handled in tile layer
+            const crs = L.extend({}, L.CRS.Simple, {
+                transformation: new L.Transformation(1, 0, 1, 0)
+            });
+
+            // Bounds based on gameWidth/gameHeight
+            const imageBounds = L.latLngBounds(
+                L.latLng(0, 0),
+                L.latLng(gameHeight, gameWidth)
+            );
+            console.log('[map] imageBounds:', imageBounds);
+
+            // Remove old map if present
+            if (map) {
+                console.log('[map] removing previous map instance');
+                map.remove();
+            }
+
+            // Create map with identity CRS
+            const visibleLevels = 6;
+            const leafletMaxZoom = 0;
+            const leafletMinZoom = -5;
+
             map = L.map('map', {
-                crs: tileCRS,
-                minZoom: 0,
-                maxZoom: mapData.max_zoom,
+                crs,
+                minZoom: leafletMinZoom,
+                maxZoom: leafletMaxZoom,
                 zoomControl: true,
                 attributionControl: false
             });
-            
-            // Re-attach event listeners
+            console.log('[map] new map created');
+
+            // Tile layer with scaled tileSize
+            const urlTemplate = `tiles/${mapData.namespace}/{z}/{x}/{y}.png`;
+
+            currentLayer = L.tileLayer(urlTemplate, {
+                minZoom: leafletMinZoom,
+                maxZoom: leafletMaxZoom,
+                tileSize: 256 / scale,
+                noWrap: true,
+                bounds: imageBounds,
+                zoomOffset: maxGenZoom
+            });
+            currentLayer.getTileUrl = function (coords) {
+                const dirZ = coords.z + maxGenZoom;
+                return L.Util.template(urlTemplate, { z: dirZ, x: coords.x, y: coords.y });
+            };
+            currentLayer.addTo(map);
+            console.log('[tiles] layer added with tileSize:', 256 / scale);
+
+            map.setMaxBounds(imageBounds);
+            map.fitBounds(imageBounds);
+            console.log('[map] fitBounds imageBounds');
+
             map.on('mousemove', (e) => {
-                if (!currentMapData) return;
-                const coords = e.latlng;
-                const [w, h] = currentMapData.size;
-                const east = Math.round(coords.lng);
-                const north = Math.round(h - coords.lat);
-                
-                document.getElementById('info-coords').textContent = `${north} / ${east}`;
-                
-                // Get elevation at cursor position
-                if (heightData && Array.isArray(heightData)) {
-                    const elevation = getElevationAt(east, north);
-                    if (elevation !== null) {
-                        document.getElementById('info-elevation').textContent = `${elevation.toFixed(1)}m`;
-                    } else {
-                        document.getElementById('info-elevation').textContent = '-';
-                    }
-                } else {
-                    document.getElementById('info-elevation').textContent = 'N/A';
+                const coords = pixelToGame(e.latlng.lng, e.latlng.lat, currentMapData);
+
+                console.log(
+                    `Pixel: (${e.latlng.lng.toFixed(2)}, ${e.latlng.lat.toFixed(2)}) → ` +
+                    `Game: (${coords.east}, ${coords.north})`
+                );
+
+                document.getElementById('info-coords').textContent =
+                    `${coords.east} / ${coords.north}`;
+
+                if (heightData) {
+                    const elevation = getElevationAt(coords.east, coords.north);
+                    document.getElementById('info-elevation').textContent =
+                        elevation !== null ? `${elevation.toFixed(1)}m` : '-';
                 }
             });
-            
+
+            map.on('click', (e) => {
+                if (calibrationMode) {
+                    clickedCoords = pixelToGame(e.latlng.lng, e.latlng.lat, currentMapData);
+                    document.getElementById('manual-result').innerHTML =
+                        `📍 Clicked: <b>E:${clickedCoords.east} / N:${clickedCoords.north}</b>`;
+                    document.getElementById('manual-result').style.color = '#ff9800';
+                }
+            });
+
             map.on('mouseout', () => {
                 document.getElementById('info-coords').textContent = '-';
                 document.getElementById('info-elevation').textContent = '-';
             });
-            
+
             map.on('zoomend', () => {
+                console.log('[zoomend] zoom=', map.getZoom());
                 if (gridEnabled) {
                     updateGridSizeForZoom();
                     drawGrid(currentMapData);
                 }
             });
-            
-            // Create tile layer
-            currentLayer = L.tileLayer(`tiles/${mapData.namespace}/{z}/{x}/{y}.png`, {
-                minZoom: 0,
-                maxZoom: mapData.max_zoom,
-                tileSize: 256,
-                noWrap: true,
-                bounds: [[0, 0], [paddedSize, paddedSize]],
-                errorTileUrl: ''
-            });
-            
-            currentLayer.addTo(map);
-            
-            // Set view to actual map bounds - use paddedSize for zoom calculation
-            // but center on actual map area
-            const centerX = width / 2;
-            const centerY = height / 2;
-            
-            // Calculate zoom to fit actual map in view
-            // At zoom Z, visible area = paddedSize / (2^Z * 256 / paddedSize) = paddedSize^2 / (2^Z * 256)
-            // We want to fit width x height in the view
-            const mapContainer = document.getElementById('map');
-            const containerWidth = mapContainer.clientWidth;
-            const containerHeight = mapContainer.clientHeight;
-            
-            // Calculate zoom that fits the map
-            const zoomX = Math.log2((paddedSize * containerWidth) / (width * 256));
-            const zoomY = Math.log2((paddedSize * containerHeight) / (height * 256));
-            const fitZoom = Math.min(zoomX, zoomY, mapData.max_zoom);
-            
-            map.setView([centerY, centerX], fitZoom);
-            map.setMaxBounds([[0, 0], [height, width]]);
-            
-            // Redraw grid if it was enabled
-            if (gridEnabled) {
-                drawGrid(mapData);
-            }
-            
-            // Update max zoom
-            map.setMaxZoom(mapData.max_zoom);
-            
-            // Update info panel
-            updateInfo(mapData);
-            
-            // Redraw grid if enabled
-            if (gridEnabled) {
-                drawGrid(mapData);
-            }
+
+            document.getElementById('info-size').textContent =
+                `${gameWidth} × ${gameHeight}`;
+            document.getElementById('info-zoom').textContent = mapData.max_zoom;
+
+            if (gridEnabled) drawGrid(mapData);
         }
         
-        // Draw grid overlay
         function drawGrid(mapData) {
-            // Remove existing grid
-            if (gridLayer) {
-                map.removeLayer(gridLayer);
-            }
-            
+            if (gridLayer && map) map.removeLayer(gridLayer);
+
             const gridSizeMeters = parseInt(document.getElementById('grid-size').value) || 10;
-            const gridSizePixels = gridSizeMeters;
-            
-            const [width, height] = mapData.size;
-            
-            // Get padded size - grid needs to use padded coordinate space
-            const maxDim = Math.max(width, height);
-            const paddedSize = Math.pow(2, Math.ceil(Math.log2(maxDim)));
-            const scale = paddedSize / maxDim;  // Scale to padded coordinates
-            
+            const [gameWidth, gameHeight] = mapData.size;
+
+            console.log('[grid] gridSize=', gridSizeMeters, 'gameSize=', gameWidth, 'x', gameHeight);
+
             const lines = [];
-            
-            console.log(`Drawing grid: size=${gridSizeMeters}m, map=${width}x${height}, padded=${paddedSize}, scale=${scale.toFixed(3)}, zoom=${map.getZoom().toFixed(2)}`);
-            
-            // Draw grid in PADDED coordinates to match custom CRS
-            const scaledWidth = width * scale;
-            const scaledHeight = height * scale;
-            const scaledGridSize = gridSizePixels * scale;
-            
-            let vLineCount = 0;
-            for (let x = 0; x <= scaledWidth; x += scaledGridSize) {
-                lines.push([
-                    [0, x],
-                    [scaledHeight, x]
-                ]);
-                vLineCount++;
+            // Vertical lines (constant east/lng, varying north/lat)
+            for (let east = 0; east <= gameWidth; east += gridSizeMeters) {
+                lines.push([[0, east], [gameHeight, east]]);
             }
-            
-            let hLineCount = 0;
-            for (let y = 0; y <= scaledHeight; y += scaledGridSize) {
-                lines.push([
-                    [y, 0],
-                    [y, scaledWidth]
-                ]);
-                hLineCount++;
+            // Horizontal lines (constant north/lat, varying east/lng)
+            for (let north = 0; north <= gameHeight; north += gridSizeMeters) {
+                lines.push([[north, 0], [north, gameWidth]]);
             }
-            
-            console.log(`Grid lines: ${vLineCount} vertical, ${hLineCount} horizontal, total=${lines.length}`);
-            
+
             gridLayer = L.layerGroup();
-            
-            lines.forEach((coords, idx) => {
-                const line = L.polyline(coords, {
+            lines.forEach(coords => {
+                L.polyline(coords, {
                     color: '#ffffff',
                     weight: 2,
                     opacity: 0.4,
                     dashArray: '5, 5',
                     interactive: false
-                });
-                line.addTo(gridLayer);
+                }).addTo(gridLayer);
             });
-            
             gridLayer.addTo(map);
-            console.log('Grid added, scaled coords - first:', lines[0], 'extent:', [scaledHeight, scaledWidth]);
         }
-        
-        // Toggle grid visibility
+
         function toggleGrid() {
             gridEnabled = !gridEnabled;
             const button = document.getElementById('grid-toggle');
-            
+
             if (gridEnabled) {
                 button.classList.add('active');
                 updateGridSizeForZoom();
-                const currentIndex = document.getElementById('map-selector').selectedIndex;
-                if (currentIndex >= 0 && mapsData[currentIndex]) {
-                    drawGrid(mapsData[currentIndex]);
-                }
+                if (currentMapData) drawGrid(currentMapData);
             } else {
                 button.classList.remove('active');
                 const gridSize = document.getElementById('grid-size').value;
                 button.textContent = `Show Grid (${gridSize}m)`;
-                if (gridLayer) {
+                if (gridLayer && map) {
                     map.removeLayer(gridLayer);
                     gridLayer = null;
                 }
             }
         }
-        
-        // Update the info panel
-        function updateInfo(mapData) {
-            document.getElementById('info-size').textContent = 
-                `${mapData.size[0]} × ${mapData.size[1]}`;
-            document.getElementById('info-zoom').textContent = 
-                mapData.max_zoom;
-            document.getElementById('info-namespace').textContent = 
-                mapData.namespace;
-        }
-        
-        // Event listener for map selection
+
         document.getElementById('map-selector').addEventListener('change', (e) => {
             const index = parseInt(e.target.value);
-            if (!isNaN(index)) {
-                loadMap(index);
-            }
+            if (!isNaN(index)) loadMap(index);
         });
-        
-        // Event listeners for grid controls
+
         document.getElementById('grid-toggle').addEventListener('click', toggleGrid);
-        
         document.getElementById('grid-size').addEventListener('change', (e) => {
             const gridSize = e.target.value;
             const button = document.getElementById('grid-toggle');
             if (gridEnabled) {
                 button.textContent = `Hide Grid (${gridSize}m)`;
-                const currentIndex = document.getElementById('map-selector').selectedIndex;
-                if (currentIndex >= 0 && mapsData[currentIndex]) {
-                    drawGrid(mapsData[currentIndex]);
-                }
+                if (currentMapData) drawGrid(currentMapData);
             } else {
                 button.textContent = `Show Grid (${gridSize}m)`;
             }
         });
-        
-        // Initialize everything
-        initMap();
+
+        document.getElementById('check-elevation').addEventListener('click', () => {
+            const eastInput = parseInt(document.getElementById('manual-east').value);
+            const northInput = parseInt(document.getElementById('manual-north').value);
+            const resultDiv = document.getElementById('manual-result');
+
+            if (isNaN(eastInput) || isNaN(northInput)) {
+                resultDiv.textContent = 'Please enter both E and N coordinates';
+                resultDiv.style.color = '#dc3545';
+                return;
+            }
+            if (!currentMapData) {
+                resultDiv.textContent = 'No map loaded';
+                resultDiv.style.color = '#dc3545';
+                return;
+            }
+
+            const elevation = getElevationAt(eastInput, northInput);
+
+            if (elevation !== null && !isNaN(elevation)) {
+                resultDiv.innerHTML =
+                    `E:${eastInput} / N:${northInput} → <b>${elevation.toFixed(1)}m</b>`;
+                resultDiv.style.color = '#4CAF50';
+            } else {
+                resultDiv.textContent = `E:${eastInput} / N:${northInput} → Out of bounds`;
+                resultDiv.style.color = '#ffc107';
+            }
+        });
+
+        document.getElementById('calibration-toggle').addEventListener('click', () => {
+            calibrationMode = !calibrationMode;
+            const panel = document.getElementById('calibration-panel');
+            const button = document.getElementById('calibration-toggle');
+            
+            if (calibrationMode) {
+                panel.classList.add('active');
+                button.classList.add('active');
+                button.textContent = '🎯 Exit Calibration Mode';
+                document.getElementById('manual-result').textContent = 'Click on map to select landmark';
+                document.getElementById('manual-result').style.color = '#ff9800';
+            } else {
+                panel.classList.remove('active');
+                button.classList.remove('active');
+                button.textContent = '🎯 Calibration Mode';
+                document.getElementById('manual-result').textContent = '';
+                document.getElementById('calibration-result').style.display = 'none';
+                clickedCoords = null;
+            }
+        });
+
+        document.getElementById('calculate-offset').addEventListener('click', () => {
+            const refEast = parseInt(document.getElementById('ref-east').value);
+            const refNorth = parseInt(document.getElementById('ref-north').value);
+            const resultDiv = document.getElementById('calibration-result');
+
+            if (isNaN(refEast) || isNaN(refNorth)) {
+                alert('Please enter both reference coordinates from arma-mortar.com');
+                return;
+            }
+
+            if (!clickedCoords) {
+                alert('Please click on the map first to select the same landmark');
+                return;
+            }
+
+            if (!currentMapData) {
+                alert('No map loaded');
+                return;
+            }
+
+            const currentOffsetEast = currentMapData.coordinate_offset?.east || 0;
+            const currentOffsetNorth = currentMapData.coordinate_offset?.north || 0;
+
+            const newOffsetEast = refEast - clickedCoords.east + currentOffsetEast;
+            const newOffsetNorth = refNorth - clickedCoords.north + currentOffsetNorth;
+
+            resultDiv.innerHTML = `
+                <div><strong>📊 Calibration Results:</strong></div>
+                <div class="current">Current Offset: E:${currentOffsetEast} / N:${currentOffsetNorth}</div>
+                <div class="suggested">Suggested Offset: E:${newOffsetEast} / N:${newOffsetNorth}</div>
+                <div style="margin-top: 8px; color: #4CAF50;">
+                    <strong>JSON for all_arma_maps.json:</strong><br>
+                    "coordinate_offset": {<br>
+                    &nbsp;&nbsp;"east": ${newOffsetEast},<br>
+                    &nbsp;&nbsp;"north": ${newOffsetNorth}<br>
+                    }
+                </div>
+                <div style="margin-top: 8px; color: #888; font-size: 10px;">
+                    Reference: E:${refEast} / N:${refNorth}<br>
+                    Clicked: E:${clickedCoords.east} / N:${clickedCoords.north}<br>
+                    Difference: E:${newOffsetEast - currentOffsetEast} / N:${newOffsetNorth - currentOffsetNorth}
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+
+            navigator.clipboard.writeText(
+                `"coordinate_offset": {\n  "east": ${newOffsetEast},\n  "north": ${newOffsetNorth}\n}`
+            ).then(() => {
+                document.getElementById('manual-result').innerHTML =
+                    '✅ <b>JSON copied to clipboard!</b>';
+                document.getElementById('manual-result').style.color = '#4CAF50';
+            });
+        });
+
         loadMapsData();
     </script>
+
 </body>
+
 </html>

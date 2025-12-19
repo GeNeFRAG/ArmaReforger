@@ -109,11 +109,14 @@ Pre-calculated firing angles for every meter from minimum to maximum range.
 Build tools for working with Arma Reforger resources:
 
 ```bash
-# Download and stitch map tiles
-python helper_scripts/download_and_stitch_map.py --all
+# Download and stitch map tiles (auto-detects zoom from JSON)
+python helper_scripts/download_and_stitch_map.py seitenbuch
+python helper_scripts/download_and_stitch_map.py arland everon  # Multiple maps
+python helper_scripts/download_and_stitch_map.py --all           # All maps
 
-# Upload files to Cloudflare R2
-python helper_scripts/upload_to_r2.py <file_path>
+# Upload files to Cloudflare R2 (with overwrite protection)
+python helper_scripts/upload_to_r2.py --file map.png
+python helper_scripts/upload_to_r2.py --file map.png --force    # Prompts for overwrite
 
 # Update map URLs
 python helper_scripts/add_r2_urls.py

@@ -1,6 +1,11 @@
 [
   {
+    "dir": "everon_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": 5,
+      "north": -6
+    },
     "name": "Everon",
     "namespace": "everon",
     "size": [
@@ -13,7 +18,12 @@
     }
   },
   {
+    "dir": "arland_sat",
     "max_zoom": 6,
+    "coordinate_offset": {
+      "east": -49,
+      "north": -36
+    },
     "name": "Arland",
     "namespace": "arland",
     "size": [
@@ -26,7 +36,12 @@
     }
   },
   {
+    "dir": "kolguev_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": 28,
+      "north": 12
+    },
     "name": "Kolguev",
     "namespace": "kolguev",
     "size": [
@@ -39,7 +54,12 @@
     }
   },
   {
+    "dir": "anizay_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": -36,
+      "north": -64
+    },
     "name": "Anizay",
     "namespace": "anizay",
     "size": [
@@ -52,7 +72,12 @@
     }
   },
   {
+    "dir": "badorb_sat",
     "max_zoom": 6,
+    "coordinate_offset": {
+      "east": 1,
+      "north": -2
+    },
     "name": "Bad Orb",
     "namespace": "badorb",
     "size": [
@@ -64,7 +89,12 @@
     }
   },
   {
+    "dir": "belleau_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 0
+    },
     "name": "Belleau Wood",
     "namespace": "belleau",
     "size": [
@@ -76,7 +106,12 @@
     }
   },
   {
+    "dir": "fallujah_sat",
     "max_zoom": 6,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 0
+    },
     "name": "Fallujah",
     "namespace": "fallujah",
     "size": [
@@ -88,7 +123,12 @@
     }
   },
   {
+    "dir": "gogland_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 0
+    },
     "name": "Gogland",
     "namespace": "gogland",
     "size": [
@@ -101,7 +141,12 @@
     }
   },
   {
+    "dir": "khanh_trung_sat",
     "max_zoom": 6,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 0
+    },
     "name": "Khanh Trung",
     "namespace": "khanh_trung",
     "size": [
@@ -113,7 +158,12 @@
     }
   },
   {
+    "dir": "kunar_sat",
     "max_zoom": 5,
+    "coordinate_offset": {
+      "east": -14,
+      "north": -1
+    },
     "name": "Kunar",
     "namespace": "kunar",
     "size": [
@@ -126,7 +176,12 @@
     }
   },
   {
+    "dir": "myccano_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 0
+    },
     "name": "Myccano",
     "namespace": "myccano",
     "size": [
@@ -138,7 +193,12 @@
     }
   },
   {
+    "dir": "nizla_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 0
+    },
     "name": "Nizla Island",
     "namespace": "nizla",
     "size": [
@@ -150,7 +210,12 @@
     }
   },
   {
+    "dir": "novka_sat",
     "max_zoom": 5,
+    "coordinate_offset": {
+      "east": -9,
+      "north": 1
+    },
     "name": "Novka",
     "namespace": "novka",
     "size": [
@@ -162,7 +227,12 @@
     }
   },
   {
+    "dir": "rooikat_sat",
     "max_zoom": 6,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 0
+    },
     "name": "Rooikat 89",
     "namespace": "rooikat",
     "size": [
@@ -174,7 +244,12 @@
     }
   },
   {
+    "dir": "rostov_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 0
+    },
     "name": "Rostov",
     "namespace": "rostov",
     "size": [
@@ -186,7 +261,12 @@
     }
   },
   {
+    "dir": "ruha_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 0
+    },
     "name": "Ruha",
     "namespace": "ruha",
     "size": [
@@ -198,7 +278,12 @@
     }
   },
   {
+    "dir": "saigon_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": 3,
+      "north": -3
+    },
     "name": "Saigon",
     "namespace": "saigon",
     "size": [
@@ -211,19 +296,29 @@
     }
   },
   {
+    "dir": "seitenbuch_sat",
     "max_zoom": 6,
+        "coordinate_offset": {
+      "east": 1,
+      "north": -14
+    },
     "name": "Seitenbuch",
     "namespace": "seitenbuch",
     "size": [
-      2000,
-      4000
+      4000,
+      2000
     ],
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/seitenbuch_sat_z6_full.png"
     }
   },
   {
+    "dir": "serhiivka_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 0
+    },
     "name": "Serhiivka",
     "namespace": "serhiivka",
     "size": [
@@ -235,7 +330,12 @@
     }
   },
   {
+    "dir": "takistan_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": -7,
+      "north": 35
+    },
     "name": "Takistan",
     "namespace": "takistan",
     "size": [
@@ -248,19 +348,29 @@
     }
   },
   {
+    "dir": "udachne_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 5118
+    },
     "name": "Udachne",
     "namespace": "udachne",
     "size": [
-      5120,
-      10240
+      10240,
+      5120
     ],
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/udachne_sat_z7_full.png"
     }
   },
   {
+    "dir": "zarichne_sat",
     "max_zoom": 6,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 0
+    },
     "name": "Zarichne",
     "namespace": "zarichne",
     "size": [
@@ -273,7 +383,12 @@
     }
   },
   {
+    "dir": "zimnitrita_sat",
     "max_zoom": 7,
+    "coordinate_offset": {
+      "east": 0,
+      "north": 0
+    },
     "name": "Zimnitrita",
     "namespace": "zimnitrita",
     "size": [
