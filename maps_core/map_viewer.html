@@ -353,35 +353,25 @@
 
         // ===== Elevation lookup =====
         function getElevationAt(east, north) {
-            if (!heightData || !Array.isArray(heightData) || heightData.length === 0) return null;
-
-            const gridSize = heightData.length;
-            const mapSize = currentMapData ? currentMapData.size[0] : 0;
-            if (mapSize === 0) return null;
-
-            let arrayX, arrayY;
-            currentOffset = 0;
-
-            if (gridSize > mapSize * 1.2) {
-                currentOffset = Math.floor((gridSize - mapSize) / 2);
-                arrayX = Math.round(east + currentOffset);
-                arrayY = Math.round(north + currentOffset);
-            } else {
-                currentOffset = 0;
-                const ratio = (gridSize - 1) / mapSize;
-                arrayX = Math.round(east * ratio);
-                arrayY = Math.round(north * ratio);
+            if (!heightData || !Array.isArray(heightData) || heightData.length === 0) {
+                return null;
             }
-
-            if (arrayX < 0 || arrayX >= gridSize || arrayY < 0 || arrayY >= gridSize) return null;
-
-            const invertedY = gridSize - 1 - arrayY;
-            if (!heightData[invertedY]) return null;
-
-            const elevation = heightData[invertedY][arrayX];
-            return typeof elevation === 'number'
-                ? elevation
-                : (typeof elevation === 'string' ? parseFloat(elevation) : null);
+            
+            const GRID_SPACING = 10;
+            const arrayX = Math.floor(east / GRID_SPACING);
+            const arrayY = Math.floor(north / GRID_SPACING);
+            
+            if (arrayY < 0 || arrayY >= heightData.length) {
+                return null;
+            }
+            
+            const row = heightData[arrayY];
+            if (!Array.isArray(row) || arrayX < 0 || arrayX >= row.length) {
+                return null;
+            }
+            
+            const elevation = parseFloat(row[arrayX]);
+            return !isNaN(elevation) ? elevation : null;
         }
 
         async function loadHeightData(namespace) {
