@@ -526,7 +526,7 @@
 
             // Create map with identity CRS
             const visibleLevels = 6;
-            const leafletMaxZoom = 0;
+            const leafletMaxZoom = 1;
             const leafletMinZoom = -5;
 
             map = L.map('map', {
@@ -544,6 +544,7 @@
             currentLayer = L.tileLayer(urlTemplate, {
                 minZoom: leafletMinZoom,
                 maxZoom: leafletMaxZoom,
+                maxNativeZoom: 0,
                 tileSize: 256 / scale,
                 noWrap: true,
                 bounds: imageBounds,
