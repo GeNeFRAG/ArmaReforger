@@ -104,12 +104,23 @@ tiles/
 ## Contents
 
 ### `all_arma_maps.json`
-Master configuration file containing metadata for all 23 Arma Reforger maps:
+Master configuration file containing metadata for all 23 Arma Reforger maps.
+
+**Recent Updates (Dec 2025):**
+- Added `coordinate_offset` field for calibration with arma-mortar.com
+- Corrected Seitenbuch dimensions: [4000, 2000] (was [2000, 4000])
+- Corrected Udachne dimensions: [10240, 5120] (was [5120, 10240])
+- Added `dir` field for source directory reference
 
 **Structure:**
 ```json
 {
+  "dir": "everon_sat",
   "max_zoom": 7,
+  "coordinate_offset": {
+    "east": 5,
+    "north": -6
+  },
   "name": "Everon",
   "namespace": "everon",
   "size": [12800, 12800],
@@ -121,10 +132,14 @@ Master configuration file containing metadata for all 23 Arma Reforger maps:
 ```
 
 **Fields:**
+- `dir`: Source directory name (e.g., "everon_sat")
 - `max_zoom`: Maximum zoom level for tile downloads (0-7)
+- `coordinate_offset`: Calibration offsets to align with arma-mortar.com coordinates
+  - `east`: Horizontal offset in meters
+  - `north`: Vertical offset in meters
 - `name`: Display name of the map
 - `namespace`: Unique identifier used in filenames and URLs
-- `size`: Map dimensions in meters [width, height]
+- `size`: Map dimensions in meters [width, height] - **Note:** width first, then height
 - `resources.map_image`: Public R2 CDN URL for full satellite image
 - `resources.height_data`: R2 CDN URL for elevation JSON (if available)
 
