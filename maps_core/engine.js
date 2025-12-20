@@ -242,8 +242,8 @@ var engine = {
     if (engine.namespace.earth_corrent ?? false) {
       lngCorrection = engine.namespace.size[0] / 2 - lng;
       latCorrection = engine.namespace.size[1] / 2 - lat;
-      lngCorrection = (lngCorrection / engine.namespace.size[0]) * 64;
-      latCorrection = (latCorrection / engine.namespace.size[1]) * 64;
+      lngCorrection = (lngCorrection / engine.namespace.size[0]) * 100;
+      latCorrection = (latCorrection / engine.namespace.size[1]) * 100;
       lng += lngCorrection;
       lat += latCorrection;
     }

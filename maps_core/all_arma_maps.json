@@ -11,15 +11,16 @@
     "webp": true,
     "coordinate_transform": {
       "lng": {
-        "cof": 51.2,
-        "offset": -1.875
+        "cof": 50.0,
+        "offset": 0.0
       },
       "lat": {
-        "cof": -51.2,
-        "offset": -250.0
+        "cof": -50.0,
+        "offset": -256.0
       }
     },
     "has_metadata": true,
+    "earth_correction": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/everon_sat_z7_full.png",
       "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/everon_height.json"
@@ -65,11 +66,11 @@
     "webp": true,
     "coordinate_transform": {
       "lng": {
-        "cof": 32.0,
+        "cof": 50.0,
         "offset": 0.0
       },
       "lat": {
-        "cof": -32.0,
+        "cof": -50.0,
         "offset": -256.0
       }
     },
@@ -120,11 +121,11 @@
     "webp": true,
     "coordinate_transform": {
       "lng": {
-        "cof": 14.0,
+        "cof": 20.0,
         "offset": 0.0
       },
       "lat": {
-        "cof": -14.0,
+        "cof": -20.0,
         "offset": -256.0
       }
     },
@@ -356,11 +357,11 @@
     "webp": true,
     "coordinate_transform": {
       "lng": {
-        "cof": 14.0,
+        "cof": 20.0,
         "offset": 0.0
       },
       "lat": {
-        "cof": -14.0,
+        "cof": -20.0,
         "offset": -256.0
       }
     },
@@ -505,8 +506,8 @@
     "namespace": "takistan",
     "dir": "takistan_sat",
     "size": [
-      3264,
-      3264
+      12900,
+      12900
     ],
     "max_zoom": 7,
     "webp": true,
@@ -592,11 +593,11 @@
     "webp": true,
     "coordinate_transform": {
       "lng": {
-        "cof": 40.0,
+        "cof": 64.0,
         "offset": 0.0
       },
       "lat": {
-        "cof": -40.0,
+        "cof": -64.0,
         "offset": -256.0
       }
     },
