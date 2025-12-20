@@ -111,30 +111,30 @@ python3 generate_tiles.py 0
 **Output:**
 ```
 tiles/
-  └── everon/
+  └── everon_sat/      # Directory name includes _sat suffix
       ├── 0/           # Zoom level 0 (most zoomed out)
       │   └── 0/
-      │       └── 0.png
+      │       └── 0.webp
       ├── 1/           # Zoom level 1
       │   ├── 0/
-      │   │   ├── 0.png
-      │   │   └── 1.png
+      │   │   ├── 0.webp
+      │   │   └── 1.webp
       │   └── 1/
-      │       ├── 0.png
-      │       └── 1.png
+      │       ├── 0.webp
+      │       └── 1.webp
       └── ...
       └── 7/           # Zoom level 7 (max detail)
-          └── ...      # 16,384 tiles (64×64 grid)
+          └── ...      # 16,384 WebP tiles (128×128 grid)
 ```
 
 **Features:**
-- Downloads from Cloudflare R2 CDN
-- Progress tracking for large files (2.6GB+)
-- **User confirmation before deleting existing tiles** (safety feature)
+- Downloads from Cloudflare R2 CDN with progress tracking for large files (2.6GB+)
+- **User confirmation before deleting existing tiles** with tile count display
 - Automatic power-of-2 padding for web compatibility
-- Optimized 256×256 PNG tiles
-- Complete zoom pyramid generation
-- Resume capability (skips existing tiles)
+- Optimized 256×256 WebP tiles (90% quality, method 6)
+- Complete zoom pyramid generation (Z0 to max_zoom)
+- Smart tile directory naming with `_sat` suffix
+- Resume capability (skips maps when tiles exist and user declines regeneration)
 
 **Requirements:**
 - Python 3.7+
@@ -200,6 +200,30 @@ Master configuration file containing metadata for all 23 Arma Reforger maps.
 - `earth_correction`: Optional field for maps requiring specific projection adjustments
 - `resources.map_image`: Public R2 CDN URL for full satellite image
 - `resources.height_data`: R2 CDN URL for elevation JSON (if available)
+
+### `corner_mapping.json`
+Reference file documenting the mapping between map namespaces and their corner function types.
+
+**Purpose:**
+- Documents which corner function variant each map uses
+- Generated during metadata migration from engine.js
+- Useful for understanding corner function distribution across maps
+
+**Structure:**
+```json
+{
+  "corners_medium_padding": ["everon", "kolguev", "gogland", ...],
+  "corners_small_padding": ["arland", "bad_orb", ...],
+  "corners_minimal_padding": ["seitenbuch"],
+  ...
+}
+```
+
+**Corner Function Distribution:**
+- Most maps (13): `corners_medium_padding` - Standard 30px padding
+- Small padding (4): `corners_small_padding` - 5px padding  
+- Large variants (3): Various large padding configurations
+- Specialized (3): Unique configurations for specific maps
 
 ### `height_data/`
 Elevation data for maps (10m×10m grid resolution) hosted on Cloudflare R2.
@@ -303,8 +327,9 @@ print(f"Elevation at 1000m N, 1000m E: {elevation}m")
 - Source images up to 16384×16384 pixels (after padding)
 - Padded to power-of-2 for web map compatibility
 - 256×256 pixel tiles (standard web mapping)
-- Zoom pyramid: Z0 (1 tile) to Z7 (4096 tiles)
-- Output format: optimized PNG
+- Zoom pyramid: Z0 (1 tile) to Z7 (16,384 tiles for max zoom)
+- Output format: WebP (90% quality, optimized compression)
+- Directory naming: `tiles/{namespace}_sat/{z}/{x}/{y}.webp`
 
 **File Sizes:**
 - Smallest map (Novka): ~50MB satellite image
