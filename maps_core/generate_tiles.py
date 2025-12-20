@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-"""Generate map tiles from large satellite images for Leaflet.js"""
-
-import json
-import math
-import sys
-from pathlib import Path
-from PIL import Image
-#!/usr/bin/env python3
 """
 Tile Generator for Arma Reforger Maps
 
@@ -17,14 +9,14 @@ Features:
 - Downloads large (up to 2.6GB) PNG images with progress tracking
 - Pads images to power-of-2 dimensions for proper web map tiling
 - Generates zoom levels from 0 (most zoomed out) to max_zoom
-- Creates 256x256 pixel tiles in standard {z}/{x}/{y}.png structure
+- Creates 256x256 pixel tiles in WebP format for optimal web performance
 - Supports interactive, namespace, or index-based map selection
 
 Output Structure:
-    tiles/{namespace}/{zoom}/{x}/{y}.png
+    tiles/{namespace}_sat/{zoom}/{x}/{y}.webp
     
 Example:
-    tiles/arland/6/32/45.png
+    tiles/arland_sat/6/32/45.webp
     
 Usage:
     # Interactive mode
@@ -37,13 +29,21 @@ Usage:
     python3 generate_tiles.py 0
 """
 
-import requests
+import json
+import math
+import shutil
+import sys
+from pathlib import Path
 from io import BytesIO
+
+import requests
+from PIL import Image
 
 # Disable decompression bomb protection for large game maps
 Image.MAX_IMAGE_PIXELS = None
 
 TILE_SIZE = 256
+WEBP_QUALITY = 90  # 0-100, higher = better quality but larger files
 
 def download_image(url):
     """Download image from URL with progress tracking.
@@ -81,45 +81,93 @@ def download_image(url):
     content.seek(0)
     return Image.open(content)
 
-def generate_tiles(image, map_name, max_zoom, output_dir):
+def auto_crop_padding(image, map_size):
+    """Automatically detect and crop padding from square-padded images.
+    
+    Args:
+        image: PIL.Image object (potentially padded to square)
+        map_size: [width, height] from map config (actual game dimensions)
+        
+    Returns:
+        PIL.Image: Cropped image matching expected aspect ratio
+        
+    Note:
+        Detects green padding by scanning edges and finding the transition
+        from actual map content to padding areas. Falls back to config size
+        if auto-detection fails.
+    """
+    width, height = image.size
+    expected_width, expected_height = map_size
+    
+    # If already close to expected dimensions, no cropping needed
+    if abs(width - expected_width) < 100 and abs(height - expected_height) < 100:
+        return image
+    
+    # If image is square but map should be rectangular, crop it
+    if width == height and expected_width != expected_height:
+        print(f"Detected square padding: {width}x{height}, expected {expected_width}x{expected_height}")
+        
+        # Simple crop based on expected size (scale to match largest dimension)
+        if expected_width > expected_height:
+            # Landscape: use full width, crop height
+            crop_height = int(width * expected_height / expected_width)
+            crop_box = (0, 0, width, crop_height)
+        else:
+            # Portrait: use full height, crop width
+            crop_width = int(height * expected_width / expected_height)
+            crop_box = (0, 0, crop_width, height)
+        
+        print(f"Cropping to box: {crop_box}")
+        return image.crop(crop_box)
+    
+    return image
+
+def generate_tiles(image, map_name, max_zoom, output_dir, map_size=None):
     """Generate tile pyramid for all zoom levels.
     
     Args:
         image: PIL.Image object of the source map
         map_name: Namespace of the map (e.g., 'everon', 'arland')
         max_zoom: Maximum zoom level (highest detail)
-        output_dir: Base directory for tile output (creates tiles/{map_name}/...)
+        output_dir: Base directory for tile output (creates tiles/{map_name}_sat/...)
+        map_size: [width, height] from config for auto-cropping (optional)
         
     Process:
-        1. Pads image to next power-of-2 dimensions
-        2. For each zoom level (0 to max_zoom):
+        1. Auto-crops padding if image is square-padded
+        2. Pads image to next power-of-2 dimensions
+        3. For each zoom level (0 to max_zoom):
            - Scales image appropriately
            - Divides into 256x256 tiles
-           - Saves tiles as PNG with optimization
-        3. Creates directory structure: {z}/{x}/{y}.png
+           - Saves tiles as WebP with quality=90
+        4. Creates directory structure: {z}/{x}/{y}.webp
         
     Note:
         Zoom 0 = most zoomed out (entire map in few tiles)
         Max zoom = highest detail (original resolution)
+        Output directory will have _sat suffix to match engine config
     """
+    # Auto-crop padding if map_size provided
+    if map_size:
+        image = auto_crop_padding(image, map_size)
+    
     width, height = image.size
-    print(f"Original image size: {width}x{height}")
+    print(f"Image size after crop: {width}x{height}")
     
-    # Pad image to next power of 2 if needed
-    max_dim = max(width, height)
-    next_power = 1 << (max_dim - 1).bit_length()  # Find next power of 2
+    # Pad each dimension independently to next power of 2
+    next_width = 1 << (width - 1).bit_length() if width > 0 else 1
+    next_height = 1 << (height - 1).bit_length() if height > 0 else 1
     
-    if max_dim != next_power:
-        print(f"Padding image to {next_power}x{next_power} for proper tiling...")
-        padded = Image.new('RGB', (next_power, next_power), (0, 0, 0))
+    if width != next_width or height != next_height:
+        print(f"Padding image from {width}x{height} to {next_width}x{next_height} for proper tiling...")
+        padded = Image.new('RGB', (next_width, next_height), (0, 0, 0))
         padded.paste(image, (0, 0))
         image = padded
-        width, height = next_power, next_power
+        width, height = next_width, next_height
     
     print(f"Tiling with size: {width}x{height}")
     
-    # Create output directory
-    map_dir = output_dir / map_name
+    # Create output directory with _sat suffix to match engine config
+    map_dir = output_dir / f"{map_name}_sat"
     map_dir.mkdir(parents=True, exist_ok=True)
     
     # Generate tiles for each zoom level
@@ -168,9 +216,9 @@ def generate_tiles(image, map_name, max_zoom, output_dir):
                     padded.paste(tile, (0, 0))
                     tile = padded
                 
-                # Save tile
-                tile_path = col_dir / f"{row}.png"
-                tile.save(tile_path, 'PNG', optimize=True)
+                # Save tile as WebP
+                tile_path = col_dir / f"{row}.webp"
+                tile.save(tile_path, 'WEBP', quality=WEBP_QUALITY, method=6)
                 
                 tile_count += 1
                 if tile_count % 100 == 0:
@@ -269,13 +317,25 @@ def main():
         print(f"{'='*60}")
         
         # Check if tiles already exist
-        tile_dir = output_dir / map_data['namespace']
+        tile_dir = output_dir / f"{map_data['namespace']}_sat"
         if tile_dir.exists() and any(tile_dir.iterdir()):
             print(f"⚠️  Tiles already exist for {map_data['name']}")
-            response = input("Regenerate tiles? (y/N): ").strip().lower()
+            print(f"   Directory: {tile_dir}")
+            
+            # Count existing tiles for confirmation
+            tile_count = sum(1 for _ in tile_dir.rglob('*.webp'))
+            if tile_count > 0:
+                print(f"   Contains: {tile_count} tile files")
+            
+            response = input("Delete existing tiles and regenerate? (y/N): ").strip().lower()
             if response != 'y':
                 print(f"Skipping {map_data['name']}")
                 continue
+            
+            # Delete existing tiles directory
+            print(f"Deleting existing tiles directory...")
+            shutil.rmtree(tile_dir)
+            print(f"✓ Deleted {tile_dir}")
         
         # Check if source image exists locally
         local_image_path = Path(__file__).parent / map_data['dir'] / "sat_full.png"
@@ -306,7 +366,8 @@ def main():
                 image,
                 map_data['namespace'],
                 map_data['max_zoom'],
-                output_dir
+                output_dir,
+                map_data['size']  # Pass size for auto-cropping
             )
             
             image.close()

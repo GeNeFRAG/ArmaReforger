@@ -1,403 +1,609 @@
 [
   {
-    "dir": "everon_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": 5,
-      "north": -6
-    },
     "name": "Everon",
     "namespace": "everon",
+    "dir": "everon_sat",
     "size": [
       12800,
       12800
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 51.2,
+        "offset": -1.875
+      },
+      "lat": {
+        "cof": -51.2,
+        "offset": -250.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/everon_sat_z7_full.png",
       "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/everon_height.json"
-    }
+    },
+    "corner_type": "corners_medium_padding"
   },
   {
-    "dir": "arland_sat",
-    "max_zoom": 6,
-    "coordinate_offset": {
-      "east": -49,
-      "north": -36
-    },
     "name": "Arland",
     "namespace": "arland",
+    "dir": "arland_sat",
     "size": [
       4095,
       4095
     ],
+    "max_zoom": 6,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 15.39,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -15.12,
+        "offset": -261.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/arland_sat_z6_full.png",
       "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/arland_height.json"
-    }
+    },
+    "corner_type": "corners_small_padding"
   },
   {
-    "dir": "kolguev_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": 28,
-      "north": 12
-    },
     "name": "Kolguev",
     "namespace": "kolguev",
+    "dir": "kolguev_sat",
     "size": [
       12800,
       12800
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 32.0,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -32.0,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
+    "earth_correction": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/kolguev_sat_z7_full.png",
       "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/kolguev_height.json"
-    }
+    },
+    "corner_type": "corners_medium_padding"
   },
   {
-    "dir": "anizay_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": -36,
-      "north": -64
-    },
     "name": "Anizay",
     "namespace": "anizay",
+    "dir": "anizay_sat",
     "size": [
       10240,
       10240
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 39.65,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -39.65,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/anizay_sat_z7_full.png",
       "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/anizay_height.json"
-    }
+    },
+    "corner_type": "corners_large_padding_adjusted"
   },
   {
-    "dir": "badorb_sat",
-    "max_zoom": 6,
-    "coordinate_offset": {
-      "east": 1,
-      "north": -2
-    },
     "name": "Bad Orb",
     "namespace": "badorb",
+    "dir": "badorb_sat",
     "size": [
       5120,
       5120
     ],
+    "max_zoom": 6,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 14.0,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -14.0,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/badorb_sat_z6_full.png"
-    }
+    },
+    "corner_type": "corners_large_padding"
   },
   {
-    "dir": "belleau_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 0
-    },
     "name": "Belleau Wood",
     "namespace": "belleau",
+    "dir": "belleau_sat",
     "size": [
       12032,
       12032
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 47.0,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -47.0,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/belleau_sat_z7_full.png"
-    }
+    },
+    "corner_type": "corners_large_padding"
   },
   {
-    "dir": "fallujah_sat",
-    "max_zoom": 6,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 0
-    },
     "name": "Fallujah",
     "namespace": "fallujah",
+    "dir": "fallujah_sat",
     "size": [
       4095,
       4095
     ],
+    "max_zoom": 6,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 16.0,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -16.0,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/fallujah_sat_z6_full.png"
-    }
+    },
+    "corner_type": "corners_large_padding"
   },
   {
-    "dir": "gogland_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 0
-    },
     "name": "Gogland",
     "namespace": "gogland",
+    "dir": "gogland_sat",
     "size": [
       12286,
       12286
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 47.99,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -47.99,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/gogland_sat_z7_full.png",
       "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/gogland_height.json"
-    }
+    },
+    "corner_type": "corners_large_padding_half"
   },
   {
-    "dir": "khanh_trung_sat",
-    "max_zoom": 6,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 0
-    },
     "name": "Khanh Trung",
     "namespace": "khanh_trung",
+    "dir": "khanh_trung_sat",
     "size": [
       4095,
       4095
     ],
+    "max_zoom": 6,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 16.0,
+        "offset": -0.0
+      },
+      "lat": {
+        "cof": -16.0,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/khanh_trung_sat_z6_full.png"
-    }
+    },
+    "corner_type": "corners_large_padding_half"
   },
   {
-    "dir": "kunar_sat",
-    "max_zoom": 5,
-    "coordinate_offset": {
-      "east": -14,
-      "north": -1
-    },
     "name": "Kunar",
     "namespace": "kunar",
+    "dir": "kunar_sat",
     "size": [
       4000,
       4000
     ],
+    "max_zoom": 5,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 15.63,
+        "offset": -1.0
+      },
+      "lat": {
+        "cof": -15.63,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/kunar_sat_z5_full.png",
       "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/kunar_height.json"
-    }
+    },
+    "corner_type": "corners_large_padding"
   },
   {
-    "dir": "myccano_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 0
-    },
     "name": "Myccano",
     "namespace": "myccano",
+    "dir": "myccano_sat",
     "size": [
       6655,
       6655
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 26.0,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -26.0,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/myccano_sat_z7_full.png"
-    }
+    },
+    "corner_type": "corners_minimal_padding"
   },
   {
-    "dir": "nizla_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 0
-    },
     "name": "Nizla Island",
     "namespace": "nizla",
+    "dir": "nizla_sat",
     "size": [
       17150,
       17150
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 67.0,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -67.0,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/nizla_sat_z7_full.png"
-    }
+    },
+    "corner_type": "corners_large_padding"
   },
   {
-    "dir": "novka_sat",
-    "max_zoom": 5,
-    "coordinate_offset": {
-      "east": -9,
-      "north": 1
-    },
     "name": "Novka",
     "namespace": "novka",
+    "dir": "novka_sat",
     "size": [
       2900,
       2900
     ],
+    "max_zoom": 5,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 11.35,
+        "offset": -1.0
+      },
+      "lat": {
+        "cof": -11.35,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/novka_sat_z5_full.png"
-    }
+    },
+    "corner_type": "corners_large_padding"
   },
   {
-    "dir": "rooikat_sat",
-    "max_zoom": 6,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 0
-    },
     "name": "Rooikat 89",
     "namespace": "rooikat",
+    "dir": "rooikat_sat",
     "size": [
       5120,
       5120
     ],
+    "max_zoom": 6,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 14.0,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -14.0,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/rooikat_sat_z6_full.png"
-    }
+    },
+    "corner_type": "corners_large_padding"
   },
   {
-    "dir": "rostov_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 0
-    },
     "name": "Rostov",
     "namespace": "rostov",
+    "dir": "rostov_sat",
     "size": [
       7935,
       7935
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 31.0,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -31.0,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/rostov_sat_z7_full.png"
-    }
+    },
+    "corner_type": "corners_large_padding"
   },
   {
-    "dir": "ruha_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 0
-    },
     "name": "Ruha",
     "namespace": "ruha",
+    "dir": "ruha_sat",
     "size": [
       8150,
       8150
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 31.83,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -31.83,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/ruha_sat_z7_full.png"
-    }
+    },
+    "corner_type": "corners_large_padding"
   },
   {
-    "dir": "saigon_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": 3,
-      "north": -3
-    },
     "name": "Saigon",
     "namespace": "saigon",
+    "dir": "saigon_sat",
     "size": [
       17150,
       17150
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 66.9921875,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -66.9921875,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/saigon_sat_z7_full.png",
       "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/saigon_height.json"
-    }
+    },
+    "corner_type": "corners_large_padding"
   },
   {
-    "dir": "seitenbuch_sat",
-    "max_zoom": 6,
-        "coordinate_offset": {
-      "east": 1,
-      "north": -14
-    },
     "name": "Seitenbuch",
     "namespace": "seitenbuch",
+    "dir": "seitenbuch_sat",
     "size": [
-      4000,
-      2000
+      2000,
+      4000
     ],
+    "max_zoom": 6,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 15.625,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -15.825,
+        "offset": -126.4
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/seitenbuch_sat_z6_full.png"
-    }
+    },
+    "corner_type": "corners_minimal_padding"
   },
   {
-    "dir": "serhiivka_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 0
-    },
     "name": "Serhiivka",
     "namespace": "serhiivka",
+    "dir": "serhiivka_sat",
     "size": [
       10240,
       10240
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 40.0,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -40.0,
+        "offset": -256.0
+      }
+    },
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/serhiivka_sat_z7_full.png"
-    }
+    },
+    "corner_type": "corners_large_padding_half"
   },
   {
-    "dir": "takistan_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": -7,
-      "north": 35
-    },
     "name": "Takistan",
     "namespace": "takistan",
+    "dir": "takistan_sat",
     "size": [
-      12900,
-      12900
+      3264,
+      3264
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 50.78,
+        "offset": -1.0
+      },
+      "lat": {
+        "cof": -50.78,
+        "offset": -255.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/takistan_sat_z7_full.png",
       "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/takistan_height.json"
-    }
+    },
+    "corner_type": "corners_takistan"
   },
   {
-    "dir": "udachne_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 5118
-    },
     "name": "Udachne",
     "namespace": "udachne",
+    "dir": "udachne_sat",
     "size": [
-      10240,
-      5120
+      5120,
+      10240
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 40.0,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -40.0,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/udachne_sat_z7_full.png"
-    }
+    },
+    "corner_type": "corners_minimal_padding"
   },
   {
-    "dir": "zarichne_sat",
-    "max_zoom": 6,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 0
-    },
     "name": "Zarichne",
     "namespace": "zarichne",
+    "dir": "zarichne_sat",
     "size": [
       4095,
       4095
     ],
+    "max_zoom": 6,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 16.0,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -16.0,
+        "offset": -256.0
+      }
+    },
+    "has_metadata": true,
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/zarichne_sat_z6_full.png",
       "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/zarichne_height.json"
-    }
+    },
+    "corner_type": "corners_minimal_padding"
   },
   {
-    "dir": "zimnitrita_sat",
-    "max_zoom": 7,
-    "coordinate_offset": {
-      "east": 0,
-      "north": 0
-    },
     "name": "Zimnitrita",
     "namespace": "zimnitrita",
+    "dir": "zimnitrita_sat",
     "size": [
       16384,
       16384
     ],
+    "max_zoom": 7,
+    "webp": true,
+    "coordinate_transform": {
+      "lng": {
+        "cof": 40.0,
+        "offset": 0.0
+      },
+      "lat": {
+        "cof": -40.0,
+        "offset": -256.0
+      }
+    },
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/zimnitrita_sat_z7_full.png",
       "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/zimnitrita_height.json"
-    }
+    },
+    "corner_type": "corners_xlarge_padding"
   }
 ]

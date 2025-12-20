@@ -8,5 +8,6 @@ comparison_results/
 __pycache__/    
 *_tiles_*/ 
 *.png
+*.webp
 maps_core/height_data/
 /helper_scripts

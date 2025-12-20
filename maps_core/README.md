@@ -21,6 +21,45 @@ python3 generate_tiles.py everon
 
 ## Tools
 
+### `engine.js`
+Core map rendering engine for Leaflet-based map viewer.
+
+**Version 2.0 - Major Refactoring (Dec 20, 2025):**
+- Reduced from 1184 lines to 344 lines (71% reduction)
+- Dynamic map configuration loading from `all_arma_maps.json`
+- Extracted 24 duplicate corner functions into 8 reusable variants
+- Clean separation: code in JS, data in JSON
+- Preserved all functionality and public API compatibility
+
+**Features:**
+- Coordinate conversion between game coordinates and Leaflet lat/lng
+- Dynamic namespace configuration builder
+- Corner function variants for different map padding strategies
+- Height map data integration
+- Map bounds calculation
+
+**Public API:**
+```javascript
+// Access map configurations
+engine.namespace          // Current active map namespace
+engine.namespace_default  // Default map (everon)
+engine.namespaces        // Object containing all loaded maps
+
+// Core functions
+engine.loadMapConfigs()           // Load from all_arma_maps.json (async)
+engine.convertCoordinates(lng, lat, namespace)  // Game ↔ Leaflet conversion
+engine.getBounds(namespace)       // Calculate map boundaries
+engine.get(x, y)                 // Query elevation at coordinates
+```
+
+**Corner Function Types:**
+- `corners_medium_padding`: Standard 30px padding (most maps)
+- `corners_small_padding`: Minimal 5px padding
+- `corners_large_padding`: Extended 35px padding
+- `corners_minimal_padding`: No padding (exact map bounds)
+- `corners_xlarge_padding`: Very large 50px padding
+- And 3 additional specialized variants for specific maps
+
 ### `map_viewer.html`
 Interactive web-based map viewer with Leaflet.js.
 
@@ -91,6 +130,7 @@ tiles/
 **Features:**
 - Downloads from Cloudflare R2 CDN
 - Progress tracking for large files (2.6GB+)
+- **User confirmation before deleting existing tiles** (safety feature)
 - Automatic power-of-2 padding for web compatibility
 - Optimized 256×256 PNG tiles
 - Complete zoom pyramid generation
@@ -106,24 +146,35 @@ tiles/
 ### `all_arma_maps.json`
 Master configuration file containing metadata for all 23 Arma Reforger maps.
 
-**Recent Updates (Dec 2025):**
-- Added `coordinate_offset` field for calibration with arma-mortar.com
-- Corrected Seitenbuch dimensions: [4000, 2000] (was [2000, 4000])
-- Corrected Udachne dimensions: [10240, 5120] (was [5120, 10240])
-- Added `dir` field for source directory reference
+**Recent Updates (Dec 20, 2025):**
+- Migrated map metadata from `engine.js` to centralized JSON
+- Added `coordinate_transform` field (lng/lat coefficients and offsets)
+- Added `corner_type` field referencing predefined corner function variants
+- Added `webp` flag for tile format detection
+- Added `has_metadata` flag for resource availability
+- Added `earth_correction` for maps with specific projection requirements
 
 **Structure:**
 ```json
 {
-  "dir": "everon_sat",
-  "max_zoom": 7,
-  "coordinate_offset": {
-    "east": 5,
-    "north": -6
-  },
   "name": "Everon",
   "namespace": "everon",
+  "dir": "everon_sat",
   "size": [12800, 12800],
+  "max_zoom": 7,
+  "webp": true,
+  "coordinate_transform": {
+    "lng": {
+      "cof": 51.2,
+      "offset": -1.875
+    },
+    "lat": {
+      "cof": -51.2,
+      "offset": -250
+    }
+  },
+  "corner_type": "corners_medium_padding",
+  "has_metadata": true,
   "resources": {
     "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/everon_sat_z7_full.png",
     "height_data": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/height_data/everon_height.json"
@@ -132,14 +183,21 @@ Master configuration file containing metadata for all 23 Arma Reforger maps.
 ```
 
 **Fields:**
-- `dir`: Source directory name (e.g., "everon_sat")
-- `max_zoom`: Maximum zoom level for tile downloads (0-7)
-- `coordinate_offset`: Calibration offsets to align with arma-mortar.com coordinates
-  - `east`: Horizontal offset in meters
-  - `north`: Vertical offset in meters
 - `name`: Display name of the map
 - `namespace`: Unique identifier used in filenames and URLs
-- `size`: Map dimensions in meters [width, height] - **Note:** width first, then height
+- `dir`: Source directory name (e.g., "everon_sat")
+- `size`: Map dimensions in meters [width, height]
+- `max_zoom`: Maximum zoom level for tile downloads (0-7)
+- `webp`: Boolean flag indicating WebP tile format support
+- `coordinate_transform`: Leaflet coordinate transformation parameters
+  - `lng.cof`: Longitude coefficient for coordinate conversion
+  - `lng.offset`: Longitude offset in pixels
+  - `lat.cof`: Latitude coefficient (typically negative)
+  - `lat.offset`: Latitude offset in pixels
+- `corner_type`: Reference to predefined corner function variant (e.g., "corners_medium_padding")
+  - Available types: medium_padding, small_padding, large_padding, minimal_padding, xlarge_padding, etc.
+- `has_metadata`: Boolean indicating if additional metadata is available
+- `earth_correction`: Optional field for maps requiring specific projection adjustments
 - `resources.map_image`: Public R2 CDN URL for full satellite image
 - `resources.height_data`: R2 CDN URL for elevation JSON (if available)
 

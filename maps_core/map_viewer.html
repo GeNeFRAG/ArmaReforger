@@ -2,772 +2,278 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arma Reforger Map Viewer</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <meta charset="utf-8">
+    <title>Arma Map Viewer (engine + coords)</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <!-- Favicon (avoid 404 spam) -->
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        html,
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a1a;
-            color: #fff;
-        }
-
-        #controls {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-            max-width: 300px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        #controls h2 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #4CAF50;
-        }
-
-        #map-selector {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            background: #2a2a2a;
-            border: 1px solid #4CAF50;
-            border-radius: 4px;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        #map-info {
-            font-size: 12px;
-            line-height: 1.6;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #333;
-        }
-
-        #map-info div {
-            margin: 4px 0;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        #map-info label {
-            color: #888;
-        }
-
-        #map-info span {
-            color: #4CAF50;
-            font-family: 'Courier New', monospace;
-        }
-
-        #error-message {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            background: rgba(220, 53, 69, 0.95);
-            color: #fff;
-            padding: 15px 20px;
-            border-radius: 8px;
-            max-width: 400px;
-            display: none;
-            backdrop-filter: blur(10px);
-            border: 2px solid #dc3545;
-        }
-
-        #error-message.show {
-            display: block;
-        }
-
-        #error-message .close-btn {
-            float: right;
-            font-size: 20px;
-            font-weight: bold;
-            line-height: 20px;
-            cursor: pointer;
-            margin-left: 10px;
-            opacity: 0.8;
-        }
-
-        #error-message .close-btn:hover {
-            opacity: 1;
-        }
-
-        #error-message strong {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        #error-message code {
-            display: block;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 8px;
-            border-radius: 4px;
-            margin-top: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-        }
-
-        .grid-controls {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #333;
-        }
-
-        .grid-controls button {
-            width: 100%;
-            padding: 8px;
-            background: #2a2a2a;
-            border: 1px solid #4CAF50;
-            border-radius: 4px;
-            color: #fff;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-
-        .grid-controls button:hover {
-            background: #3a3a3a;
-        }
-
-        .grid-controls button.active {
-            background: #4CAF50;
-            color: #000;
-        }
-
-        .grid-controls input {
-            width: 100%;
-            margin-top: 8px;
-            padding: 6px;
-            background: #2a2a2a;
-            border: 1px solid #555;
-            border-radius: 4px;
-            color: #fff;
-            font-size: 12px;
-        }
-
-        .grid-controls input.inline {
-            width: 48%;
-            display: inline-block;
-            vertical-align: top;
-            margin-top: 8px;
-        }
-
-        .grid-controls input.inline:first-of-type {
-            margin-right: 4%;
-        }
-
-        .tile-status {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #333;
-            font-size: 11px;
-            color: #888;
-        }
-
-        .calibration-panel {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #333;
-            display: none;
-        }
-
-        .calibration-panel.active {
-            display: block;
-        }
-
-        .calibration-panel h3 {
-            font-size: 14px;
-            color: #ff9800;
-            margin-bottom: 8px;
-        }
-
-        .calibration-panel input {
-            width: 100%;
-            margin-bottom: 6px;
-            padding: 6px;
-            background: #2a2a2a;
-            border: 1px solid #ff9800;
-            border-radius: 4px;
-            color: #fff;
-            font-size: 12px;
-        }
-
-        .calibration-panel button {
-            width: 100%;
-            padding: 8px;
-            margin-top: 4px;
-            background: #2a2a2a;
-            border: 1px solid #ff9800;
-            border-radius: 4px;
-            color: #fff;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-
-        .calibration-panel button:hover {
-            background: #3a3a3a;
-        }
-
-        .calibration-panel button.calculate {
-            background: #ff9800;
-            color: #000;
-            font-weight: bold;
-        }
-
-        .calibration-panel .result {
-            margin-top: 10px;
-            padding: 8px;
-            background: #2a2a2a;
-            border: 1px solid #ff9800;
-            border-radius: 4px;
-            font-size: 11px;
-            line-height: 1.6;
-            font-family: 'Courier New', monospace;
-        }
-
-        .calibration-panel .result div {
-            margin: 4px 0;
-        }
-
-        .calibration-panel .result .current {
-            color: #888;
-        }
-
-        .calibration-panel .result .suggested {
-            color: #ff9800;
-            font-weight: bold;
+            height: 100%;
+            margin: 0;
         }
 
         #map {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100vh;
-            background: #0a0a0a;
+            height: calc(100% - 40px);
+            overflow: hidden;
+            background: #222;
         }
 
         .leaflet-container {
-            background: #0a0a0a;
-            cursor: crosshair !important;
+            background: #222 !important;
         }
 
-        .highlight-offset {
-            color: #ff9800 !important;
+        #toolbar {
+            height: 40px;
+            padding: 4px 8px;
+            background: #222;
+            color: #eee;
+            font-family: system-ui, sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #coords {
+            margin-left: auto;
+            font-variant-numeric: tabular-nums;
         }
     </style>
 </head>
 
 <body>
-    <div id="error-message">
-        <span class="close-btn" onclick="this.parentElement.classList.remove('show')">&times;</span>
-        <strong id="error-title">Error</strong>
-        <div id="error-text"></div>
+    <div id="toolbar">
+        <label for="mapSelect">Map</label>
+        <select id="mapSelect"></select>
+        <div id="coords">Move mouse over map…</div>
     </div>
-
-    <div id="controls">
-        <h2>🗺️ Arma Reforger Maps v2</h2>
-        <select id="map-selector">
-            <option value="">Loading maps...</option>
-        </select>
-        <div id="map-info">
-            <div><label>Map Size:</label><span id="info-size">-</span></div>
-            <div><label>Max Zoom:</label><span id="info-zoom">-</span></div>
-            <div><label>Offset:</label><span id="info-offset">E:0 / N:0</span></div>
-            <div><label>Coordinates:</label><span id="info-coords">-</span></div>
-            <div><label>Elevation:</label><span id="info-elevation">-</span></div>
-        </div>
-        <div class="grid-controls">
-            <button id="grid-toggle">Show Grid (10m)</button>
-            <input type="number" id="grid-size" value="10" min="10" max="1000" step="10"
-                placeholder="Grid size (meters)">
-        </div>
-        <div class="grid-controls">
-            <input type="number" id="manual-east" placeholder="East (X)" class="inline">
-            <input type="number" id="manual-north" placeholder="North (Y)" class="inline">
-            <button id="check-elevation" style="margin-top: 8px;">Check Elevation</button>
-            <div id="manual-result" style="margin-top: 8px; font-size: 11px; color: #4CAF50;"></div>
-        </div>
-        <div class="grid-controls">
-            <button id="calibration-toggle">🎯 Calibration Mode</button>
-        </div>
-        <div class="calibration-panel" id="calibration-panel">
-            <h3>📍 Map Calibration Helper</h3>
-            <p style="font-size: 11px; color: #888; margin-bottom: 8px;">
-                Find a landmark on arma-mortar.com, note reference coords, then click same point on this map.
-            </p>
-            <input type="number" id="ref-east" placeholder="Reference East (from arma-mortar.com)">
-            <input type="number" id="ref-north" placeholder="Reference North (from arma-mortar.com)">
-            <button class="calculate" id="calculate-offset">Calculate Offset</button>
-            <div id="calibration-result" class="result" style="display: none;"></div>
-        </div>
-        <div class="tile-status">
-            <strong id="current-map-name">-</strong>
-        </div>
-    </div>
-
     <div id="map"></div>
 
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- jQuery (required by engine, even in data-only mode) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Minimal Engine (namespaces, convertCoordinates, height.get) -->
+    <script src="engine.js"></script>
+
+    <!-- Map viewer wrapper -->
     <script>
-        // ===== State =====
-        let map;
-        let currentLayer;
-        let mapsData = [];
-        let gridLayer = null;
-        let gridEnabled = false;
-        let currentMapData = null;
-        let heightData = null;
-        let currentOffset = 0;
-        let calibrationMode = false;
-        let clickedCoords = null;
-
-        // ===== Coordinate Transformation =====
-        function pixelToGame(pixelLng, pixelLat, ns) {
-            // With scaled tileSize (256/scale), e.latlng coords are already ~game space
-            // Invert Y-axis: arma-mortar has north decreasing downward, Leaflet lat increases downward
-            const [gameWidth, gameHeight] = ns.size;
-            const offsetEast = ns?.coordinate_offset?.east || 0;
-            const offsetNorth = ns?.coordinate_offset?.north || 0;
-            
-            return {
-                east: Math.round(pixelLng + offsetEast),
-                north: Math.round((gameHeight - pixelLat) + offsetNorth)
-            };
+        // nsName: "everon", layerName: "satellite" / "scheme"
+        function initNamespace(nsName, layerName) {
+            const ns = engine.namespaces[nsName][layerName];
+            // Keep a richer copy for convenience
+            engine.namespace = { name: nsName, layer: layerName, ...ns };
+            // IMPORTANT: engine.convertCoordinates / unconvertCoordinates use engine.data
+            engine.data = ns;
         }
 
-        // ===== Elevation lookup =====
-        function getElevationAt(east, north) {
-            if (!heightData || !Array.isArray(heightData) || heightData.length === 0) {
-                return null;
-            }
-            
-            const GRID_SPACING = 10;
-            const arrayX = Math.floor(east / GRID_SPACING);
-            const arrayY = Math.floor(north / GRID_SPACING);
-            
-            if (arrayY < 0 || arrayY >= heightData.length) {
-                return null;
-            }
-            
-            const row = heightData[arrayY];
-            if (!Array.isArray(row) || arrayX < 0 || arrayX >= row.length) {
-                return null;
-            }
-            
-            const elevation = parseFloat(row[arrayX]);
-            return !isNaN(elevation) ? elevation : null;
+        function buildBoundsFromCorner(ns) {
+            const c = ns.corner(ns.size[0], ns.size[1]);
+            return L.latLngBounds(c[2], c[3]);
         }
 
-        async function loadHeightData(namespace) {
-            heightData = null;
-            document.getElementById('info-elevation').textContent = 'Loading...';
+        function makeTileLayer(cfg) {
+            const ext = cfg.webp ? 'webp' : 'png';
+            return L.tileLayer(
+                `tiles/${cfg.dir}/{z}/{x}/{y}.${ext}`,
+                {
+                    bounds: buildBoundsFromCorner(cfg),
+                    maxZoom: cfg.zoom.max,
+                    minZoom: cfg.zoom.min,
+                    noWrap: true,
+                    unloadInvisibleTiles: true,
+                    reuseTiles: true,
+                    tileLoadRetryTime: 150,
+                    tileSize: cfg.tileSize || 256
+                }
+            );
+        }
 
-            try {
-                const response = await fetch(`height_data/${namespace}_height.json`);
-                if (!response.ok) {
-                    document.getElementById('info-elevation').textContent = 'N/A';
+        function init() {
+            const mapSelect = document.getElementById('mapSelect');
+            const coordsLabel = document.getElementById('coords');
+
+            // Build dropdown entries from engine.namespaces
+            const entries = [];
+            Object.keys(engine.namespaces).forEach(nsName => {
+                const ns = engine.namespaces[nsName];
+                if (ns.satellite) {
+                    entries.push({ key: nsName, layer: 'satellite', cfg: ns.satellite });
+                } else if (ns.scheme) {
+                    entries.push({ key: nsName, layer: 'scheme', cfg: ns.scheme });
+                }
+            });
+
+            entries.forEach((e, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${e.cfg.name} (${e.layer})`;
+                mapSelect.appendChild(opt);
+            });
+
+            // Initial namespace (Everon satellite by default)
+            initNamespace(engine.namespace_default || 'everon', 'satellite');
+            
+            // Load height map data for initial map
+            engine.height.load();
+            
+            const ns = engine.namespace;
+            const bounds = buildBoundsFromCorner(ns);
+
+            const map = L.map('map', {
+                crs: ns.CRS,
+                zoomControl: true,
+                zoomSnap: 1.75,
+                zoomDelta: 2,
+                wheelPxPerZoomLevel: 100,
+                maxBounds: bounds
+            });
+
+            map.setView(L.latLng(ns.center_pos[1], ns.center_pos[0]), ns.zoom.start);
+            map.setMinZoom(ns.zoom.min);
+            map.setMaxZoom(ns.zoom.max);
+
+            let baseLayer = makeTileLayer(ns);
+            baseLayer.addTo(map);
+
+            // Mousemove → display game coordinates (x, y, z)
+            map.on('mousemove', ev => {
+                const lng = ev.latlng.lng;
+                const lat = ev.latlng.lat;
+
+                if (!engine.data || !engine.data.mod || !engine.data.mod.lng || !engine.data.mod.lat) {
                     return;
                 }
 
-                heightData = await response.json();
-                if (Array.isArray(heightData) && heightData.length > 0) {
-                    document.getElementById('info-elevation').textContent = '-';
-                } else {
-                    document.getElementById('info-elevation').textContent = 'N/A';
-                    heightData = null;
+                let grid;
+                try {
+                    // Map (Leaflet CRS) → game/grid coords, with engine’s corrections
+                    grid = engine.convertCoordinates(lng, lat, true, true);
+                } catch (err) {
+                    console.warn('[viewer] convertCoordinates failed', err, engine.data);
+                    return;
                 }
-            } catch (error) {
-                console.error(`Failed to load height data for ${namespace}:`, error);
-                document.getElementById('info-elevation').textContent = 'Error';
-                heightData = null;
-            }
-        }
 
-        function showError(title, message, command = null) {
-            const errorDiv = document.getElementById('error-message');
-            const errorTitle = document.getElementById('error-title');
-            const errorText = document.getElementById('error-text');
+                if (!Array.isArray(grid) || grid.length < 2) return;
 
-            errorTitle.textContent = title;
-            if (command) {
-                errorText.innerHTML = `${message}<code>${command}</code>`;
-            } else {
-                errorText.textContent = message;
-            }
+                const x = parseInt(grid[0], 10);
+                const y = parseInt(grid[1], 10);
 
-            errorDiv.classList.add('show');
-            setTimeout(() => { errorDiv.classList.remove('show'); }, 10000);
-        }
-
-        function updateGridSizeForZoom() {
-            if (!map) return;
-            
-            const zoom = map.getZoom();
-            let gridSize;
-            // Zoom ranges: -5 (most zoomed out) to 0 (most zoomed in)
-            if (zoom <= -4) gridSize = 1000;
-            else if (zoom <= -3) gridSize = 500;
-            else if (zoom <= -2) gridSize = 200;
-            else if (zoom <= -1) gridSize = 100;
-            else if (zoom <= -0.5) gridSize = 50;
-            else gridSize = 20;
-
-            document.getElementById('grid-size').value = gridSize;
-            const button = document.getElementById('grid-toggle');
-            button.textContent = gridEnabled ? `Hide Grid (${gridSize}m)` : `Show Grid (${gridSize}m)`;
-        }
-
-        async function loadMapsData() {
-            try {
-                const response = await fetch('all_arma_maps.json');
-                if (!response.ok) throw new Error('Failed to load maps data');
-                mapsData = await response.json();
-                const selector = document.getElementById('map-selector');
-                selector.innerHTML = '';
-                mapsData.forEach((mapData, index) => {
-                    const option = document.createElement('option');
-                    option.value = index;
-                    option.textContent = mapData.name;
-                    selector.appendChild(option);
-                });
-                if (mapsData.length > 0) loadMap(0);
-            } catch (error) {
-                console.error('Error loading maps:', error);
-                document.getElementById('map-selector').innerHTML =
-                    '<option class="error">Error loading maps</option>';
-            }
-        }
-
-        async function loadMap(index) {
-            const mapData = mapsData[index];
-            if (!mapData) return;
-
-            currentMapData = mapData;
-            await loadHeightData(mapData.namespace);
-
-            if (currentLayer && map) {
-                console.log('[map] removing previous layer');
-                map.removeLayer(currentLayer);
-            }
-
-            const [gameWidth, gameHeight] = mapData.size;
-            const maxGenZoom = mapData.max_zoom;
-            const tileImageSize = 256 * Math.pow(2, maxGenZoom);
-
-            const testTileUrl = `tiles/${mapData.namespace}/0/0/0.png`;
-            const tilesExist = await fetch(testTileUrl, { method: 'HEAD' })
-                .then(r => r.ok).catch(() => false);
-            if (!tilesExist) {
-                showError('Tiles Not Generated',
-                    `Tiles are not available for ${mapData.name}.`,
-                    `python3 generate_tiles.py ${mapData.namespace}`);
-                return;
-            }
-
-            // ---- arma-mortar style CRS and bounds ----
-
-            // Calculate scale: tiles are in tileImageSize space, game coords in gameWidth space
-            const scale = tileImageSize / gameWidth;
-
-            // Identity CRS - scaling handled in tile layer
-            const crs = L.extend({}, L.CRS.Simple, {
-                transformation: new L.Transformation(1, 0, 1, 0)
-            });
-
-            // Bounds based on gameWidth/gameHeight
-            const imageBounds = L.latLngBounds(
-                L.latLng(0, 0),
-                L.latLng(gameHeight, gameWidth)
-            );
-
-            // Remove old map if present
-            if (map) {
-                map.remove();
-            }
-
-            // Create map with identity CRS
-            const visibleLevels = 6;
-            const leafletMaxZoom = 1;
-            const leafletMinZoom = -5;
-
-            map = L.map('map', {
-                crs,
-                minZoom: leafletMinZoom,
-                maxZoom: leafletMaxZoom,
-                zoomControl: true,
-                attributionControl: false
-            });
-
-            // Tile layer with scaled tileSize
-            const urlTemplate = `tiles/${mapData.namespace}/{z}/{x}/{y}.png`;
-
-            currentLayer = L.tileLayer(urlTemplate, {
-                minZoom: leafletMinZoom,
-                maxZoom: leafletMaxZoom,
-                maxNativeZoom: 0,
-                tileSize: 256 / scale,
-                noWrap: true,
-                bounds: imageBounds,
-                zoomOffset: maxGenZoom
-            });
-            currentLayer.getTileUrl = function (coords) {
-                const dirZ = coords.z + maxGenZoom;
-                return L.Util.template(urlTemplate, { z: dirZ, x: coords.x, y: coords.y });
-            };
-            currentLayer.addTo(map);
-
-            map.setMaxBounds(imageBounds);
-            map.fitBounds(imageBounds);
-
-            map.on('mousemove', (e) => {
-                const coords = pixelToGame(e.latlng.lng, e.latlng.lat, currentMapData);
-
-                document.getElementById('info-coords').textContent =
-                    `${coords.east} / ${coords.north}`;
-
-                if (heightData) {
-                    const elevation = getElevationAt(coords.east, coords.north);
-                    document.getElementById('info-elevation').textContent =
-                        elevation !== null ? `${elevation.toFixed(1)}m` : '-';
-                }
-            });
-
-            map.on('click', (e) => {
-                if (calibrationMode) {
-                    clickedCoords = pixelToGame(e.latlng.lng, e.latlng.lat, currentMapData);
-                    document.getElementById('manual-result').innerHTML =
-                        `📍 Clicked: <b>E:${clickedCoords.east} / N:${clickedCoords.north}</b>`;
-                    document.getElementById('manual-result').style.color = '#ff9800';
-                } else {
-                    const coords = pixelToGame(e.latlng.lng, e.latlng.lat, currentMapData);
-                    const coordText = `${coords.east} / ${coords.north}`;
-                    
-                    navigator.clipboard.writeText(coordText).then(() => {
-                        const coordsDisplay = document.getElementById('info-coords');
-                        const originalText = coordsDisplay.textContent;
-                        coordsDisplay.textContent = `📋 Copied: ${coordText}`;
-                        coordsDisplay.style.color = '#4CAF50';
-                        
-                        setTimeout(() => {
-                            coordsDisplay.style.color = '#4CAF50';
-                        }, 1500);
-                    }).catch(err => {
-                        console.error('Failed to copy coordinates:', err);
-                    });
-                }
-            });
-
-            map.on('mouseout', () => {
-                document.getElementById('info-coords').textContent = '-';
-                document.getElementById('info-elevation').textContent = '-';
-            });
-
-            map.on('zoomend', () => {
-                if (gridEnabled) {
-                    updateGridSizeForZoom();
-                    drawGrid(currentMapData);
-                }
-            });
-
-            document.getElementById('info-size').textContent =
-                `${gameWidth} × ${gameHeight}`;
-            document.getElementById('info-zoom').textContent = mapData.max_zoom;
-            document.getElementById('current-map-name').textContent = mapData.name;
-            
-            const offsetEast = mapData.coordinate_offset?.east || 0;
-            const offsetNorth = mapData.coordinate_offset?.north || 0;
-            document.getElementById('info-offset').textContent = `E:${offsetEast} / N:${offsetNorth}`;
-
-            if (gridEnabled) drawGrid(mapData);
-        }
-        
-        function drawGrid(mapData) {
-            if (gridLayer && map) map.removeLayer(gridLayer);
-
-            const gridSizeMeters = parseInt(document.getElementById('grid-size').value) || 10;
-            const [gameWidth, gameHeight] = mapData.size;
-
-            const lines = [];
-            // Vertical lines (constant east/lng, varying north/lat)
-            for (let east = 0; east <= gameWidth; east += gridSizeMeters) {
-                lines.push([[0, east], [gameHeight, east]]);
-            }
-            // Horizontal lines (constant north/lat, varying east/lng)
-            for (let north = 0; north <= gameHeight; north += gridSizeMeters) {
-                lines.push([[north, 0], [north, gameWidth]]);
-            }
-
-            gridLayer = L.layerGroup();
-            lines.forEach(coords => {
-                L.polyline(coords, {
-                    color: '#ffffff',
-                    weight: 2,
-                    opacity: 0.4,
-                    dashArray: '5, 5',
-                    interactive: false
-                }).addTo(gridLayer);
-            });
-            gridLayer.addTo(map);
-        }
-
-        function toggleGrid() {
-            gridEnabled = !gridEnabled;
-            const button = document.getElementById('grid-toggle');
-
-            if (gridEnabled) {
-                button.classList.add('active');
-                updateGridSizeForZoom();
-                if (currentMapData) drawGrid(currentMapData);
-            } else {
-                button.classList.remove('active');
-                const gridSize = document.getElementById('grid-size').value;
-                button.textContent = `Show Grid (${gridSize}m)`;
-                if (gridLayer && map) {
-                    map.removeLayer(gridLayer);
-                    gridLayer = null;
-                }
-            }
-        }
-
-        document.getElementById('map-selector').addEventListener('change', (e) => {
-            const index = parseInt(e.target.value);
-            if (!isNaN(index)) loadMap(index);
-        });
-
-        document.getElementById('grid-toggle').addEventListener('click', toggleGrid);
-        document.getElementById('grid-size').addEventListener('change', (e) => {
-            const gridSize = e.target.value;
-            const button = document.getElementById('grid-toggle');
-            if (gridEnabled) {
-                button.textContent = `Hide Grid (${gridSize}m)`;
-                if (currentMapData) drawGrid(currentMapData);
-            } else {
-                button.textContent = `Show Grid (${gridSize}m)`;
-            }
-        });
-
-        document.getElementById('check-elevation').addEventListener('click', () => {
-            const eastInput = parseInt(document.getElementById('manual-east').value);
-            const northInput = parseInt(document.getElementById('manual-north').value);
-            const resultDiv = document.getElementById('manual-result');
-
-            if (isNaN(eastInput) || isNaN(northInput)) {
-                resultDiv.textContent = 'Please enter both E and N coordinates';
-                resultDiv.style.color = '#dc3545';
-                return;
-            }
-            if (!currentMapData) {
-                resultDiv.textContent = 'No map loaded';
-                resultDiv.style.color = '#dc3545';
-                return;
-            }
-
-            const elevation = getElevationAt(eastInput, northInput);
-
-            if (elevation !== null && !isNaN(elevation)) {
-                resultDiv.innerHTML =
-                    `E:${eastInput} / N:${northInput} → <b>${elevation.toFixed(1)}m</b>`;
-                resultDiv.style.color = '#4CAF50';
-            } else {
-                resultDiv.textContent = `E:${eastInput} / N:${northInput} → Out of bounds`;
-                resultDiv.style.color = '#ffc107';
-            }
-        });
-
-        document.getElementById('calibration-toggle').addEventListener('click', () => {
-            calibrationMode = !calibrationMode;
-            const panel = document.getElementById('calibration-panel');
-            const button = document.getElementById('calibration-toggle');
-            
-            if (calibrationMode) {
-                panel.classList.add('active');
-                button.classList.add('active');
-                button.textContent = '🎯 Exit Calibration Mode';
-                document.getElementById('manual-result').textContent = 'Click on map to select landmark';
-                document.getElementById('manual-result').style.color = '#ff9800';
-            } else {
-                panel.classList.remove('active');
-                button.classList.remove('active');
-                button.textContent = '🎯 Calibration Mode';
-                document.getElementById('manual-result').textContent = '';
-                document.getElementById('calibration-result').style.display = 'none';
-                clickedCoords = null;
-            }
-        });
-
-        document.getElementById('calculate-offset').addEventListener('click', () => {
-            const refEast = parseInt(document.getElementById('ref-east').value);
-            const refNorth = parseInt(document.getElementById('ref-north').value);
-            const resultDiv = document.getElementById('calibration-result');
-
-            if (isNaN(refEast) || isNaN(refNorth)) {
-                alert('Please enter both reference coordinates from arma-mortar.com');
-                return;
-            }
-
-            if (!clickedCoords) {
-                alert('Please click on the map first to select the same landmark');
-                return;
-            }
-
-            if (!currentMapData) {
-                alert('No map loaded');
-                return;
-            }
-
-            const currentOffsetEast = currentMapData.coordinate_offset?.east || 0;
-            const currentOffsetNorth = currentMapData.coordinate_offset?.north || 0;
-
-            const newOffsetEast = refEast - clickedCoords.east + currentOffsetEast;
-            const newOffsetNorth = refNorth - clickedCoords.north + currentOffsetNorth;
-
-            resultDiv.innerHTML = `
-                <div><strong>📊 Calibration Results:</strong></div>
-                <div class="current">Current Offset: E:${currentOffsetEast} / N:${currentOffsetNorth}</div>
-                <div class="suggested">Suggested Offset: E:${newOffsetEast} / N:${newOffsetNorth}</div>
-                <div style="margin-top: 8px; color: #4CAF50;">
-                    <strong>JSON for all_arma_maps.json:</strong><br>
-                    "coordinate_offset": {<br>
-                    &nbsp;&nbsp;"east": ${newOffsetEast},<br>
-                    &nbsp;&nbsp;"north": ${newOffsetNorth}<br>
+                let z = null;
+                // Only try to get height if height map is loaded and available
+                if (engine.namespace.height && engine.height.map && engine.height.size) {
+                    try {
+                        z = parseInt(engine.height.get(x, y), 10);
+                    } catch (err) {
+                        z = null;
                     }
-                </div>
-                <div style="margin-top: 8px; color: #888; font-size: 10px;">
-                    Reference: E:${refEast} / N:${refNorth}<br>
-                    Clicked: E:${clickedCoords.east} / N:${clickedCoords.north}<br>
-                    Difference: E:${newOffsetEast - currentOffsetEast} / N:${newOffsetNorth - currentOffsetNorth}
-                </div>
-            `;
-            resultDiv.style.display = 'block';
+                }
 
-            navigator.clipboard.writeText(
-                `"coordinate_offset": {\n  "east": ${newOffsetEast},\n  "north": ${newOffsetNorth}\n}`
-            ).then(() => {
-                document.getElementById('manual-result').innerHTML =
-                    '✅ <b>JSON copied to clipboard!</b>';
-                document.getElementById('manual-result').style.color = '#4CAF50';
+                const text = z != null ? `(${x}, ${y}, ${z}m)` : `(${x}, ${y})`;
+                coordsLabel.textContent = text;
             });
+
+            // Click → copy coordinates to clipboard
+            map.on('click', ev => {
+                const lng = ev.latlng.lng;
+                const lat = ev.latlng.lat;
+
+                if (!engine.data || !engine.data.mod || !engine.data.mod.lng || !engine.data.mod.lat) {
+                    return;
+                }
+
+                let grid;
+                try {
+                    grid = engine.convertCoordinates(lng, lat, true, true);
+                } catch (err) {
+                    console.warn('[viewer] convertCoordinates failed for click', err);
+                    return;
+                }
+
+                if (!Array.isArray(grid) || grid.length < 2) return;
+
+                const x = parseInt(grid[0], 10);
+                const y = parseInt(grid[1], 10);
+                
+                // Get height if available
+                let z = null;
+                if (engine.namespace.height && engine.height.map && engine.height.size) {
+                    try {
+                        z = parseInt(engine.height.get(x, y), 10);
+                    } catch (err) {
+                        z = null;
+                    }
+                }
+                
+                const coordText = z != null ? `${x}, ${y}, ${z}` : `${x}, ${y}`;
+
+                // Copy to clipboard
+                navigator.clipboard.writeText(coordText).then(() => {
+                    const originalText = coordsLabel.textContent;
+                    coordsLabel.textContent = `📋 Copied: ${coordText}`;
+                    setTimeout(() => {
+                        coordsLabel.textContent = originalText;
+                    }, 1500);
+                }).catch(err => {
+                    console.error('[viewer] Clipboard copy failed:', err);
+                    coordsLabel.textContent = `❌ Copy failed`;
+                    setTimeout(() => {
+                        coordsLabel.textContent = coordText;
+                    }, 1500);
+                });
+            });
+
+            // Map switcher
+            mapSelect.addEventListener('change', () => {
+                const e = entries[mapSelect.value];
+                initNamespace(e.key, e.layer);
+                const cfg = engine.namespace;
+
+                // Load height map data for new map
+                engine.height.load();
+
+                const cornerBounds = cfg.corner(cfg.size[0], cfg.size[1]);
+                
+                // Set maxBounds to match tile layer bounds exactly (inner bounds)
+                map.setMaxBounds(L.latLngBounds(cornerBounds[2], cornerBounds[3]));
+                map.setMinZoom(cfg.zoom.min);
+                map.setMaxZoom(cfg.zoom.max);
+                map.setView(L.latLng(cfg.center_pos[1], cfg.center_pos[0]), cfg.zoom.start);
+
+                if (baseLayer) map.removeLayer(baseLayer);
+                baseLayer = makeTileLayer(cfg);
+                baseLayer.addTo(map);
+
+                coordsLabel.textContent = 'Move mouse over map…';
+            });
+
+            window.map = map;
+            console.log('[viewer] Initialized in data-only mode');
+            console.log('[viewer] Available maps:', Object.keys(engine.namespaces));
+            console.log('[viewer] Current namespace:', engine.namespace.name);
+        }
+
+        // Wait for all scripts to be ready, then init
+        $(window).on('load', function () {
+            const check = setInterval(() => {
+                if (typeof L !== 'undefined' &&
+                    typeof engine !== 'undefined' &&
+                    engine.namespaces &&
+                    Object.keys(engine.namespaces).length > 0) {
+                    clearInterval(check);
+                    init();
+                }
+            }, 50);
         });
-
-        loadMapsData();
     </script>
-
 </body>
 
 </html>
