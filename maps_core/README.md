@@ -24,13 +24,6 @@ python3 generate_tiles.py everon
 ### `engine.js`
 Core map rendering engine for Leaflet-based map viewer.
 
-**Version 2.0 - Major Refactoring (Dec 20, 2025):**
-- Reduced from 1184 lines to 344 lines (71% reduction)
-- Dynamic map configuration loading from `all_arma_maps.json`
-- Extracted 24 duplicate corner functions into 8 reusable variants
-- Clean separation: code in JS, data in JSON
-- Preserved all functionality and public API compatibility
-
 **Features:**
 - Coordinate conversion between game coordinates and Leaflet lat/lng
 - Dynamic namespace configuration builder
