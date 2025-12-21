@@ -210,6 +210,12 @@ def generate_tiles(image, map_name, max_zoom, output_dir, map_size=None):
                 # Extract tile
                 tile = scaled_img.crop((x1, y1, x2, y2))
                 
+                # Warn about completely black/empty tiles (padding areas)
+                extrema = tile.getextrema()
+                is_black = all(min_val == 0 and max_val == 0 for min_val, max_val in extrema)
+                if is_black:
+                    print(f"  ⊗ Black/empty tile at zoom {zoom}, x={col}, y={row}")
+                
                 # If tile is smaller than TILE_SIZE, pad it
                 if tile.size != (TILE_SIZE, TILE_SIZE):
                     padded = Image.new('RGB', (TILE_SIZE, TILE_SIZE), (0, 0, 0))
