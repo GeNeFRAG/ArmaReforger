@@ -51,6 +51,7 @@
     <div id="toolbar">
         <label for="mapSelect">Map</label>
         <select id="mapSelect"></select>
+        <button id="resetBtn" title="Reset view to initial position and zoom">Reset View</button>
         <div id="coords">Move mouse over map…</div>
     </div>
     <div id="map"></div>
@@ -229,6 +230,12 @@
                         coordsLabel.textContent = coordText;
                     }, 1500);
                 });
+            });
+
+            // Reset button → return to initial view
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                const cfg = engine.namespace;
+                map.setView(L.latLng(cfg.center_pos[1], cfg.center_pos[0]), cfg.zoom.start);
             });
 
             // Map switcher
