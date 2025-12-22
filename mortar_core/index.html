@@ -280,6 +280,47 @@
     <script>
         let ballisticDataLoaded = false;
         
+        // Get available shell types for a mortar from loaded ballistic data
+        function getShellTypesForMortar(mortarId) {
+            try {
+                const config = MortarCalculator.getWeaponConfig(mortarId, 'HE');
+                const mortar = config.mortar;
+                
+                return mortar.shellTypes.map(shell => ({
+                    value: shell.type,
+                    label: shell.name
+                }));
+            } catch (error) {
+                console.warn('Could not get shell types:', error);
+                return [];
+            }
+        }
+        
+        // Update shell type options based on mortar type
+        function updateShellTypes() {
+            const mortarType = document.getElementById('mortarType').value;
+            const shellTypeSelect = document.getElementById('shellType');
+            const currentValue = shellTypeSelect.value;
+            
+            const availableShells = getShellTypesForMortar(mortarType);
+            
+            shellTypeSelect.innerHTML = '';
+            availableShells.forEach(shell => {
+                const option = document.createElement('option');
+                option.value = shell.value;
+                option.textContent = shell.label;
+                shellTypeSelect.appendChild(option);
+            });
+            
+            // Restore previous selection if available, otherwise select first
+            const optionExists = availableShells.some(s => s.value === currentValue);
+            if (optionExists) {
+                shellTypeSelect.value = currentValue;
+            } else if (availableShells.length > 0) {
+                shellTypeSelect.value = availableShells[0].value;
+            }
+        }
+        
         // Load ballistic data on page load
         async function init() {
             const loading = document.getElementById('loading');
@@ -288,8 +329,13 @@
             try {
                 await MortarCalculator.loadBallisticData('ballistic-data.json');
                 ballisticDataLoaded = true;
+                
                 loading.style.display = 'none';
                 app.style.display = 'block';
+                
+                // Initialize shell types after data is loaded
+                updateShellTypes();
+                
                 console.log('✅ Ballistic data loaded successfully');
             } catch (error) {
                 loading.innerHTML = `
@@ -305,6 +351,10 @@
         // Setup event listeners
         document.addEventListener('DOMContentLoaded', () => {
             const calculateBtn = document.getElementById('calculate');
+            const mortarTypeSelect = document.getElementById('mortarType');
+            
+            // Update shell types when mortar type changes
+            mortarTypeSelect.addEventListener('change', updateShellTypes);
             
             calculateBtn.addEventListener('click', calculateSolution);
             
