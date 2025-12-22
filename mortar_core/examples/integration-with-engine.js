@@ -1,9 +1,9 @@
 /**
  * Integration example showing how to use MortarCalculator with the existing
- * Leaflet-based map engine (engine.js)
+ * Leaflet-based map engine (mapEngine.js)
  * 
  * This assumes:
- * - engine.js is loaded and initialized
+ * - mapEngine.js is loaded and initialized
  * - Leaflet map is available
  * - Height map data is loaded
  */

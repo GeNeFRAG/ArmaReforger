@@ -10,7 +10,7 @@ Part of the [ArmaReforger](../README.md) project - tools and resources for Arma 
 ```bash
 cd maps_core
 python3 -m http.server 8000
-# Open http://localhost:8000/map_viewer.html
+# Open http://localhost:8000/
 ```
 
 **Generate tiles for offline/custom use:**
@@ -21,7 +21,7 @@ python3 generate_tiles.py everon
 
 ## Tools
 
-### `engine.js`
+### `mapEngine.js`
 Core map rendering engine for Leaflet-based map viewer.
 
 **Features:**
@@ -53,7 +53,7 @@ engine.get(x, y)                 // Query elevation at coordinates
 - `corners_xlarge_padding`: Very large 50px padding
 - And 3 additional specialized variants for specific maps
 
-### `map_viewer.html`
+### `index.html`
 Interactive web-based map viewer with Leaflet.js.
 
 **Features:**
@@ -140,7 +140,7 @@ tiles/
 Master configuration file containing metadata for all 23 Arma Reforger maps.
 
 **Recent Updates (Dec 20, 2025):**
-- Migrated map metadata from `engine.js` to centralized JSON
+- Migrated map metadata from `mapEngine.js` to centralized JSON
 - Added `coordinate_transform` field (lng/lat coefficients and offsets)
 - Added `corner_type` field referencing predefined corner function variants
 - Added `webp` flag for tile format detection
@@ -199,7 +199,7 @@ Reference file documenting the mapping between map namespaces and their corner f
 
 **Purpose:**
 - Documents which corner function variant each map uses
-- Generated during metadata migration from engine.js
+- Generated during metadata migration from mapEngine.js
 - Useful for understanding corner function distribution across maps
 
 **Structure:**
@@ -260,7 +260,7 @@ Each JSON is a 2D array where:
 
 **View a specific map:**
 1. Start local server: `python3 -m http.server 8000`
-2. Open http://localhost:8000/map_viewer.html
+2. Open http://localhost:8000/
 3. Select map from dropdown
 4. Enable grid for measurements
 5. Hover mouse to see coordinates
