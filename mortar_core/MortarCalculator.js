@@ -169,6 +169,22 @@ function getWeaponConfig(mortarId, shellType) {
     return { mortar, shell };
 }
 
+/**
+ * Get all available mortar types
+ * @returns {Array} Array of mortar type objects
+ */
+function getAllMortarTypes() {
+    if (!ballisticData) {
+        throw new Error('Ballistic data not loaded. Call loadBallisticData() first.');
+    }
+    
+    return ballisticData.mortarTypes.map(m => ({
+        id: m.id,
+        name: m.name,
+        caliber: m.caliber
+    }));
+}
+
 // ============================================================================
 // SECTION 4: Ballistic Solver
 // ============================================================================
@@ -269,42 +285,65 @@ function applyHeightCorrection(baseElevation, heightDifference, dElev) {
 /**
  * Calculate azimuth in mils
  * @param {number} bearingDegrees - Bearing in degrees
- * @param {number} milsPerDegree - Conversion factor (typically 17.7778)
+ * @param {string} mortarType - Mortar type ID
  * @returns {number} Azimuth in mils
  */
-function calculateAzimuthMils(bearingDegrees, milsPerDegree = 17.7778) {
-    return Math.round(bearingDegrees * milsPerDegree);
+function calculateAzimuthMils(bearingDegrees, mortarType) {
+    const milSystem = getMilSystemConfig(mortarType);
+    return Math.round(bearingDegrees * milSystem.milsPerDegree);
+}
+
+/**
+ * Get mil system configuration for a mortar type
+ * @param {string} mortarType - Mortar type ID
+ * @returns {Object} Mil system configuration
+ */
+function getMilSystemConfig(mortarType) {
+    if (!ballisticData) {
+        throw new Error('Ballistic data not loaded. Call loadBallisticData() first.');
+    }
+    
+    const mortar = ballisticData.mortarTypes.find(m => m.id === mortarType);
+    if (!mortar || !mortar.milSystem) {
+        // Fallback to hardcoded values if not in data
+        return mortarType === 'RUS' 
+            ? { name: 'Warsaw Pact', milsPerCircle: 6000, milsPerDegree: 16.6667 }
+            : { name: 'NATO', milsPerCircle: 6400, milsPerDegree: 17.7778 };
+    }
+    
+    return mortar.milSystem;
 }
 
 /**
  * Convert degrees to mils
  * @param {number} degrees - Angle in degrees
- * @param {string} mortarType - 'RUS' for Warsaw Pact (6000 mils/360°) or 'US' for NATO (6400 mils/360°)
+ * @param {string} mortarType - Mortar type ID
  * @returns {number} Angle in mils
  */
 function degreesToMils(degrees, mortarType) {
-    const factor = mortarType === 'RUS' ? 16.6667 : 17.7778;
-    return Math.round(degrees * factor);
+    const milSystem = getMilSystemConfig(mortarType);
+    return Math.round(degrees * milSystem.milsPerDegree);
 }
 
 /**
  * Convert mils to degrees
  * @param {number} mils - Angle in mils
- * @param {string} mortarType - 'RUS' for Warsaw Pact (6000 mils/360°) or 'US' for NATO (6400 mils/360°)
+ * @param {string} mortarType - Mortar type ID
  * @returns {number} Angle in degrees
  */
 function milsToDegrees(mils, mortarType) {
-    const factor = mortarType === 'RUS' ? 16.6667 : 17.7778;
-    return parseFloat((mils / factor).toFixed(2));
+    const milSystem = getMilSystemConfig(mortarType);
+    return parseFloat((mils / milSystem.milsPerDegree).toFixed(2));
 }
 
 /**
  * Get the mil system name for display
- * @param {string} mortarType - 'RUS' or 'US'
+ * @param {string} mortarType - Mortar type ID
  * @returns {string} Mil system name
  */
 function getMilSystemName(mortarType) {
-    return mortarType === 'RUS' ? 'Warsaw Pact (6000 mils)' : 'NATO (6400 mils)';
+    const milSystem = getMilSystemConfig(mortarType);
+    return `${milSystem.name} (${milSystem.milsPerCircle} mils)`;
 }
 
 /**
@@ -433,7 +472,7 @@ function calculateForCharge(charge, input) {
     );
     
     const mortarType = input.mortarType || (input.mortarId.startsWith('RUS') ? 'RUS' : 'US');
-    const elevationDegrees = parseFloat((correctedElevation / (mortarType === 'RUS' ? 16.6667 : 17.7778)).toFixed(1));
+    const elevationDegrees = milsToDegrees(correctedElevation, mortarType);
     const azimuthMils = degreesToMils(input.bearing, mortarType);
     
     return {
@@ -501,8 +540,8 @@ function calculate(input) {
         ballistics.dElev
     );
     
-    const elevationDegrees = parseFloat((correctedElevation / 17.7778).toFixed(1));
-    const azimuthMils = calculateAzimuthMils(input.bearing);
+    const elevationDegrees = milsToDegrees(correctedElevation, input.mortarType);
+    const azimuthMils = calculateAzimuthMils(input.bearing, input.mortarType);
     
     return {
         inRange: true,
@@ -599,6 +638,8 @@ if (typeof module !== 'undefined' && module.exports) {
         calculateHorizontalDistance,
         calculateBearing,
         getWeaponConfig,
+        getAllMortarTypes,
+        getMilSystemConfig,
         findOptimalCharge,
         interpolateFromTable,
         applyHeightCorrection,
@@ -621,6 +662,8 @@ if (typeof window !== 'undefined') {
         calculateHorizontalDistance,
         calculateBearing,
         getWeaponConfig,
+        getAllMortarTypes,
+        getMilSystemConfig,
         findOptimalCharge,
         interpolateFromTable,
         applyHeightCorrection,

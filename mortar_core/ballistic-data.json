@@ -7,6 +7,11 @@
       "id": "RUS",
       "name": "Russian 82mm Mortar",
       "caliber": 82,
+      "milSystem": {
+        "name": "Warsaw Pact",
+        "milsPerCircle": 6000,
+        "milsPerDegree": 16.6667
+      },
       "shellTypes": [
         {
           "type": "HE",
@@ -1250,6 +1255,11 @@
       "id": "US",
       "name": "US M252 81mm Mortar",
       "caliber": 81,
+      "milSystem": {
+        "name": "NATO",
+        "milsPerCircle": 6400,
+        "milsPerDegree": 17.7778
+      },
       "shellTypes": [
         {
           "type": "HE",

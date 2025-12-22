@@ -255,17 +255,14 @@
                 <div class="form-group">
                     <label for="mortarType">Mortar Type</label>
                     <select id="mortarType">
-                        <option value="RUS">Russian 82mm (2B14)</option>
-                        <option value="US">US M252 81mm</option>
+                        <!-- Populated dynamically from ballistic-data.json -->
                     </select>
                 </div>
                 
                 <div class="form-group">
                     <label for="shellType">Shell Type</label>
                     <select id="shellType">
-                        <option value="HE">High Explosive (HE)</option>
-                        <option value="SMOKE">Smoke Round</option>
-                        <option value="ILLUM">Illumination</option>
+                        <!-- Populated dynamically from ballistic-data.json -->
                     </select>
                 </div>
             </div>
@@ -280,6 +277,16 @@
     <script>
         let ballisticDataLoaded = false;
         
+        // Get all available mortar types from loaded ballistic data
+        function getAllMortarTypes() {
+            try {
+                return MortarCalculator.getAllMortarTypes();
+            } catch (error) {
+                console.warn('Could not get mortar types:', error);
+                return [];
+            }
+        }
+        
         // Get available shell types for a mortar from loaded ballistic data
         function getShellTypesForMortar(mortarId) {
             try {
@@ -293,6 +300,30 @@
             } catch (error) {
                 console.warn('Could not get shell types:', error);
                 return [];
+            }
+        }
+        
+        // Update mortar type options from ballistic data
+        function updateMortarTypes() {
+            const mortarTypeSelect = document.getElementById('mortarType');
+            const currentValue = mortarTypeSelect.value;
+            
+            const availableMortars = getAllMortarTypes();
+            
+            mortarTypeSelect.innerHTML = '';
+            availableMortars.forEach(mortar => {
+                const option = document.createElement('option');
+                option.value = mortar.id;
+                option.textContent = `${mortar.name}`;
+                mortarTypeSelect.appendChild(option);
+            });
+            
+            // Restore previous selection if available, otherwise select first
+            const optionExists = availableMortars.some(m => m.id === currentValue);
+            if (optionExists) {
+                mortarTypeSelect.value = currentValue;
+            } else if (availableMortars.length > 0) {
+                mortarTypeSelect.value = availableMortars[0].id;
             }
         }
         
@@ -333,7 +364,8 @@
                 loading.style.display = 'none';
                 app.style.display = 'block';
                 
-                // Initialize shell types after data is loaded
+                // Initialize mortar types and shell types after data is loaded
+                updateMortarTypes();
                 updateShellTypes();
                 
                 console.log('✅ Ballistic data loaded successfully');
