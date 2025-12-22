@@ -12,7 +12,9 @@
 - ✅ Comprehensive JSDoc type definitions
 - ✅ Height correction support
 - ✅ Automatic charge selection
-- ✅ Multiple mortar and shell types
+- ✅ **Dynamic weapon data loading** - all ballistics from JSON
+- ✅ **Extensible** - add new weapons without code changes
+- ✅ **Multiple mil systems** - Warsaw Pact (6000) and NATO (6400)
 
 ## Installation
 
@@ -138,6 +140,48 @@ if (solution.inRange) {
 } else {
     console.log(`Error: ${solution.error}`);
 }
+```
+
+---
+
+#### `getAllMortarTypes()`
+
+Get all available mortar types from loaded ballistic data.
+
+**Returns:**
+- `Array<Object>` - Array of mortar type objects with `id`, `name`, and `caliber`
+
+**Throws:**
+- Error if ballistic data not loaded
+
+**Example:**
+```javascript
+const mortars = MortarCalculator.getAllMortarTypes();
+mortars.forEach(m => {
+    console.log(`${m.id}: ${m.name} (${m.caliber}mm)`);
+});
+// RUS: Russian 82mm Mortar (82mm)
+// US: US M252 81mm Mortar (81mm)
+```
+
+---
+
+#### `getMilSystemConfig(mortarType)`
+
+Get mil system configuration for a mortar type.
+
+**Parameters:**
+- `mortarType` (string) - Mortar type ID (e.g., "RUS", "US")
+
+**Returns:**
+- `Object` - Mil system config with `name`, `milsPerCircle`, and `milsPerDegree`
+
+**Example:**
+```javascript
+const milSystem = MortarCalculator.getMilSystemConfig("RUS");
+console.log(milSystem.name);  // "Warsaw Pact"
+console.log(milSystem.milsPerCircle);  // 6000
+console.log(milSystem.milsPerDegree);  // 16.6667
 ```
 
 ---
@@ -377,13 +421,28 @@ Apply height correction to base elevation.
 | `RUS` | Russian 82mm | 82mm | Soviet/Russian |
 | `US` | US M252 | 81mm | United States |
 
+### Mil Systems
+
+Each mortar type uses a specific mil system for angular measurements:
+
+| Mortar | Mil System | Mils/Circle | Mils/Degree |
+|--------|------------|-------------|-------------|
+| `RUS` | Warsaw Pact | 6000 | 16.6667 |
+| `US` | NATO | 6400 | 17.7778 |
+
+Mil system configuration is loaded from `ballistic-data.json` and automatically used in all conversions.
+
 ### Shell Types
 
-| Type | Description |
-|------|-------------|
-| `HE` | High Explosive |
-| `SMOKE` | Smoke Round |
-| `ILLUM` | Illumination |
+Shell type availability depends on mortar type:
+
+| Type | Description | RUS | US |
+|------|-------------|-----|----|
+| `HE` | High Explosive | ✅ | ✅ |
+| `SMOKE` | Smoke Round | ✅ | ❌ |
+| `ILLUM` | Illumination | ✅ | ❌ |
+
+Shell types are dynamically loaded from `ballistic-data.json` using `getWeaponConfig()`.
 
 #### `calculateAllTrajectories(input)`
 
@@ -543,24 +602,6 @@ function calculateFromMap(map, mortarMarker, targetMarker) {
     return MortarCalculator.calculate(input);
 }
 ```
-
-## Performance
-
-- **Calculate:** ~0.1ms per calculation
-- **Load Data:** ~10ms (depends on file size)
-- **Memory:** ~500KB (with ballistic data loaded)
-
-## Browser Compatibility
-
-- Chrome/Edge: ✅ All versions
-- Firefox: ✅ All versions
-- Safari: ✅ 12+
-- IE11: ⚠️ Requires polyfills for `Promise` and `fetch`
-
-## Node.js Compatibility
-
-- Node.js 12+: ✅ Full support
-- Node.js 10: ⚠️ May require `--experimental-modules`
 
 ## Error Messages
 

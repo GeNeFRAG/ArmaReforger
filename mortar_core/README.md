@@ -98,10 +98,21 @@ See **[API.md](API.md)** for complete documentation.
 
 ## 🎮 Supported Weapons
 
-| Mortar ID | Name | Caliber |
-|-----------|------|---------|
-| `RUS` | Russian 82mm | 82mm |
-| `US` | US M252 | 81mm |
+All weapon data is dynamically loaded from `ballistic-data.json`:
+
+- **Mortar types** - Automatically populated from data
+- **Shell types** - Available shells per mortar type
+- **Mil systems** - Warsaw Pact (6000 mils) vs NATO (6400 mils)
+- **Ballistic tables** - Pre-calculated firing solutions
+
+**Current weapons in database:**
+
+| Mortar ID | Name | Caliber | Mil System | Shell Types |
+|-----------|------|---------|------------|-------------|
+| `RUS` | Russian 82mm (2B14) | 82mm | Warsaw Pact (6000) | HE, SMOKE, ILLUM |
+| `US` | US M252 | 81mm | NATO (6400) | HE |
+
+To add new weapons, update `ballistic-data.json` - no code changes required.
 
 ## 🧪 Testing
 

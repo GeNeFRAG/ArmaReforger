@@ -14,14 +14,10 @@ ArmaReforger/
 │   ├── ballistic-data.json # Weapon ballistics database
 │   ├── Arma Reforger Mortar Calc.ods
 │   └── README.md
-├── server_tools/           # Server management utilities
-│   ├── mod_manager.py
-│   ├── extract_mods_workshop.py
-│   └── README.md
-└── helper_scripts/         # Build and utility scripts
-    ├── download_and_stitch_map.py
-    ├── upload_to_r2.py
-    └── ...
+└── server_tools/           # Server management utilities
+    ├── mod_manager.py
+    ├── extract_mods_workshop.py
+    └── README.md
 ```
 
 ## Quick Start
@@ -50,22 +46,32 @@ if 'height_data' in everon['resources']:
 ```
 
 ### Mortar Core
-Calculate artillery fire solutions:
+Calculate artillery fire solutions with dynamic ballistic data:
 
-```python
-import json
+```javascript
+const MortarCalculator = require('./MortarCalculator');
 
-with open('mortar_core/ballistic-data.json') as f:
-    ballistics = json.load(f)
+// Load ballistic data from JSON
+await MortarCalculator.loadBallisticData('./ballistic-data.json');
 
-# Get firing angle for M252 mortar at 1500m
-m252_charge2 = ballistics['M252']['charges']['2']
-target_range = 1500
+// Get all available mortars
+const mortars = MortarCalculator.getAllMortarTypes();
+// [{id: "RUS", name: "Russian 82mm Mortar", caliber: 82}, ...]
 
-if target_range <= m252_charge2['max_range']:
-    angle_index = target_range - m252_charge2['min_range']
-    firing_angle = m252_charge2['angles'][angle_index]
-    print(f"Fire at {firing_angle}° elevation")
+// Calculate firing solution
+const solution = MortarCalculator.calculate({
+    distance: 1500,
+    heightDifference: 0,
+    bearing: 45,
+    mortarId: "RUS",
+    shellType: "HE"
+});
+
+if (solution.inRange) {
+    console.log(`Charge: ${solution.charge}`);
+    console.log(`Elevation: ${solution.elevation} mils (${solution.elevationDegrees}°)`);
+    console.log(`Azimuth: ${solution.azimuthMils} mils`);
+}
 ```
 
 ### Server Tools
@@ -97,57 +103,23 @@ Everon, Arland, Kolguev, Anizay, Bad Orb, Belleau Wood, Fallujah, Gogland, Khanh
 - **CDN-hosted:** Fast global access via Cloudflare R2
 
 ### Artillery Systems
-Complete ballistics data for:
-- **M252** (US 81mm mortar) - 5 charge levels
-- **2B14** (Soviet 82mm mortar) - 5 charge levels
+Comprehensive ballistics database with dynamic loading:
 
-Pre-calculated firing angles for every meter from minimum to maximum range.
+**Mortars:**
+- **2B14** (Russian 82mm) - 5 charge levels, HE/SMOKE/ILLUM shells, Warsaw Pact (6000 mils)
+- **M252** (US 81mm) - 5 charge levels, HE shells, NATO (6400 mils)
 
-## Development
+**Features:**
+- Pre-calculated firing tables for every 50m increment
+- Height correction for elevated/depressed targets
+- Automatic charge selection for optimal accuracy
+- Multiple trajectory solutions per target
+- Dynamic mil system conversion (6000 vs 6400)
 
-### Helper Scripts
-Build tools for working with Arma Reforger resources:
-
-```bash
-# Download and stitch map tiles (auto-detects zoom from JSON)
-python helper_scripts/download_and_stitch_map.py seitenbuch
-python helper_scripts/download_and_stitch_map.py arland everon  # Multiple maps
-python helper_scripts/download_and_stitch_map.py --all           # All maps
-
-# Upload files to Cloudflare R2 (with overwrite protection)
-python helper_scripts/upload_to_r2.py --file map.png
-python helper_scripts/upload_to_r2.py --file map.png --force    # Prompts for overwrite
-
-# Update map URLs
-python helper_scripts/add_r2_urls.py
-
-# Test CDN accessibility
-python helper_scripts/test_r2_urls.py
-```
-
-### Requirements
-```bash
-python -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
-pip install requests pillow boto3 botocore
-```
-
-### Environment Variables
-For R2 uploads:
-```bash
-export R2_ACCOUNT_ID="your_account_id"
-export R2_ACCESS_KEY_ID="your_access_key"
-export R2_SECRET_ACCESS_KEY="your_secret_key"
-```
+**Extensible:** Add new weapons by updating `ballistic-data.json` - no code changes required.
 
 ## Documentation
 
 - [Maps Core](maps_core/README.md) - Map metadata and elevation data
 - [Mortar Core](mortar_core/README.md) - Artillery ballistics and calculators
 - [Server Tools](server_tools/README.md) - Mod management utilities
-
-## License
-
-Tools and scripts are provided as-is for Arma Reforger community use.
-
-Map imagery and game data remain property of Bohemia Interactive.
