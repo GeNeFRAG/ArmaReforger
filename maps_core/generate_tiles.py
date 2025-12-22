@@ -367,13 +367,19 @@ def main():
             image = Image.open(local_image_path)
         
         try:
+            # Special case: Seitenbuch needs landscape tiles despite portrait config
+            crop_size = map_data['size']
+            if map_data['namespace'] == 'seitenbuch':
+                crop_size = [4000, 2000]  # Force landscape for tile generation
+                print(f"⚠️  Using landscape override for Seitenbuch tiles: {crop_size}")
+            
             # Generate tiles
             generate_tiles(
                 image,
                 map_data['namespace'],
                 map_data['max_zoom'],
                 output_dir,
-                map_data['size']  # Pass size for auto-cropping
+                crop_size  # Pass size for auto-cropping
             )
             
             image.close()

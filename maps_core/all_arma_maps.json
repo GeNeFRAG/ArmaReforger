@@ -474,7 +474,7 @@
     "resources": {
       "map_image": "https://pub-65310bd5bcd44d68b30addfbacb31e51.r2.dev/seitenbuch_sat_z6_full.png"
     },
-    "corner_type": "corners_minimal_padding"
+    "corner_type": "corners_seitenbuch"
   },
   {
     "name": "Serhiivka",

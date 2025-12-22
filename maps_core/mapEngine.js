@@ -96,6 +96,15 @@ var engine = {
       ];
     },
     
+    corners_seitenbuch: function(width, height) {
+      return [
+        L.latLng(-60, -60),           // [0] NW padding (for map view)
+        L.latLng(width, height),      // [1] SE - REMOVED +1, +10
+        L.latLng(0, 0),               // [2] Tile bounds start
+        L.latLng(width, height),      // [3] Tile bounds end
+      ];
+    },
+    
     corners_takistan: function(width, height) {
       return [
         L.latLng(isMobile ? -80 : -30, isMobile ? -80 : -30),

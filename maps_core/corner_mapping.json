@@ -16,7 +16,7 @@
   "kunar": "corners_large_padding",
   "ruha": "corners_large_padding",
   "myccano": "corners_minimal_padding",
-  "seitenbuch": "corners_minimal_padding",
+  "seitenbuch": "corners_seitenbuch",
   "udachne": "corners_minimal_padding",
   "zarichne": "corners_minimal_padding",
   "serhiivka": "corners_large_padding_half",
