@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mortar Calculator - Interactive Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            background: #f0f0f0;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        .result.active {
+            display: block;
+        }
+        .result.success {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+        }
+        .result.error {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+        }
+        .result h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .solution-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .solution-item {
+            background: rgba(255,255,255,0.5);
+            padding: 12px;
+            border-radius: 4px;
+        }
+        .solution-item strong {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .solution-item .value {
+            font-size: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+        .charge-override {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 4px;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        #loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Mortar Calculator - Interactive Example</h1>
+    
+    <div id="loading">Loading ballistic data...</div>
+    
+    <div id="app" style="display: none;">
+        <div class="info">
+            ℹ️ Enter mortar and target coordinates to calculate firing solution. Charge is automatically selected for optimal range.
+        </div>
+        
+        <div class="container">
+                <h2>Mortar Position</h2>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="mortarX">X Coordinate (meters)</label>
+                        <input type="number" id="mortarX" value="4800" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="mortarY">Y Coordinate (meters)</label>
+                        <input type="number" id="mortarY" value="7049" step="0.1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="mortarZ">Elevation / Height (meters)</label>
+                    <input type="number" id="mortarZ" value="168" step="0.1">
+                </div>
+                
+                <h2>Target Position</h2>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="targetX">X Coordinate (meters)</label>
+                        <input type="number" id="targetX" value="4696" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="targetY">Y Coordinate (meters)</label>
+                        <input type="number" id="targetY" value="5516" step="0.1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="targetZ">Elevation / Height (meters)</label>
+                    <input type="number" id="targetZ" value="64" step="0.1">
+                </div>
+                
+                <div class="info" style="margin-top: 15px;">
+                    📍 Distance, Bearing, and Height Difference will be computed automatically from coordinates
+                </div>
+            
+            <h2>Weapon Configuration</h2>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label for="mortarType">Mortar Type</label>
+                    <select id="mortarType">
+                        <option value="RUS">Russian 82mm (2B14)</option>
+                        <option value="US">US M252 81mm</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="shellType">Shell Type</label>
+                    <select id="shellType">
+                        <option value="HE">High Explosive (HE)</option>
+                        <option value="SMOKE">Smoke Round</option>
+                        <option value="ILLUM">Illumination</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button id="calculate">Calculate Firing Solution</button>
+        </div>
+        
+        <div id="output" class="result"></div>
+    </div>
+    
+    <script src="MortarCalculator.js"></script>
+    <script>
+        let ballisticDataLoaded = false;
+        
+        // Load ballistic data on page load
+        async function init() {
+            const loading = document.getElementById('loading');
+            const app = document.getElementById('app');
+            
+            try {
+                await MortarCalculator.loadBallisticData('ballistic-data.json');
+                ballisticDataLoaded = true;
+                loading.style.display = 'none';
+                app.style.display = 'block';
+                console.log('✅ Ballistic data loaded successfully');
+            } catch (error) {
+                loading.innerHTML = `
+                    <div style="color: red;">
+                        ❌ Error loading ballistic data: ${error.message}
+                        <br>Make sure the HTTP server is running from the mortar_core directory.
+                    </div>
+                `;
+                console.error('Error loading ballistic data:', error);
+            }
+        }
+        
+        // Setup event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const calculateBtn = document.getElementById('calculate');
+            
+            calculateBtn.addEventListener('click', calculateSolution);
+            
+            // Allow Enter key to trigger calculation
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') calculateSolution();
+                });
+            });
+        });
+        
+        function calculateSolution() {
+            if (!ballisticDataLoaded) {
+                alert('Ballistic data not loaded yet. Please wait...');
+                return;
+            }
+            
+            const output = document.getElementById('output');
+            
+            // Clear previous results
+            output.className = 'result';
+            output.innerHTML = '';
+            
+            try {
+                const mortarId = document.getElementById('mortarType').value;
+                const shellType = document.getElementById('shellType').value;
+                
+                // Get coordinate values
+                const mortarX = parseFloat(document.getElementById('mortarX').value);
+                const mortarY = parseFloat(document.getElementById('mortarY').value);
+                const mortarZ = parseFloat(document.getElementById('mortarZ').value);
+                const targetX = parseFloat(document.getElementById('targetX').value);
+                const targetY = parseFloat(document.getElementById('targetY').value);
+                const targetZ = parseFloat(document.getElementById('targetZ').value);
+                
+                // Validate coordinates
+                if ([mortarX, mortarY, mortarZ, targetX, targetY, targetZ].some(isNaN)) {
+                    throw new Error('All coordinate values must be valid numbers');
+                }
+                
+                // Create position objects
+                const mortarPos = { x: mortarX, y: mortarY, z: mortarZ };
+                const targetPos = { x: targetX, y: targetY, z: targetZ };
+                
+                // Use prepareInput to calculate distance, bearing, and height difference
+                const input = MortarCalculator.prepareInput(mortarPos, targetPos, mortarId, shellType);
+                
+                console.log('Mortar Position:', mortarPos);
+                console.log('Target Position:', targetPos);
+                console.log('Calculated Parameters:', {
+                    distance: input.distance.toFixed(1) + 'm',
+                    bearing: input.bearing.toFixed(1) + '°',
+                    bearingMils: MortarCalculator.degreesToMils(input.bearing) + ' mils',
+                    heightDifference: input.heightDifference.toFixed(1) + 'm'
+                });
+                
+                console.log('Input:', input);
+                
+                // Calculate all trajectory options
+                const solutions = MortarCalculator.calculateAllTrajectories(input);
+                
+                console.log('Solutions:', solutions);
+                
+                // Generate trajectory data using MortarCalculator
+                const trajectoryData = MortarCalculator.generateTrajectoryPoints(solutions, input.distance, input.mortarType);
+                
+                // Render SVG trajectories
+                let trajectorySVG = '';
+                if (trajectoryData.series && trajectoryData.series.length > 0) {
+                    const svgTop = 30;
+                    const groundY = 220;
+                    const availablePx = groundY - svgTop;
+                    const verticalScale = trajectoryData.globalMaxY > 0 ? availablePx / trajectoryData.globalMaxY : 1;
+                    
+                    trajectoryData.series.forEach((series, i) => {
+                        const { color, elevDeg, points, charge, tof } = series;
+                        
+                        let svgPoints = points.map(p => {
+                            const screenX = 50 + (p.x / trajectoryData.globalRange) * 500;
+                            const screenY = groundY - p.y * verticalScale;
+                            return screenX.toFixed(1) + ',' + screenY.toFixed(1);
+                        });
+                        
+                        svgPoints[svgPoints.length - 1] = '550,' + groundY;
+                        
+                        const pathData = 'M ' + svgPoints.join(' L ');
+                        const legendY = 30 + i * 25;
+                        const textY = 34 + i * 25;
+                        
+                        trajectorySVG += '<path d="' + pathData + '" fill="none" stroke="' + color + '" stroke-width="2.5" opacity="0.8"/>';
+                        trajectorySVG += '<circle cx="300" cy="' + legendY + '" r="4" fill="' + color + '"/>';
+                        trajectorySVG += '<text x="310" y="' + textY + '" font-size="11" fill="' + color + '" font-weight="bold">';
+                        trajectorySVG += 'Charge ' + charge + ': ' + elevDeg.toFixed(1) + '° (' + tof + 's)</text>';
+                    });
+                }
+                
+                // Display result
+                output.className = 'result active';
+                
+                if (solutions.length > 0 && solutions[0].inRange) {
+                    output.classList.add('success');
+                    
+                    let solutionsHTML = '';
+                    
+                    solutions.forEach((solution, index) => {
+                        let trajectoryLabel;
+                        if (index === 0) {
+                            trajectoryLabel = '🎯 Optimal Fire Solution';
+                        } else {
+                            trajectoryLabel = solution.trajectoryType === 'high' 
+                                ? '🔄 Alternative Fire Solution (High Angle)' 
+                                : '🔄 Alternative Fire Solution (Low Angle)';
+                        }
+                        
+                        let chargeDesc = '';
+                        if (index === 0) {
+                            chargeDesc = solutions.length > 1 
+                                ? `Fastest - ${solution.timeOfFlight}s flight time`
+                                : 'Optimal solution';
+                        } else {
+                            const timeDiff = solution.timeOfFlight - solutions[0].timeOfFlight;
+                            const elevDiff = solution.elevation - solutions[0].elevation;
+                            const elevDegDiff = MortarCalculator.milsToDegrees(solution.elevation, input.mortarType) - MortarCalculator.milsToDegrees(solutions[0].elevation, input.mortarType);
+                            const elevSign = elevDiff > 0 ? '+' : '';
+                            chargeDesc = `+${timeDiff.toFixed(1)}s slower, ${elevSign}${elevDiff} mils (${elevSign}${elevDegDiff.toFixed(1)}°) vs charge ${solutions[0].charge}`;
+                        }
+                        
+                        solutionsHTML += `
+                            <div style="background: ${index === 0 ? '#fff' : '#f9f9f9'}; padding: 15px; border-radius: 4px; margin-bottom: 10px; border: ${index === 0 ? '2px solid #4CAF50' : '1px solid #ddd'};">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <h3 style="margin: 0; font-size: 16px; color: ${index === 0 ? '#4CAF50' : '#666'};">
+                                        ${trajectoryLabel} - Charge ${solution.charge}
+                                    </h3>
+                                    <span style="font-size: 12px; color: #666; font-style: italic;">
+                                        ${chargeDesc}
+                                    </span>
+                                </div>
+                                <div class="solution-grid">
+                                    <div class="solution-item">
+                                        <strong>CHARGE</strong>
+                                        <div class="value">${solution.charge}</div>
+                                    </div>
+                                    <div class="solution-item">
+                                        <strong>ELEVATION</strong>
+                                        <div class="value">${solution.elevation} mils</div>
+                                        <div style="color: #666; font-size: 12px;">(${MortarCalculator.milsToDegrees(solution.elevation, input.mortarType).toFixed(1)}°)</div>
+                                    </div>
+                                    <div class="solution-item">
+                                        <strong>AZIMUTH</strong>
+                                        <div class="value">${solution.azimuthMils} mils</div>
+                                        <div style="color: #666; font-size: 12px;">(${solution.azimuth.toFixed(1)}°)</div>
+                                    </div>
+                                    <div class="solution-item">
+                                        <strong>TIME OF FLIGHT</strong>
+                                        <div class="value">${solution.timeOfFlight}s</div>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 10px; padding: 8px; background: rgba(0,0,0,0.05); border-radius: 3px; font-size: 12px;">
+                                    Range: ${solution.minRange}m - ${solution.maxRange}m
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    output.innerHTML = `
+                        <h2>✅ Firing Solution${solutions.length > 1 ? 's' : ''} Found</h2>
+                        
+                        <div style="background: #fff3cd; padding: 12px; border-radius: 4px; border: 1px solid #ffc107; margin-bottom: 15px;">
+                            <strong>📐 Mil System:</strong> ${MortarCalculator.getMilSystemName(input.mortarType)}
+                        </div>
+                        
+                        <div style="background: #e7f3ff; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                            <h3 style="margin-top: 0; font-size: 16px;">📍 Target Analysis</h3>
+                            <div class="solution-grid">
+                                <div class="solution-item">
+                                    <strong>DISTANCE</strong>
+                                    <div class="value">${input.distance.toFixed(1)}m</div>
+                                </div>
+                                <div class="solution-item">
+                                    <strong>BEARING</strong>
+                                    <div class="value">${solutions[0].azimuthMils} mils</div>
+                                    <div style="color: #666; font-size: 12px;">(${input.bearing.toFixed(1)}°)</div>
+                                </div>
+                                <div class="solution-item">
+                                    <strong>HEIGHT DIFF</strong>
+                                    <div class="value">${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m</div>
+                                    <div style="color: #666; font-size: 12px;">${input.heightDifference > 0 ? 'Target higher' : input.heightDifference < 0 ? 'Target lower' : 'Same level'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${solutions.length > 1 ? '<div style="background: #fff3cd; padding: 12px; border-radius: 4px; border: 1px solid #ffc107; margin-bottom: 15px;"><strong>💡 Multiple Charge Options Available:</strong><br><small>Lower charges are more accurate but have limited range. Higher charges reach further but are less precise. High angle trajectories can clear obstacles.</small></div>' : ''}
+                        
+                        <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Solutions (${solutions.length})</h3>
+                        ${solutionsHTML}
+                        
+                        ${solutions.length > 1 ? `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-top: 20px; margin-bottom: 15px;">
+                            <h3 style="margin-top: 0; font-size: 16px;">📊 Trajectory Comparison</h3>
+                            <svg width="100%" height="250" viewBox="0 0 600 250" style="background: white; border-radius: 4px;">
+                                <!-- Ground and labels -->
+                                <line x1="50" y1="220" x2="550" y2="220" stroke="#333" stroke-width="2"/>
+                                <text x="50" y="240" text-anchor="middle" font-size="11" fill="#666">0m</text>
+                                <text x="300" y="240" text-anchor="middle" font-size="11" fill="#666">${(input.distance/2).toFixed(0)}m</text>
+                                <text x="550" y="240" text-anchor="middle" font-size="11" fill="#666">${input.distance.toFixed(0)}m</text>
+                                
+                                <!-- Mortar marker -->
+                                <circle cx="50" cy="220" r="4" fill="#4CAF50"/>
+                                <text x="50" y="210" text-anchor="middle" font-size="10" fill="#4CAF50" font-weight="bold">M</text>
+                                
+                                ${trajectorySVG}
+                            </svg>
+                        </div>
+                        ` : ''}
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(76, 175, 80, 0.1); border-radius: 4px; border: 1px solid #4CAF50;">
+                            <strong>🎯 Recommended Fire Mission</strong><br>
+                            <small>Charge ${solutions[0].charge} | Elevation ${solutions[0].elevation} mils | Azimuth ${solutions[0].azimuthMils} mils | TOF ${solutions[0].timeOfFlight}s</small>
+                        </div>
+                    `;
+                } else {
+                    const solution = solutions[0];
+                    output.classList.add('error');
+                    output.innerHTML = `
+                        <h2>❌ Target Out of Range</h2>
+                        <p><strong>Error:</strong> ${solution.error}</p>
+                        ${solution.minRange && solution.maxRange ? `
+                            <p>
+                                <strong>Valid range for this configuration:</strong><br>
+                                ${solution.minRange}m - ${solution.maxRange}m
+                            </p>
+                        ` : ''}
+                        <p style="margin-top: 15px;">
+                            <strong>Suggestions:</strong>
+                        </p>
+                        <ul>
+                            <li>Try a different mortar type or shell type</li>
+                            <li>Move mortar or target positions closer/further</li>
+                        </ul>
+                    `;
+                }
+            } catch (error) {
+                output.className = 'result active error';
+                output.innerHTML = `
+                    <h2>❌ Calculation Error</h2>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p>Check your input values and try again.</p>
+                `;
+                console.error('Calculation error:', error);
+            }
+        }
+        
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>

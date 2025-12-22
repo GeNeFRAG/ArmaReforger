@@ -1,105 +1,121 @@
 # Mortar Core
 
-Mortar ballistics calculation data and tools for Arma Reforger artillery systems.
+Mortar ballistics calculation engine for Arma Reforger artillery systems.
 
-Part of the [ArmaReforger](../README.md) project - tools and resources for Arma Reforger.
+Part of the [ArmaReforger](../README.md) project.
 
-## Contents
+## 🎯 Quick Start
 
-### `ballistic-data.json`
-Comprehensive ballistics database for all artillery weapons in Arma Reforger.
+### Web Calculator
 
-**Structure:**
-```json
-{
-  "M252": {
-    "charges": {
-      "0": {
-        "velocity": 70,
-        "min_range": 75,
-        "max_range": 1583,
-        "angles": [...]
-      },
-      "1": { ... },
-      ...
-    }
-  }
-}
+Open [index.html](index.html) in a browser for interactive calculations with trajectory visualization.
+
+### Node.js
+
+```javascript
+const MortarCalculator = require('./MortarCalculator');
+
+// Load ballistic data
+await MortarCalculator.loadBallisticData('./ballistic-data.json');
+
+// Calculate firing solution
+const solution = MortarCalculator.calculate({
+    distance: 1250,
+    heightDifference: -45,
+    bearing: 67.5,
+    mortarId: "RUS",
+    shellType: "HE"
+});
+
+console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`);
 ```
 
-**Fields:**
-- Weapon name (e.g., "M252", "2B14")
-- Charge levels (0-4 depending on weapon)
-- Velocity: Muzzle velocity in m/s
-- Min/Max range: Effective range in meters
-- Angles: Pre-calculated firing angles for each meter of range
+## 📚 Documentation
 
-**Supported Weapons:**
-- M252 (US 81mm mortar)
-- 2B14 (Soviet 82mm mortar)
+- **[API.md](API.md)** - Complete API documentation
+- **[examples/](examples/)** - Usage examples for Node.js, browser, and map integration
 
-### `Arma Reforger Mortar Calc.ods`
-OpenDocument Spreadsheet for interactive fire solution calculations.
 
-**Features:**
-- Range and bearing calculations
-- Charge selection optimization
-- Elevation angle computation
-- Time of flight estimation
-- Multiple target tracking
+## 📦 Files
 
-## Usage
+### Web Application
 
-### Load Ballistics Data
+- **[index.html](index.html)** - Interactive web calculator with trajectory visualization
 
-```python
-import json
+### Core Module
 
-with open('mortar_core/ballistic-data.json') as f:
-    ballistics = json.load(f)
+- **[MortarCalculator.js](MortarCalculator.js)** - Framework-agnostic calculation engine
 
-m252_charge2 = ballistics['M252']['charges']['2']
-print(f"Velocity: {m252_charge2['velocity']} m/s")
-print(f"Range: {m252_charge2['min_range']}-{m252_charge2['max_range']}m")
+### Data
+
+- **`ballistic-data.json`** - Ballistics database for all mortars
+
+### Examples
+
+- **[examples/node-example.js](examples/node-example.js)** - Node.js usage
+- **[examples/trajectory-visualization.js](examples/trajectory-visualization.js)** - Terminal ASCII trajectory visualization
+- **[examples/integration-with-engine.js](examples/integration-with-engine.js)** - Map engine integration
+
+## 🚀 Features
+
+- ✅ **Pure JavaScript** - No external dependencies
+- ✅ **Framework-agnostic** - Works in Node.js and browsers
+- ✅ **Coordinate-system independent** - Uses simple 3D positions
+- ✅ **Height correction** - Automatic elevation adjustment
+- ✅ **Automatic charge selection** - Or force specific charge
+- ✅ **Trajectory visualization** - Generate trajectory points for SVG/Canvas rendering
+
+## 🔧 API Overview
+
+### Main Functions
+
+```javascript
+// Load ballistic data
+await loadBallisticData(dataSource)
+
+// Calculate firing solution
+calculate(input) → FiringSolution
+
+// Calculate all trajectory options
+calculateAllTrajectories(input) → Array<FiringSolution>
+
+// Generate trajectory points for visualization
+generateTrajectoryPoints(solutions, distance, mortarType) → TrajectoryData
+
+// Convert positions to input
+prepareInput(mortarPos, targetPos, mortarId, shellType)
 ```
 
-### Calculate Firing Angle
+### Geometry Utilities
 
-```python
-target_range = 1500  # meters
-charge = '2'
-
-if target_range <= m252_charge2['max_range']:
-    angle_index = target_range - m252_charge2['min_range']
-    firing_angle = m252_charge2['angles'][angle_index]
-    print(f"Fire at {firing_angle}° elevation")
+```javascript
+calculateDistance(pos1, pos2)
+calculateHorizontalDistance(pos1, pos2)
+calculateBearing(pos1, pos2)
 ```
 
-## Ballistics Formula
+See **[API.md](API.md)** for complete documentation.
 
-The firing angles are calculated using projectile motion physics:
+## 🎮 Supported Weapons
 
+| Mortar ID | Name | Caliber |
+|-----------|------|---------|
+| `RUS` | Russian 82mm | 82mm |
+| `US` | US M252 | 81mm |
+
+## 🧪 Testing
+
+```bash
+npm install mocha
+npx mocha tests/MortarCalculator.test.js
 ```
-Range = (v² × sin(2θ)) / g
-```
 
-Where:
-- v = muzzle velocity (m/s)
-- θ = firing angle (degrees)
-- g = gravity (9.81 m/s²)
+## 📊 Performance
 
-For each charge level, angles are pre-computed for every meter from min to max range.
+- **Calculate:** ~0.1ms per calculation
+- **Load Data:** ~10ms
 
-## Data Sources
+## 🌐 Compatibility
 
-- Official Arma Reforger game files
-- Community testing and validation
-- Real-world ballistics tables (M252/2B14)
-
-## Contributing
-
-To add new weapon systems:
-1. Extract velocity data from game files
-2. Calculate angle table using ballistics formula
-3. Validate with in-game testing
-4. Update `ballistic-data.json`
+- **Browser:** Chrome, Firefox, Safari 12+, Edge
+- **Node.js:** 12+
