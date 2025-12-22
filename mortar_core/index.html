@@ -28,7 +28,7 @@
         .logo {
             width: 80px;
             height: auto;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+            filter: brightness(0) invert(1) drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
         }
         h1 {
             color: #c8d4a0;
@@ -130,16 +130,16 @@
             display: block;
         }
         .result.success {
-            background: rgba(75, 100, 60, 0.3);
+            background: rgba(35, 45, 42, 0.85);
             border: 2px solid #6b8e23;
         }
         .result.error {
-            background: rgba(100, 60, 60, 0.3);
+            background: rgba(35, 45, 42, 0.85);
             border: 2px solid #a85050;
         }
         .result h2 {
             margin-top: 0;
-            color: #c8d4a0;
+            color: #d8e4b0;
         }
         .solution-grid {
             display: grid;
@@ -148,14 +148,14 @@
             margin-top: 15px;
         }
         .solution-item {
-            background: rgba(45, 55, 52, 0.6);
+            background: rgba(20, 25, 22, 0.8);
             padding: 14px;
             border-radius: 2px;
             border: 1px solid #4a5a52;
         }
         .solution-item strong {
             display: block;
-            color: #95a585;
+            color: #a8b898;
             font-size: 11px;
             margin-bottom: 6px;
             text-transform: uppercase;
@@ -163,7 +163,7 @@
         }
         .solution-item .value {
             font-size: 22px;
-            color: #c8d4a0;
+            color: #e8f4d0;
             font-weight: bold;
         }
         .charge-override {
@@ -432,12 +432,12 @@
                         }
                         
                         solutionsHTML += `
-                            <div style="background: ${index === 0 ? '#fff' : '#f9f9f9'}; padding: 15px; border-radius: 4px; margin-bottom: 10px; border: ${index === 0 ? '2px solid #4CAF50' : '1px solid #ddd'};">
+                            <div style="background: ${index === 0 ? 'rgba(40, 55, 45, 0.9)' : 'rgba(35, 45, 42, 0.7)'}; padding: 15px; border-radius: 4px; margin-bottom: 10px; border: ${index === 0 ? '2px solid #6b8e23' : '1px solid #4a5a52'};">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                    <h3 style="margin: 0; font-size: 16px; color: ${index === 0 ? '#4CAF50' : '#666'};">
+                                    <h3 style="margin: 0; font-size: 16px; color: ${index === 0 ? '#c8d4a0' : '#a8b898'};">
                                         ${trajectoryLabel} - Charge ${solution.charge}
                                     </h3>
-                                    <span style="font-size: 12px; color: #666; font-style: italic;">
+                                    <span style="font-size: 12px; color: #95a585; font-style: italic;">
                                         ${chargeDesc}
                                     </span>
                                 </div>
@@ -449,19 +449,19 @@
                                     <div class="solution-item">
                                         <strong>ELEVATION</strong>
                                         <div class="value">${solution.elevation} mils</div>
-                                        <div style="color: #666; font-size: 12px;">(${MortarCalculator.milsToDegrees(solution.elevation, input.mortarType).toFixed(1)}°)</div>
+                                        <div style="color: #95a585; font-size: 12px;">(${MortarCalculator.milsToDegrees(solution.elevation, input.mortarType).toFixed(1)}°)</div>
                                     </div>
                                     <div class="solution-item">
                                         <strong>AZIMUTH</strong>
                                         <div class="value">${solution.azimuthMils} mils</div>
-                                        <div style="color: #666; font-size: 12px;">(${solution.azimuth.toFixed(1)}°)</div>
+                                        <div style="color: #95a585; font-size: 12px;">(${solution.azimuth.toFixed(1)}°)</div>
                                     </div>
                                     <div class="solution-item">
                                         <strong>TIME OF FLIGHT</strong>
                                         <div class="value">${solution.timeOfFlight}s</div>
                                     </div>
                                 </div>
-                                <div style="margin-top: 10px; padding: 8px; background: rgba(0,0,0,0.05); border-radius: 3px; font-size: 12px;">
+                                <div style="margin-top: 10px; padding: 8px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; font-size: 12px; color: #a8b898;">
                                     Range: ${solution.minRange}m - ${solution.maxRange}m
                                 </div>
                             </div>
@@ -471,12 +471,12 @@
                     output.innerHTML = `
                         <h2>✅ Firing Solution${solutions.length > 1 ? 's' : ''} Found</h2>
                         
-                        <div style="background: #fff3cd; padding: 12px; border-radius: 4px; border: 1px solid #ffc107; margin-bottom: 15px;">
+                        <div style="background: rgba(60, 75, 50, 0.4); padding: 12px; border-radius: 4px; border: 1px solid #6b8e23; margin-bottom: 15px; color: #d8e4b0;">
                             <strong>📐 Mil System:</strong> ${MortarCalculator.getMilSystemName(input.mortarType)}
                         </div>
                         
-                        <div style="background: #e7f3ff; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
-                            <h3 style="margin-top: 0; font-size: 16px;">📍 Target Analysis</h3>
+                        <div style="background: rgba(35, 45, 42, 0.85); padding: 15px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #3a4a45;">
+                            <h3 style="margin-top: 0; font-size: 16px; color: #d8e4b0;">📍 Target Analysis</h3>
                             <div class="solution-grid">
                                 <div class="solution-item">
                                     <strong>DISTANCE</strong>
@@ -485,41 +485,41 @@
                                 <div class="solution-item">
                                     <strong>BEARING</strong>
                                     <div class="value">${solutions[0].azimuthMils} mils</div>
-                                    <div style="color: #666; font-size: 12px;">(${input.bearing.toFixed(1)}°)</div>
+                                    <div style="color: #95a585; font-size: 12px;">(${input.bearing.toFixed(1)}°)</div>
                                 </div>
                                 <div class="solution-item">
                                     <strong>HEIGHT DIFF</strong>
                                     <div class="value">${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m</div>
-                                    <div style="color: #666; font-size: 12px;">${input.heightDifference > 0 ? 'Target higher' : input.heightDifference < 0 ? 'Target lower' : 'Same level'}</div>
+                                    <div style="color: #95a585; font-size: 12px;">${input.heightDifference > 0 ? 'Target higher' : input.heightDifference < 0 ? 'Target lower' : 'Same level'}</div>
                                 </div>
                             </div>
                         </div>
                         
-                        ${solutions.length > 1 ? '<div style="background: #fff3cd; padding: 12px; border-radius: 4px; border: 1px solid #ffc107; margin-bottom: 15px;"><strong>💡 Multiple Charge Options Available:</strong><br><small>Lower charges are more accurate but have limited range. Higher charges reach further but are less precise. High angle trajectories can clear obstacles.</small></div>' : ''}
+                        ${solutions.length > 1 ? '<div style="background: rgba(60, 75, 50, 0.4); padding: 12px; border-radius: 4px; border: 1px solid #6b8e23; margin-bottom: 15px; color: #d8e4b0;"><strong>💡 Multiple Charge Options Available:</strong><br><small>Lower charges are more accurate but have limited range. Higher charges reach further but are less precise. High angle trajectories can clear obstacles.</small></div>' : ''}
                         
                         <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Solutions (${solutions.length})</h3>
                         ${solutionsHTML}
                         
                         ${solutions.length > 1 ? `
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-top: 20px; margin-bottom: 15px;">
-                            <h3 style="margin-top: 0; font-size: 16px;">📊 Trajectory Comparison</h3>
-                            <svg width="100%" height="250" viewBox="0 0 600 250" style="background: white; border-radius: 4px;">
+                        <div style="background: rgba(35, 45, 42, 0.85); padding: 15px; border-radius: 4px; margin-top: 20px; margin-bottom: 15px; border: 1px solid #3a4a45;">
+                            <h3 style="margin-top: 0; font-size: 16px; color: #d8e4b0;">📊 Trajectory Comparison</h3>
+                            <svg width="100%" height="250" viewBox="0 0 600 250" style="background: #1a2422; border-radius: 4px;">
                                 <!-- Ground and labels -->
-                                <line x1="50" y1="220" x2="550" y2="220" stroke="#333" stroke-width="2"/>
-                                <text x="50" y="240" text-anchor="middle" font-size="11" fill="#666">0m</text>
-                                <text x="300" y="240" text-anchor="middle" font-size="11" fill="#666">${(input.distance/2).toFixed(0)}m</text>
-                                <text x="550" y="240" text-anchor="middle" font-size="11" fill="#666">${input.distance.toFixed(0)}m</text>
+                                <line x1="50" y1="220" x2="550" y2="220" stroke="#6b8e23" stroke-width="2"/>
+                                <text x="50" y="240" text-anchor="middle" font-size="11" fill="#95a585">0m</text>
+                                <text x="300" y="240" text-anchor="middle" font-size="11" fill="#95a585">${(input.distance/2).toFixed(0)}m</text>
+                                <text x="550" y="240" text-anchor="middle" font-size="11" fill="#95a585">${input.distance.toFixed(0)}m</text>
                                 
                                 <!-- Mortar marker -->
-                                <circle cx="50" cy="220" r="4" fill="#4CAF50"/>
-                                <text x="50" y="210" text-anchor="middle" font-size="10" fill="#4CAF50" font-weight="bold">M</text>
+                                <circle cx="50" cy="220" r="4" fill="#6b8e23"/>
+                                <text x="50" y="210" text-anchor="middle" font-size="10" fill="#c8d4a0" font-weight="bold">M</text>
                                 
                                 ${trajectorySVG}
                             </svg>
                         </div>
                         ` : ''}
                         
-                        <div style="margin-top: 20px; padding: 15px; background: rgba(76, 175, 80, 0.1); border-radius: 4px; border: 1px solid #4CAF50;">
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(60, 75, 50, 0.4); border-radius: 4px; border: 1px solid #6b8e23; color: #d8e4b0;">
                             <strong>🎯 Recommended Fire Mission</strong><br>
                             <small>Charge ${solutions[0].charge} | Elevation ${solutions[0].elevation} mils | Azimuth ${solutions[0].azimuthMils} mils | TOF ${solutions[0].timeOfFlight}s</small>
                         </div>
