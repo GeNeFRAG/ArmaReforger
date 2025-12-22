@@ -5,23 +5,56 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
             max-width: 900px;
-            margin: 30px auto;
+            margin: 0 auto;
             padding: 20px;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #1a1f1e 0%, #2a3532 100%);
+            color: #e8e8e8;
+            min-height: 100vh;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #6b8e23;
+        }
+        .logo {
+            width: 80px;
+            height: auto;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
         }
         h1 {
-            color: #333;
-            border-bottom: 3px solid #4CAF50;
-            padding-bottom: 10px;
+            color: #c8d4a0;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: 1.8em;
+        }
+        h2 {
+            color: #b8c7a0;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-left: 4px solid #6b8e23;
+            padding-left: 12px;
         }
         .container {
-            background: white;
+            background: rgba(35, 45, 42, 0.85);
             padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            border: 1px solid #3a4a45;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             margin-bottom: 20px;
         }
         .form-group {
@@ -29,21 +62,27 @@
         }
         label {
             display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #555;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #b8c7a0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         input, select {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            border: 1px solid #4a5a52;
+            border-radius: 2px;
             font-size: 14px;
-            box-sizing: border-box;
+            background: #2a3532;
+            color: #e8e8e8;
+            transition: border-color 0.2s;
         }
         input:focus, select:focus {
             outline: none;
-            border-color: #4CAF50;
+            border-color: #6b8e23;
+            background: #323e3a;
         }
         .row {
             display: grid;
@@ -51,44 +90,56 @@
             gap: 20px;
         }
         button {
-            background: #4CAF50;
+            background: linear-gradient(180deg, #7a9f35 0%, #6b8e23 100%);
             color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 4px;
+            padding: 14px 30px;
+            border: 1px solid #5a7e1f;
+            border-radius: 2px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
         button:hover {
-            background: #45a049;
+            background: linear-gradient(180deg, #8ab040 0%, #7a9f35 100%);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+        }
+        button:active {
+            transform: translateY(1px);
         }
         button:disabled {
-            background: #ccc;
+            background: #4a5550;
+            border-color: #3a4540;
             cursor: not-allowed;
+            opacity: 0.5;
         }
         .result {
-            background: #f0f0f0;
+            background: rgba(35, 45, 42, 0.9);
             padding: 20px;
             margin-top: 20px;
-            border-radius: 8px;
+            border-radius: 4px;
             display: none;
+            border: 1px solid #3a4a45;
         }
         .result.active {
             display: block;
         }
         .result.success {
-            background: #d4edda;
-            border: 2px solid #c3e6cb;
+            background: rgba(75, 100, 60, 0.3);
+            border: 2px solid #6b8e23;
         }
         .result.error {
-            background: #f8d7da;
-            border: 2px solid #f5c6cb;
+            background: rgba(100, 60, 60, 0.3);
+            border: 2px solid #a85050;
         }
         .result h2 {
             margin-top: 0;
-            color: #333;
+            color: #c8d4a0;
         }
         .solution-grid {
             display: grid;
@@ -97,45 +148,61 @@
             margin-top: 15px;
         }
         .solution-item {
-            background: rgba(255,255,255,0.5);
-            padding: 12px;
-            border-radius: 4px;
+            background: rgba(45, 55, 52, 0.6);
+            padding: 14px;
+            border-radius: 2px;
+            border: 1px solid #4a5a52;
         }
         .solution-item strong {
             display: block;
-            color: #666;
-            font-size: 12px;
-            margin-bottom: 5px;
+            color: #95a585;
+            font-size: 11px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .solution-item .value {
-            font-size: 20px;
-            color: #333;
+            font-size: 22px;
+            color: #c8d4a0;
             font-weight: bold;
         }
         .charge-override {
             margin-top: 15px;
             padding: 15px;
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 4px;
+            background: rgba(120, 100, 50, 0.2);
+            border: 1px solid #8a7040;
+            border-radius: 2px;
         }
         .info {
-            background: #d1ecf1;
-            border: 1px solid #bee5eb;
-            padding: 10px;
-            border-radius: 4px;
+            background: rgba(60, 80, 95, 0.3);
+            border: 1px solid #4a6a75;
+            padding: 12px;
+            border-radius: 2px;
             margin-bottom: 20px;
-            font-size: 14px;
+            font-size: 13px;
+            color: #b8c8d0;
         }
         #loading {
             text-align: center;
-            padding: 20px;
-            color: #666;
+            padding: 40px 20px;
+            color: #95a585;
+            font-size: 16px;
+        }
+        @media (max-width: 600px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+            .solution-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Arma Reforger Mortar Fire Mission Calculator</h1>
+    <div class="header">
+        <img src="https://vectorseek.com/wp-content/uploads/2023/07/Arma-Reforger-Logo-Vector.svg-.png" alt="Arma Reforger" class="logo">
+        <h1>Mortar Fire Mission Calculator</h1>
+    </div>
     
     <div id="loading">Loading ballistic data...</div>
     
