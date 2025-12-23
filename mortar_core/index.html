@@ -7,7 +7,7 @@
     <!-- Primary Meta Tags -->
     <title>Arma Reforger Mortar Calculator | Fire Mission & Ballistics Tool</title>
     <meta name="title" content="Arma Reforger Mortar Calculator | Fire Mission & Ballistics Tool">
-    <meta name="description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing missions with grid coordinates, elevation, azimuth, and time of flight. Supports US 60mm and Russian 82mm mortars.">
+    <meta name="description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing missions with grid coordinates, elevation, azimuth, fire for effect and time of flight. Supports US 60mm and Russian 82mm mortars.">
     <meta name="keywords" content="arma reforger, mortar calculator, firing missons, ballistics, grid coordinates, artillery calculator, mil system, US mortar, Russian mortar, game tool">
     <meta name="author" content="ArmaMortars.org">
     <meta name="robots" content="index, follow">
@@ -17,7 +17,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://armamortars.org/">
     <meta property="og:title" content="Arma Reforger Mortar Calculator | Fire Mission & Ballistics Tool">
-    <meta property="og:description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing missions with grid coordinates, elevation, azimuth, and time of flight.">
+    <meta property="og:description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing missions with grid coordinates, elevation, azimuth, fire for effect and time of flight.">
     <meta property="og:image" content="https://armamortars.org/icon.png">
     <meta property="og:site_name" content="ArmaMortars.org">
     
@@ -409,6 +409,58 @@
                 🔄 Apply Correction
             </button>
             
+            <h2>💥 Fire for Effect (Optional)</h2>
+            
+            <div class="info" style="margin-bottom: 15px;">
+                🎯 Engage area targets with multiple rounds. Lateral sheaf for width coverage, linear sheaf for depth penetration.
+            </div>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label for="ffeEnabled">
+                        <input type="checkbox" id="ffeEnabled" style="margin-right: 8px; width: auto; height: auto;">
+                        Enable Fire for Effect
+                    </label>
+                </div>
+            </div>
+            
+            <div id="ffeControls" style="display: none;">
+                <div class="row">
+                    <div class="form-group">
+                        <label for="ffePattern">Sheaf Type</label>
+                        <select id="ffePattern">
+                            <option value="perpendicular">Lateral Sheaf (Width Coverage)</option>
+                            <option value="along-bearing">Linear Sheaf (Depth Penetration)</option>
+                            <option value="circular">Circular Pattern (Area Saturation)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ffeRounds">Rounds per Salvo</label>
+                        <select id="ffeRounds">
+                            <option value="3">3 Rounds</option>
+                            <option value="5" selected>5 Rounds</option>
+                            <option value="6">6 Rounds</option>
+                            <option value="8">8 Rounds</option>
+                            <option value="9">9 Rounds</option>
+                            <option value="12">12 Rounds</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="ffeSpacingGroup">
+                    <label for="ffeSpacing">Round Interval (meters)</label>
+                    <input type="number" id="ffeSpacing" placeholder="50" value="50" min="10" max="200" step="10">
+                    <small style="color: #999; display: block; margin-top: 5px;">Spacing between rounds (10-200m)</small>
+                </div>
+                
+                <div class="form-group" id="ffeRadiusGroup" style="display: none;">
+                    <label for="ffeRadius">Circle Radius (meters)</label>
+                    <input type="number" id="ffeRadius" placeholder="100" value="100" min="20" max="300" step="10">
+                    <small style="color: #999; display: block; margin-top: 5px;">Distance from center to impact points (20-300m)</small>
+                </div>
+            </div>
+            
             <h2>Weapon System</h2>
             
             <div class="row">
@@ -488,6 +540,16 @@
             
             // Reset correction flag
             window.correctionApplied = false;
+            
+            // Reset Fire for Effect
+            document.getElementById('ffeEnabled').checked = false;
+            document.getElementById('ffeControls').style.display = 'none';
+            document.getElementById('ffePattern').value = 'perpendicular';
+            document.getElementById('ffeRounds').value = '5';
+            document.getElementById('ffeSpacing').value = '50';
+            document.getElementById('ffeRadius').value = '100';
+            document.getElementById('ffeSpacingGroup').style.display = 'block';
+            document.getElementById('ffeRadiusGroup').style.display = 'none';
             
             // Clear output
             const output = document.getElementById('output');
@@ -706,6 +768,27 @@
             const applyCorrectionBtn = document.getElementById('applyCorrection');
             applyCorrectionBtn.addEventListener('click', applyFireCorrectionUI);
             
+            // Fire for Effect toggle
+            const ffeEnabled = document.getElementById('ffeEnabled');
+            const ffeControls = document.getElementById('ffeControls');
+            ffeEnabled.addEventListener('change', function() {
+                ffeControls.style.display = this.checked ? 'block' : 'none';
+            });
+            
+            // Fire for Effect pattern type change
+            const ffePattern = document.getElementById('ffePattern');
+            const ffeSpacingGroup = document.getElementById('ffeSpacingGroup');
+            const ffeRadiusGroup = document.getElementById('ffeRadiusGroup');
+            ffePattern.addEventListener('change', function() {
+                if (this.value === 'circular') {
+                    ffeSpacingGroup.style.display = 'none';
+                    ffeRadiusGroup.style.display = 'block';
+                } else {
+                    ffeSpacingGroup.style.display = 'block';
+                    ffeRadiusGroup.style.display = 'none';
+                }
+            });
+            
             // Reset button
             const resetBtn = document.getElementById('reset');
             resetBtn.addEventListener('click', function() {
@@ -726,6 +809,16 @@
                 
                 // Reset correction flag
                 window.correctionApplied = false;
+                
+                // Reset Fire for Effect
+                document.getElementById('ffeEnabled').checked = false;
+                document.getElementById('ffeControls').style.display = 'none';
+                document.getElementById('ffePattern').value = 'perpendicular';
+                document.getElementById('ffeRounds').value = '5';
+                document.getElementById('ffeSpacing').value = '50';
+                document.getElementById('ffeRadius').value = '100';
+                document.getElementById('ffeSpacingGroup').style.display = 'block';
+                document.getElementById('ffeRadiusGroup').style.display = 'none';
                 
                 // Clear output and remove error class
                 const output = document.getElementById('output');
@@ -795,6 +888,131 @@
                         throw new Error('Enter either grid coordinates or X/Y meter values for target');
                     }
                     targetPos = { x: targetX, y: targetY, z: targetZ };
+                }
+                
+                // Check if Fire for Effect is enabled
+                const ffeEnabled = document.getElementById('ffeEnabled').checked;
+                
+                if (ffeEnabled) {
+                    // Fire for Effect mode
+                    const ffePattern = document.getElementById('ffePattern').value;
+                    const ffeRounds = parseInt(document.getElementById('ffeRounds').value);
+                    
+                    // Parse mortar and target positions to ensure they're in {x,y,z} format
+                    const mortarParsed = MortarCalculator.parsePosition(mortarPos);
+                    const targetParsed = MortarCalculator.parsePosition(targetPos);
+                    
+                    // Generate pattern positions based on pattern type
+                    let targetPositions;
+                    let patternParam;
+                    
+                    if (ffePattern === 'circular') {
+                        const ffeRadius = parseFloat(document.getElementById('ffeRadius').value) || 100;
+                        targetPositions = MortarCalculator.generateCircularPattern(
+                            targetParsed,
+                            ffeRadius,
+                            ffeRounds
+                        );
+                        patternParam = ffeRadius;
+                    } else {
+                        const ffeSpacing = parseFloat(document.getElementById('ffeSpacing').value) || 50;
+                        targetPositions = MortarCalculator.generateFireForEffectPattern(
+                            mortarParsed,
+                            targetParsed,
+                            ffePattern,
+                            ffeRounds,
+                            ffeSpacing
+                        );
+                        patternParam = ffeSpacing;
+                    }
+                    
+                    // Calculate solutions for each position
+                    const ffeSolutions = [];
+                    targetPositions.forEach((pos, index) => {
+                        const input = MortarCalculator.prepareInput(mortarPos, pos, mortarId, shellType);
+                        const solutions = MortarCalculator.calculateAllTrajectories(input);
+                        if (solutions.length > 0 && solutions[0].inRange) {
+                            ffeSolutions.push({
+                                roundNumber: index + 1,
+                                targetPos: pos,
+                                input: input,
+                                solution: solutions[0] // Use optimal solution
+                            });
+                        }
+                    });
+                    
+                    // Display FFE results
+                    if (ffeSolutions.length > 0) {
+                        output.className = 'result active success';
+                        
+                        let patternDesc, patternParamDesc;
+                        if (ffePattern === 'perpendicular') {
+                            patternDesc = 'Lateral Sheaf (Width Coverage)';
+                            patternParamDesc = `Round Interval: ${patternParam}m`;
+                        } else if (ffePattern === 'along-bearing') {
+                            patternDesc = 'Linear Sheaf (Depth Penetration)';
+                            patternParamDesc = `Round Interval: ${patternParam}m`;
+                        } else {
+                            patternDesc = 'Circular Pattern (Area Saturation)';
+                            patternParamDesc = `Circle Radius: ${patternParam}m`;
+                        }
+                        
+                        let ffeHTML = `
+                            <h2>💥 Fire for Effect Mission</h2>
+                            
+                            <div style="background: rgba(60, 75, 50, 0.4); padding: 12px; border-radius: 4px; border: 1px solid #6b8e23; margin-bottom: 15px; color: #d8e4b0;">
+                                <strong>📊 Sheaf Type:</strong> ${patternDesc}<br>
+                                <strong>🎯 Salvo Size:</strong> ${ffeSolutions.length} of ${ffeRounds} rounds (in range)<br>
+                                <strong>📏 ${patternParamDesc}</strong>
+                            </div>
+                            
+                            <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Commands</h3>
+                        `;
+                        
+                        ffeSolutions.forEach(({ roundNumber, targetPos, input, solution }) => {
+                            ffeHTML += `
+                                <div style="background: rgba(35, 45, 42, 0.85); padding: 15px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #4a5a52;">
+                                    <h4 style="margin: 0 0 10px 0; font-size: 15px; color: #c8d4a0;">
+                                        Round ${roundNumber} of ${ffeRounds}
+                                    </h4>
+                                    <div class="solution-grid">
+                                        <div class="solution-item">
+                                            <strong>RANGE</strong>
+                                            <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${input.distance.toFixed(1)}m</div>
+                                        </div>
+                                        <div class="solution-item">
+                                            <strong>AZIMUTH</strong>
+                                            <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.azimuthMils} mils</div>
+                                            <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.azimuth.toFixed(1)}°)</div>
+                                        </div>
+                                        <div class="solution-item">
+                                            <strong>ELEVATION</strong>
+                                            <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.elevation} mils</div>
+                                            <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${MortarCalculator.milsToDegrees(solution.elevation, input.mortarType).toFixed(1)}°)</div>
+                                        </div>
+                                        <div class="solution-item">
+                                            <strong>CHARGE</strong>
+                                            <div class="value">${solution.charge}</div>
+                                        </div>
+                                        <div class="solution-item">
+                                            <strong>TIME OF FLIGHT</strong>
+                                            <div class="value">${solution.timeOfFlight}s</div>
+                                        </div>
+                                        <div class="solution-item">
+                                            <strong>ALT DIFF</strong>
+                                            <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        output.innerHTML = ffeHTML;
+                    } else {
+                        throw new Error('No rounds in range for Fire for Effect pattern');
+                    }
+                    
+                    return; // Exit early, don't run normal calculation
                 }
                 
                 // Use prepareInput to calculate range, azimuth, and altitude difference

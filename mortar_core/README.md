@@ -17,7 +17,8 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 - 📏 Traditional meter coordinates
 - 🔄 Toggle between input modes (auto-clears on switch)
 - 🎯 Fire correction system (Left/Right, Add/Drop adjustments)
-- 📊 Trajectory visualization
+- � Fire for Effect patterns (Lateral/Linear sheaf, Circular saturation)
+- �📊 Trajectory visualization
 - 🎨 Multiple firing solutions with comparison charts
 - 🔴 Visual feedback for corrected values (red highlighting)
 - 🔄 Reset button to clear all inputs and outputs
@@ -76,6 +77,7 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 - ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
 - ✅ **Height correction** - Automatic elevation adjustment
 - ✅ **Fire correction** - Observer-based adjustments (Left/Right, Add/Drop in meters)
+- ✅ **Fire for Effect** - Multiple pattern types (Lateral/Linear sheaf, Circular saturation)
 - ✅ **Automatic charge selection** - Or force specific charge
 - ✅ **Trajectory visualization** - Generate trajectory points for SVG/Canvas rendering
 - ✅ **Military terminology** - NATO/US Army standard nomenclature (Azimuth, Range, Altitude)
@@ -101,6 +103,10 @@ generateTrajectoryPoints(solutions, distance, mortarType) → TrajectoryData
 
 // Apply fire correction (observer adjustments)
 applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) → Position3D
+
+// Generate Fire for Effect patterns
+generateFireForEffectPattern(mortarPos, targetPos, patternType, numRounds, spacing) → Array<Position3D>
+generateCircularPattern(targetPos, radius, numRounds) → Array<Position3D>
 
 // Convert positions to input (supports grid coordinates)
 prepareInput(mortarPos, targetPos, mortarId, shellType)
@@ -157,6 +163,33 @@ const correctedTarget = MortarCalculator.applyFireCorrection(
     -20                 // Add/Drop: +20 = Add 20m, -20 = Drop 20m
 );
 // Returns corrected position perpendicular (L/R) and along bearing (A/D)
+```
+
+### Fire for Effect Example
+
+```javascript
+// Lateral sheaf - 5 rounds spread perpendicular to line of fire, 50m apart
+const lateralTargets = MortarCalculator.generateFireForEffectPattern(
+    mortarPos,          // {x: 4750, y: 6950, z: 15}
+    targetPos,          // {x: 8550, y: 10500, z: 25}
+    'perpendicular',    // Pattern type
+    5,                  // Number of rounds
+    50                  // Spacing in meters
+);
+
+// Circular pattern - 8 rounds evenly distributed around target
+const circularTargets = MortarCalculator.generateCircularPattern(
+    targetPos,          // {x: 8550, y: 10500, z: 25}
+    100,                // Radius in meters
+    8                   // Number of rounds
+);
+
+// Calculate firing solution for each round
+lateralTargets.forEach((pos, index) => {
+    const input = MortarCalculator.prepareInput(mortarPos, pos, "US", "HE");
+    const solution = MortarCalculator.calculate(input);
+    console.log(`Round ${index + 1}: Elevation ${solution.elevation} mils`);
+});
 ```
 
 See **[API.md](API.md)** for complete documentation.

@@ -11,6 +11,7 @@
 - ✅ Coordinate-system independent - uses simple 3D positions
 - ✅ **Grid coordinate support** - 3-digit (10m) and 4-digit (1m) precision
 - ✅ **Fire correction system** - Observer-based adjustments (Left/Right, Add/Drop)
+- ✅ **Fire for Effect patterns** - Lateral/Linear sheaf, Circular saturation
 - ✅ Comprehensive JSDoc type definitions
 - ✅ Height correction support
 - ✅ Automatic charge selection
@@ -365,6 +366,110 @@ console.log(`Corrected: Elevation ${solution.elevation} mils, Azimuth ${solution
 // 4. Continue iterative corrections as needed
 targetPos = MortarCalculator.applyFireCorrection(mortarPos, targetPos, 5, -10);
 // ...
+```
+
+---
+
+#### `generateFireForEffectPattern(mortarPos, targetPos, patternType, numRounds, spacing)`
+
+Generate linear Fire for Effect pattern positions for area saturation.
+
+**Parameters:**
+- `mortarPos` (Position3D) - Mortar position `{ x, y, z }`
+- `targetPos` (Position3D) - Center target position `{ x, y, z }`
+- `patternType` (string) - 'perpendicular' (lateral sheaf) or 'along-bearing' (linear sheaf)
+- `numRounds` (number) - Number of rounds (3-10)
+- `spacing` (number) - Spacing between rounds in meters
+
+**Returns:**
+- `Array<Position3D>` - Array of target positions for each round
+
+**Pattern Types:**
+- **'perpendicular' (Lateral Sheaf):** Rounds spread left-right perpendicular to line of fire
+  - Best for: trenches, defensive lines, targets moving across your field of fire
+- **'along-bearing' (Linear Sheaf):** Rounds spread in depth along line of fire
+  - Best for: roads, convoys moving toward/away, area denial in depth
+
+**Example:**
+```javascript
+const mortarPos = { x: 4750, y: 6950, z: 15 };
+const targetPos = { x: 8550, y: 10500, z: 25 };
+
+// Lateral sheaf: 5 rounds perpendicular to line of fire, 50m apart
+const lateralTargets = MortarCalculator.generateFireForEffectPattern(
+    mortarPos,
+    targetPos,
+    'perpendicular',
+    5,
+    50
+);
+
+// Linear sheaf: 7 rounds along bearing, 40m apart
+const linearTargets = MortarCalculator.generateFireForEffectPattern(
+    mortarPos,
+    targetPos,
+    'along-bearing',
+    7,
+    40
+);
+
+// Calculate firing solution for each round
+lateralTargets.forEach((pos, index) => {
+    const input = MortarCalculator.prepareInput(mortarPos, pos, "US", "HE");
+    const solution = MortarCalculator.calculate(input);
+    console.log(`Round ${index + 1}: Az ${solution.azimuth}°, El ${solution.elevation} mils`);
+});
+```
+
+---
+
+#### `generateCircularPattern(targetPos, radius, numRounds)`
+
+Generate circular pattern positions for area saturation around a point target.
+
+**Parameters:**
+- `targetPos` (Position3D) - Center target position `{ x, y, z }`
+- `radius` (number) - Circle radius in meters (20-300m recommended)
+- `numRounds` (number) - Number of rounds (3-12)
+
+**Returns:**
+- `Array<Position3D>` - Array of target positions evenly distributed around circle
+
+**Pattern Distribution:**
+- Rounds are evenly spaced around the circle
+- 6 rounds = every 60° (recommended for balanced coverage)
+- 8 rounds = every 45°
+- 12 rounds = every 30° (dense saturation)
+
+**Example:**
+```javascript
+const targetPos = { x: 8550, y: 10500, z: 25 };
+const mortarPos = { x: 4750, y: 6950, z: 15 };
+
+// 8 rounds in a circle, 100m radius
+const circularTargets = MortarCalculator.generateCircularPattern(
+    targetPos,
+    100,
+    8
+);
+
+// Calculate firing solutions
+const fireMission = circularTargets.map((pos, index) => {
+    const input = MortarCalculator.prepareInput(mortarPos, pos, "RUS", "HE");
+    const solution = MortarCalculator.calculate(input);
+    return {
+        roundNumber: index + 1,
+        azimuth: solution.azimuth,
+        elevation: solution.elevation,
+        charge: solution.charge,
+        timeOfFlight: solution.timeOfFlight
+    };
+});
+
+console.log(`Fire for Effect: ${fireMission.length} rounds on target`);
+fireMission.forEach(round => {
+    console.log(`Round ${round.roundNumber}: Az ${round.azimuth}°, El ${round.elevation} mils, Charge ${round.charge}`);
+});
 ```
 
 ---

@@ -204,6 +204,76 @@ function applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) {
 }
 
 /**
+ * Generate Fire for Effect pattern positions
+ * Creates a linear pattern of impact points for area saturation
+ * @param {Position3D} mortarPos - Mortar position {x, y, z}
+ * @param {Position3D} targetPos - Center target position {x, y, z}
+ * @param {string} patternType - 'perpendicular' (left-right spread) or 'along-bearing' (depth spread)
+ * @param {number} numRounds - Number of rounds (3-10)
+ * @param {number} spacing - Spacing between impacts in meters
+ * @returns {Array<Position3D>} Array of target positions for each round
+ * @example
+ * // 5 rounds perpendicular to line of fire, 50m apart
+ * const positions = generateFireForEffectPattern(mortar, target, 'perpendicular', 5, 50);
+ * // positions[0] = 100m left, positions[2] = center, positions[4] = 100m right
+ */
+function generateFireForEffectPattern(mortarPos, targetPos, patternType, numRounds, spacing) {
+    const bearing = calculateBearing(mortarPos, targetPos);
+    
+    // Determine direction angle based on pattern type
+    const directionAngle = patternType === 'perpendicular' 
+        ? bearing + 90  // Perpendicular to line of fire (left-right spread)
+        : bearing;       // Along line of fire (depth spread)
+    
+    const directionRad = (directionAngle * Math.PI) / 180;
+    
+    // Calculate center offset to make pattern symmetric around target
+    const centerOffset = ((numRounds - 1) / 2) * spacing;
+    
+    // Generate positions
+    const positions = [];
+    for (let i = 0; i < numRounds; i++) {
+        const offset = (i * spacing) - centerOffset;
+        positions.push({
+            x: targetPos.x + offset * Math.cos(directionRad),
+            y: targetPos.y + offset * Math.sin(directionRad),
+            z: targetPos.z
+        });
+    }
+    
+    return positions;
+}
+
+/**
+ * Generate circular pattern positions
+ * Creates rounds evenly distributed around a circle for area saturation
+ * @param {Position3D} targetPos - Center target position {x, y, z}
+ * @param {number} radius - Radius of circle in meters
+ * @param {number} numRounds - Number of rounds (3-12)
+ * @returns {Array<Position3D>} Array of target positions for each round
+ * @example
+ * // 6 rounds in a circle, 100m radius
+ * const positions = generateCircularPattern(target, 100, 6);
+ */
+function generateCircularPattern(targetPos, radius, numRounds) {
+    const positions = [];
+    
+    // Distribute rounds evenly around the circle
+    const angleStep = (2 * Math.PI) / numRounds;
+    
+    for (let i = 0; i < numRounds; i++) {
+        const angle = i * angleStep;
+        positions.push({
+            x: targetPos.x + radius * Math.cos(angle),
+            y: targetPos.y + radius * Math.sin(angle),
+            z: targetPos.z
+        });
+    }
+    
+    return positions;
+}
+
+/**
  * Prepare calculator input from two 3D positions
  * @param {Position3D|GridCoordinate|string} mortarPos - Mortar position
  * @param {Position3D|GridCoordinate|string} targetPos - Target position
@@ -766,7 +836,9 @@ if (typeof module !== 'undefined' && module.exports) {
         parseGridToMeters,
         metersToGrid,
         parsePosition,
-        applyFireCorrection
+        applyFireCorrection,
+        generateFireForEffectPattern,
+        generateCircularPattern
     };
 }
 
@@ -794,6 +866,8 @@ if (typeof window !== 'undefined') {
         parseGridToMeters,
         metersToGrid,
         parsePosition,
-        applyFireCorrection
+        applyFireCorrection,
+        generateFireForEffectPattern,
+        generateCircularPattern
     };
 }
