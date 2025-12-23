@@ -238,13 +238,16 @@
         }
         .toggle-container {
             display: flex;
-            justify-content: center;
-            align-items: stretch;
+            flex-direction: column;
             gap: 10px;
             margin: 20px 0;
             padding: 15px;
             background: rgba(107, 142, 35, 0.1);
             border-radius: 8px;
+        }
+        .toggle-buttons {
+            display: flex;
+            gap: 10px;
         }
         .toggle-option {
             padding: 10px 20px;
@@ -299,15 +302,15 @@
             ℹ️ Enter mortar and target coordinates to calculate firing solution. Charge is automatically selected for optimal range.
         </div>
         
-        <div style="text-align: center; margin: 20px 0 10px 0;">
-            <span style="font-weight: 500; color: #b8c7a0;">Coordinate Input:</span>
-        </div>
         <div class="toggle-container">
-            <div class="toggle-option active" onclick="setCoordMode('grid')" id="toggleGrid">
-                🎯 Grid (047/069)
-            </div>
-            <div class="toggle-option" onclick="setCoordMode('meters')" id="toggleMeters">
-                📏 Meters (X/Y)
+            <span style="font-weight: 500; color: #b8c7a0; text-align: center;">Coordinate Input:</span>
+            <div class="toggle-buttons">
+                <div class="toggle-option active" onclick="setCoordMode('grid')" id="toggleGrid">
+                    🎯 Grid (047/069)
+                </div>
+                <div class="toggle-option" onclick="setCoordMode('meters')" id="toggleMeters">
+                    📏 Meters (X/Y)
+                </div>
             </div>
         </div>
         
