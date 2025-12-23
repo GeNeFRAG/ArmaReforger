@@ -396,6 +396,15 @@
             
             const availableMortars = getAllMortarTypes();
             
+            // Sort: US mortars first, then others
+            availableMortars.sort((a, b) => {
+                const aIsUS = a.id === 'US' || a.id.startsWith('US_');
+                const bIsUS = b.id === 'US' || b.id.startsWith('US_');
+                if (aIsUS && !bIsUS) return -1;
+                if (!aIsUS && bIsUS) return 1;
+                return a.name.localeCompare(b.name);
+            });
+            
             mortarTypeSelect.innerHTML = '';
             availableMortars.forEach(mortar => {
                 const option = document.createElement('option');
@@ -404,12 +413,13 @@
                 mortarTypeSelect.appendChild(option);
             });
             
-            // Restore previous selection if available, otherwise select first
+            // Restore previous selection if available, otherwise select US mortar
             const optionExists = availableMortars.some(m => m.id === currentValue);
             if (optionExists) {
                 mortarTypeSelect.value = currentValue;
             } else if (availableMortars.length > 0) {
-                mortarTypeSelect.value = availableMortars[0].id;
+                const usMortar = availableMortars.find(m => m.id === 'US' || m.id.startsWith('US_'));
+                mortarTypeSelect.value = usMortar ? usMortar.id : availableMortars[0].id;
             }
         }
         
