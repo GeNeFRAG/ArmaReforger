@@ -191,10 +191,10 @@ function applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) {
     const bearingRad = (bearing * Math.PI) / 180;
     
     // Apply corrections:
-    // Left/Right is perpendicular to bearing (add 90°)
+    // Left/Right is perpendicular to bearing (subtract 90° for right, add 90° for left)
     // Add/Drop is along the bearing
-    const correctedX = targetPos.x + leftRight * Math.cos(bearingRad + Math.PI/2) + addDrop * Math.cos(bearingRad);
-    const correctedY = targetPos.y + leftRight * Math.sin(bearingRad + Math.PI/2) + addDrop * Math.sin(bearingRad);
+    const correctedX = targetPos.x + leftRight * Math.cos(bearingRad - Math.PI/2) + addDrop * Math.cos(bearingRad);
+    const correctedY = targetPos.y + leftRight * Math.sin(bearingRad - Math.PI/2) + addDrop * Math.sin(bearingRad);
     
     return {
         x: correctedX,
