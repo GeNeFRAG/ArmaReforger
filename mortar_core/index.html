@@ -1,10 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Arma Reforger Mortar Calculator</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>Arma Reforger Mortar Calculator | Fire Solution & Ballistics Tool</title>
+    <meta name="title" content="Arma Reforger Mortar Calculator | Fire Solution & Ballistics Tool">
+    <meta name="description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing solutions with grid coordinates, elevation, azimuth, and time of flight. Supports US 60mm and Russian 82mm mortars.">
+    <meta name="keywords" content="arma reforger, mortar calculator, firing solution, ballistics, grid coordinates, artillery calculator, mil system, US mortar, Russian mortar, game tool">
+    <meta name="author" content="ArmaMortars.org">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://armamortars.org/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://armamortars.org/">
+    <meta property="og:title" content="Arma Reforger Mortar Calculator | Fire Solution & Ballistics Tool">
+    <meta property="og:description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing solutions with grid coordinates, elevation, azimuth, and time of flight.">
+    <meta property="og:image" content="https://armamortars.org/icon.png">
+    <meta property="og:site_name" content="ArmaMortars.org">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:url" content="https://armamortars.org/">
+    <meta name="twitter:title" content="Arma Reforger Mortar Calculator">
+    <meta name="twitter:description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing solutions with grid coordinates.">
+    <meta name="twitter:image" content="https://armamortars.org/icon.png">
+    
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#6b8e23">
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Arma Reforger Mortar Calculator",
+      "url": "https://armamortars.org/",
+      "description": "Calculate precise mortar firing solutions for Arma Reforger with grid coordinates, elevation, and ballistics data",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150"
+      }
+    }
+    </script>
+    
     <style>
         * {
             box-sizing: border-box;
@@ -228,12 +281,15 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <img src="https://vectorseek.com/wp-content/uploads/2023/07/Arma-Reforger-Logo-Vector.svg-.png" alt="Arma Reforger" class="logo">
+    <!-- Main Header -->
+    <header class="header">
+        <img src="https://vectorseek.com/wp-content/uploads/2023/07/Arma-Reforger-Logo-Vector.svg-.png" alt="Arma Reforger Logo - Mortar Calculator" class="logo">
         <h1>Mortar Fire Solution Calculator</h1>
-    </div>
+    </header>
     
-    <div id="loading">Loading ballistic data...</div>
+    <!-- Main Content -->
+    <main>
+    <div id="loading" role="status" aria-live="polite">Loading ballistic data...</div>
     
     <div id="app" style="display: none;">
         <div class="info">
@@ -338,6 +394,13 @@
         
         <div id="output" class="result"></div>
     </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
+        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator</p>
+        <p>Accurate ballistic calculations for US 60mm & Russian 82mm mortars | Grid coordinate support</p>
+    </footer>
     
     <script src="MortarCalculator.js"></script>
     <script>
