@@ -117,8 +117,8 @@ function parseGridToMeters(gridString) {
     
     if (gridX.length === 3 && gridY.length === 3) {
         return {
-            x: parseInt(gridX, 10) * 10,
-            y: parseInt(gridY, 10) * 10
+            x: parseInt(gridX, 10) * 10 + 5,
+            y: parseInt(gridY, 10) * 10 + 5
         };
     } else if (gridX.length === 4 && gridY.length === 4) {
         return {
