@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Primary Meta Tags -->
-    <title>Arma Reforger Mortar Calculator | Fire Solution & Ballistics Tool</title>
-    <meta name="title" content="Arma Reforger Mortar Calculator | Fire Solution & Ballistics Tool">
-    <meta name="description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing solutions with grid coordinates, elevation, azimuth, and time of flight. Supports US 60mm and Russian 82mm mortars.">
-    <meta name="keywords" content="arma reforger, mortar calculator, firing solution, ballistics, grid coordinates, artillery calculator, mil system, US mortar, Russian mortar, game tool">
+    <title>Arma Reforger Mortar Calculator | Fire Mission & Ballistics Tool</title>
+    <meta name="title" content="Arma Reforger Mortar Calculator | Fire Mission & Ballistics Tool">
+    <meta name="description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing missions with grid coordinates, elevation, azimuth, and time of flight. Supports US 60mm and Russian 82mm mortars.">
+    <meta name="keywords" content="arma reforger, mortar calculator, firing missons, ballistics, grid coordinates, artillery calculator, mil system, US mortar, Russian mortar, game tool">
     <meta name="author" content="ArmaMortars.org">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://armamortars.org/">
@@ -16,8 +16,8 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://armamortars.org/">
-    <meta property="og:title" content="Arma Reforger Mortar Calculator | Fire Solution & Ballistics Tool">
-    <meta property="og:description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing solutions with grid coordinates, elevation, azimuth, and time of flight.">
+    <meta property="og:title" content="Arma Reforger Mortar Calculator | Fire Mission & Ballistics Tool">
+    <meta property="og:description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing missions with grid coordinates, elevation, azimuth, and time of flight.">
     <meta property="og:image" content="https://armamortars.org/icon.png">
     <meta property="og:site_name" content="ArmaMortars.org">
     
@@ -25,7 +25,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:url" content="https://armamortars.org/">
     <meta name="twitter:title" content="Arma Reforger Mortar Calculator">
-    <meta name="twitter:description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing solutions with grid coordinates.">
+    <meta name="twitter:description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing missons with grid coordinates.">
     <meta name="twitter:image" content="https://armamortars.org/icon.png">
     
     <!-- Favicon -->
@@ -42,7 +42,7 @@
       "@type": "WebApplication",
       "name": "Arma Reforger Mortar Calculator",
       "url": "https://armamortars.org/",
-      "description": "Calculate precise mortar firing solutions for Arma Reforger with grid coordinates, elevation, and ballistics data",
+      "description": "Calculate precise mortar firing missons for Arma Reforger with grid coordinates, elevation, and ballistics data",
       "applicationCategory": "GameApplication",
       "operatingSystem": "Any",
       "offers": {
@@ -290,7 +290,7 @@
     <!-- Main Header -->
     <header class="header">
         <img src="https://vectorseek.com/wp-content/uploads/2023/07/Arma-Reforger-Logo-Vector.svg-.png" alt="Arma Reforger Logo - Mortar Calculator" class="logo">
-        <h1>Mortar Fire Solution Calculator</h1>
+        <h1>Mortar Fire Mission Calculator</h1>
     </header>
     
     <!-- Main Content -->
@@ -299,7 +299,7 @@
     
     <div id="app" style="display: none;">
         <div class="info">
-            ℹ️ Enter mortar and target coordinates to calculate firing solution. Charge is automatically selected for optimal range.
+            ℹ️ Enter mortar and target coordinates to calculate firing mission. Charge is automatically selected for optimal range.
         </div>
         
         <div class="toggle-container">
@@ -561,7 +561,7 @@
                 // Mark that correction was applied (for highlighting output)
                 window.correctionApplied = true;
                 
-                // Automatically recalculate firing solution
+                // Automatically recalculate firing mission
                 calculateSolution();
                 
                 // Reset correction input fields
@@ -860,11 +860,11 @@
                     solutions.forEach((solution, index) => {
                         let trajectoryLabel;
                         if (index === 0) {
-                            trajectoryLabel = '🎯 Optimal Fire Solution';
+                            trajectoryLabel = '🎯 Optimal Fire Mission';
                         } else {
                             trajectoryLabel = solution.trajectoryType === 'high' 
-                                ? '🔄 Alternative Fire Solution (High Angle)' 
-                                : '🔄 Alternative Fire Solution (Low Angle)';
+                                ? '🔄 Alternative Fire Mission (High Angle)' 
+                                : '🔄 Alternative Fire Mission (Low Angle)';
                         }
                         
                         let chargeDesc = '';
