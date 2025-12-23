@@ -1064,6 +1064,9 @@
                             <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Mission Commands</h3>
                         `;
                         
+                        // Store previous charge for highlighting
+                        const previousChargeForDisplay = window.previousCharge;
+                        
                         sortedFFE.forEach(({ roundNumber, targetPos, input, solution }) => {
                             ffeHTML += `
                                 <div style="background: rgba(35, 45, 42, 0.85); padding: 15px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #4a5a52;">
@@ -1089,8 +1092,8 @@
                                         </div>
                                         <div class="solution-item">
                                             <strong>CHARGE</strong>
-                                            <div class="value" ${typeof window.previousCharge === 'number' && window.previousCharge !== solution.charge ? 'style="color: #ff6b6b"' : ''}>${solution.charge}</div>
-                                            ${typeof window.previousCharge === 'number' && window.previousCharge !== solution.charge ? `<div style="color: #ff6b6b; font-size: 11px; margin-top: 2px;">was: ${window.previousCharge}</div>` : ''}
+                                            <div class="value" ${typeof previousChargeForDisplay === 'number' && previousChargeForDisplay !== solution.charge ? 'style="color: #ff6b6b"' : ''}>${solution.charge}</div>
+                                            ${typeof previousChargeForDisplay === 'number' && previousChargeForDisplay !== solution.charge ? `<div style="color: #ff6b6b; font-size: 11px; margin-top: 2px;">was: ${previousChargeForDisplay}</div>` : ''}
                                         </div>
                                         <div class="solution-item">
                                             <strong>TIME OF FLIGHT</strong>
@@ -1106,6 +1109,9 @@
                         });
                         
                         output.innerHTML = ffeHTML;
+                        
+                        // Clear previous charge after FFE output is complete
+                        window.previousCharge = null;
                     } else {
                         throw new Error('No rounds in range for Fire for Effect pattern');
                     }
@@ -1186,9 +1192,10 @@
                     // Add charge change warning if charge changed (only if previousCharge is a valid number)
                     if (typeof window.previousCharge === 'number' && window.previousCharge !== solutions[0].charge) {
                         solutionsHTML += `<div style="background: rgba(255, 165, 0, 0.15); padding: 10px; border-radius: 4px; border: 1px solid rgba(255, 165, 0, 0.4); margin-bottom: 15px; color: #ffcc99; font-size: 13px;">⚠️ <strong>Charge changed:</strong> Correction moved target from Charge ${window.previousCharge} to Charge ${solutions[0].charge} (different ballistic trajectory)</div>`;
-                        // Clear the flag after showing
-                        window.previousCharge = null;
                     }
+                    
+                    // Store previous charge for highlighting (before clearing)
+                    const previousChargeForDisplay = window.previousCharge;
                     
                     solutions.forEach((solution, index) => {
                         let trajectoryLabel;
@@ -1237,8 +1244,8 @@
                                     </div>
                                     <div class="solution-item">
                                         <strong>CHARGE</strong>
-                                        <div class="value" ${typeof window.previousCharge === 'number' && window.previousCharge !== solution.charge ? 'style="color: #ff6b6b"' : ''}>${solution.charge}</div>
-                                        ${typeof window.previousCharge === 'number' && window.previousCharge !== solution.charge ? `<div style="color: #ff6b6b; font-size: 11px; margin-top: 2px;">was: ${window.previousCharge}</div>` : ''}
+                                        <div class="value" ${typeof previousChargeForDisplay === 'number' && previousChargeForDisplay !== solution.charge ? 'style="color: #ff6b6b"' : ''}>${solution.charge}</div>
+                                        ${typeof previousChargeForDisplay === 'number' && previousChargeForDisplay !== solution.charge ? `<div style="color: #ff6b6b; font-size: 11px; margin-top: 2px;">was: ${previousChargeForDisplay}</div>` : ''}
                                     </div>
                                     <div class="solution-item">
                                         <strong>TIME OF FLIGHT</strong>
@@ -1291,6 +1298,9 @@
                             <small>Charge ${solutions[0].charge} | Elevation ${solutions[0].elevation} mils | Azimuth ${solutions[0].azimuthMils} mils | TOF ${solutions[0].timeOfFlight}s</small>
                         </div>
                     `;
+                    
+                    // Clear previous charge after output is complete
+                    window.previousCharge = null;
                 } else {
                     const solution = solutions[0];
                     output.classList.add('error');
