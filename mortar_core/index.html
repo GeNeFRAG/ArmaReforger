@@ -511,7 +511,7 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.3.2"></script>
+    <script src="MortarCalculator.js?v=1.3.3"></script>
     <script>
         let ballisticDataLoaded = false;
         
@@ -797,6 +797,12 @@
             const ffeControls = document.getElementById('ffeControls');
             ffeEnabled.addEventListener('change', function() {
                 ffeControls.style.display = this.checked ? 'block' : 'none';
+                
+                // Recalculate when FFE is toggled
+                const output = document.getElementById('output');
+                if (output.classList.contains('active')) {
+                    calculateSolution();
+                }
             });
             
             // Fire for Effect pattern type change
@@ -976,8 +982,11 @@
                         }
                     });
                     
+                    // Sort by azimuth for easier gun traverse (always same direction)
+                    const sortedFFE = MortarCalculator.sortFFESolutionsByAzimuth(ffeSolutions);
+                    
                     // Display FFE results
-                    if (ffeSolutions.length > 0) {
+                    if (sortedFFE.length > 0) {
                         output.className = 'result active success';
                         
                         let patternDesc, patternParamDesc;
@@ -997,24 +1006,25 @@
                             
                             <div style="background: rgba(60, 75, 50, 0.4); padding: 12px; border-radius: 4px; border: 1px solid #6b8e23; margin-bottom: 15px; color: #d8e4b0;">
                                 <strong>📊 Sheaf Type:</strong> ${patternDesc}<br>
-                                <strong>🎯 Salvo Size:</strong> ${ffeSolutions.length} of ${ffeRounds} rounds (in range)<br>
+                                <strong>🎯 Salvo Size:</strong> ${sortedFFE.length} of ${ffeRounds} rounds (in range)<br>
                                 <strong>📏 ${patternParamDesc}</strong>
                             </div>
                             
-                            <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Commands</h3>
+                            <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Mission Commands</h3>
                         `;
                         
-                        ffeSolutions.forEach(({ roundNumber, targetPos, input, solution }) => {
+                        sortedFFE.forEach(({ roundNumber, targetPos, input, solution }) => {
                             ffeHTML += `
                                 <div style="background: rgba(35, 45, 42, 0.85); padding: 15px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #4a5a52;">
-                                    <h4 style="margin: 0 0 10px 0; font-size: 15px; color: #c8d4a0;">
-                                        Round ${roundNumber} of ${ffeRounds}
-                                    </h4>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <h3 style="margin: 0; font-size: 16px; color: #c8d4a0;">
+                                            Round ${roundNumber} of ${ffeRounds} - Charge ${solution.charge}
+                                        </h3>
+                                        <span style="font-size: 12px; color: #95a585; font-style: italic;">
+                                            Range: ${input.distance.toFixed(1)}m | Alt Diff: ${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m
+                                        </span>
+                                    </div>
                                     <div class="solution-grid">
-                                        <div class="solution-item">
-                                            <strong>RANGE</strong>
-                                            <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${input.distance.toFixed(1)}m</div>
-                                        </div>
                                         <div class="solution-item">
                                             <strong>AZIMUTH</strong>
                                             <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.azimuthMils} mils</div>
@@ -1033,10 +1043,9 @@
                                             <strong>TIME OF FLIGHT</strong>
                                             <div class="value">${solution.timeOfFlight}s</div>
                                         </div>
-                                        <div class="solution-item">
-                                            <strong>ALT DIFF</strong>
-                                            <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m</div>
-                                        </div>
+                                    </div>
+                                    <div style="margin-top: 10px; padding: 8px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; font-size: 12px; color: #a8b898;">
+                                        <strong>Charge Range:</strong> ${solution.minRange}m - ${solution.maxRange}m
                                     </div>
                                 </div>
                             `;
@@ -1145,8 +1154,9 @@
                                 </div>
                                 <div class="solution-grid">
                                     <div class="solution-item">
-                                        <strong>CHARGE</strong>
-                                        <div class="value">${solution.charge}</div>
+                                        <strong>AZIMUTH</strong>
+                                        <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.azimuthMils} mils</div>
+                                        <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.azimuth.toFixed(1)}°)</div>
                                     </div>
                                     <div class="solution-item">
                                         <strong>ELEVATION</strong>
@@ -1154,9 +1164,8 @@
                                         <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${MortarCalculator.milsToDegrees(solution.elevation, input.mortarType).toFixed(1)}°)</div>
                                     </div>
                                     <div class="solution-item">
-                                        <strong>AZIMUTH</strong>
-                                        <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.azimuthMils} mils</div>
-                                        <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.azimuth.toFixed(1)}°)</div>
+                                        <strong>CHARGE</strong>
+                                        <div class="value">${solution.charge}</div>
                                     </div>
                                     <div class="solution-item">
                                         <strong>TIME OF FLIGHT</strong>
@@ -1164,42 +1173,24 @@
                                     </div>
                                 </div>
                                 <div style="margin-top: 10px; padding: 8px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; font-size: 12px; color: #a8b898;">
-                                    Range: ${solution.minRange}m - ${solution.maxRange}m
+                                    <strong>Charge Range:</strong> ${solution.minRange}m - ${solution.maxRange}m
                                 </div>
                             </div>
                         `;
                     });
                     
                     output.innerHTML = `
-                        <h2>✅ Firing Solution${solutions.length > 1 ? 's' : ''} Found</h2>
+                        <h2>✅ Firing Mission${solutions.length > 1 ? 's' : ''} Found</h2>
                         
                         <div style="background: rgba(60, 75, 50, 0.4); padding: 12px; border-radius: 4px; border: 1px solid #6b8e23; margin-bottom: 15px; color: #d8e4b0;">
-                            <strong>📐 Mil System:</strong> ${MortarCalculator.getMilSystemName(input.mortarType)}
-                        </div>
-                        
-                        <div style="background: rgba(35, 45, 42, 0.85); padding: 15px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #3a4a45;">
-                            <h3 style="margin-top: 0; font-size: 16px; color: #d8e4b0;">📍 Target Analysis</h3>
-                            <div class="solution-grid">
-                                <div class="solution-item">
-                                    <strong>RANGE</strong>
-                                    <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${input.distance.toFixed(1)}m</div>
-                                </div>
-                                <div class="solution-item">
-                                    <strong>AZIMUTH</strong>
-                                    <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solutions[0].azimuthMils} mils</div>
-                                    <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${input.bearing.toFixed(1)}°)</div>
-                                </div>
-                                <div class="solution-item">
-                                    <strong>ALT DIFF</strong>
-                                    <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m</div>
-                                    <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">${input.heightDifference > 0 ? 'Target higher' : input.heightDifference < 0 ? 'Target lower' : 'Same level'}</div>
-                                </div>
-                            </div>
+                            <strong>📐 Mil System:</strong> ${MortarCalculator.getMilSystemName(input.mortarType)} &nbsp;|&nbsp; 
+                            <strong>📏 Range:</strong> ${input.distance.toFixed(1)}m &nbsp;|&nbsp; 
+                            <strong>⛰️ Alt Diff:</strong> ${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m
                         </div>
                         
                         ${solutions.length > 1 ? '<div style="background: rgba(60, 75, 50, 0.4); padding: 12px; border-radius: 4px; border: 1px solid #6b8e23; margin-bottom: 15px; color: #d8e4b0;"><strong>💡 Multiple Charge Options Available:</strong><br><small>Lower charges are more accurate but have limited range. Higher charges reach further but are less precise. High angle trajectories can clear obstacles.</small></div>' : ''}
                         
-                        <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Solutions (${solutions.length})</h3>
+                        <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Missions (${solutions.length}): <span style="font-size: 16px; color: #ffffff; font-weight: normal;"></span></h3>
                         ${solutionsHTML}
                         
                         ${solutions.length > 1 ? `

@@ -274,6 +274,26 @@ function generateCircularPattern(targetPos, radius, numRounds) {
 }
 
 /**
+ * Sort FFE solutions by azimuth for easier gun traverse
+ * Gunner only needs to turn in one direction through the fire mission
+ * @param {Array<Object>} ffeSolutions - Array of FFE solution objects with solution.azimuthMils
+ * @returns {Array<Object>} Sorted and renumbered solutions
+ * @example
+ * const sorted = sortFFESolutionsByAzimuth(ffeSolutions);
+ */
+function sortFFESolutionsByAzimuth(ffeSolutions) {
+    // Sort by azimuth (ascending order)
+    const sorted = [...ffeSolutions].sort((a, b) => a.solution.azimuthMils - b.solution.azimuthMils);
+    
+    // Renumber rounds after sorting
+    sorted.forEach((sol, index) => {
+        sol.roundNumber = index + 1;
+    });
+    
+    return sorted;
+}
+
+/**
  * Prepare calculator input from two 3D positions
  * @param {Position3D|GridCoordinate|string} mortarPos - Mortar position
  * @param {Position3D|GridCoordinate|string} targetPos - Target position
@@ -838,7 +858,8 @@ if (typeof module !== 'undefined' && module.exports) {
         parsePosition,
         applyFireCorrection,
         generateFireForEffectPattern,
-        generateCircularPattern
+        generateCircularPattern,
+        sortFFESolutionsByAzimuth
     };
 }
 
@@ -868,6 +889,7 @@ if (typeof window !== 'undefined') {
         parsePosition,
         applyFireCorrection,
         generateFireForEffectPattern,
-        generateCircularPattern
+        generateCircularPattern,
+        sortFFESolutionsByAzimuth
     };
 }
