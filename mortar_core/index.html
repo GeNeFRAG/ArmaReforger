@@ -240,11 +240,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             margin: 20px 0;
             padding: 15px;
             background: rgba(107, 142, 35, 0.1);
             border-radius: 8px;
+            flex-wrap: wrap;
         }
         .toggle-option {
             padding: 10px 20px;
@@ -255,10 +256,9 @@
             transition: all 0.3s;
             font-weight: 500;
             font-size: 14px;
-            white-space: nowrap;
-            flex: 1;
+            flex: 1 1 auto;
             text-align: center;
-            min-width: 0;
+            min-width: 120px;
         }
         .toggle-option.active {
             background: #6b8e23;
