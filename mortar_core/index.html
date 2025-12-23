@@ -239,13 +239,12 @@
         .toggle-container {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: stretch;
             gap: 10px;
             margin: 20px 0;
             padding: 15px;
             background: rgba(107, 142, 35, 0.1);
             border-radius: 8px;
-            flex-wrap: wrap;
         }
         .toggle-option {
             padding: 10px 20px;
@@ -256,9 +255,9 @@
             transition: all 0.3s;
             font-weight: 500;
             font-size: 14px;
-            flex: 1 1 auto;
+            flex: 1;
             text-align: center;
-            min-width: 120px;
+            white-space: nowrap;
         }
         .toggle-option.active {
             background: #6b8e23;
