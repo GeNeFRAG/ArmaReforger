@@ -9,6 +9,7 @@
 - ✅ Pure JavaScript - no external dependencies
 - ✅ Framework-agnostic - works in Node.js and browsers
 - ✅ Coordinate-system independent - uses simple 3D positions
+- ✅ **Grid coordinate support** - 3-digit (10m) and 4-digit (1m) precision
 - ✅ Comprehensive JSDoc type definitions
 - ✅ Height correction support
 - ✅ Automatic charge selection
@@ -188,11 +189,11 @@ console.log(milSystem.milsPerDegree);  // 16.6667
 
 #### `prepareInput(mortarPos, targetPos, mortarId, shellType)`
 
-Convert 3D positions into calculator input.
+Convert 3D positions or grid coordinates into calculator input.
 
 **Parameters:**
-- `mortarPos` (Position3D) - Mortar position
-- `targetPos` (Position3D) - Target position
+- `mortarPos` (Position3D|string) - Mortar position (object or grid string like "047/069")
+- `targetPos` (Position3D|string) - Target position (object or grid string like "058/071")
 - `mortarId` (string) - Weapon ID
 - `shellType` (string) - Shell type
 
@@ -205,10 +206,14 @@ Convert 3D positions into calculator input.
 }
 ```
 
+**Grid String Format:**
+- 3-digit format: `"047/069"` - 10m precision (center of square)
+- 4-digit format: `"0475/0695"` - 1m precision
+
 **Returns:**
 - `CalculatorInput` - Ready for `calculate()`
 
-**Example:**
+**Example with meter coordinates:**
 ```javascript
 const mortarPos = { x: 6400, y: 6400, z: 125 };
 const targetPos = { x: 7650, y: 6350, z: 80 };
@@ -221,6 +226,28 @@ const input = MortarCalculator.prepareInput(
 );
 
 const solution = MortarCalculator.calculate(input);
+```
+
+**Example with grid coordinates:**
+```javascript
+const input = MortarCalculator.prepareInput(
+    "047/069",    // Mortar at grid 047/069 (475m, 695m)
+    "058/071",    // Target at grid 058/071 (585m, 715m)
+    "US",
+    "HE"
+);
+
+const solution = MortarCalculator.calculate(input);
+```
+
+**Example with high-precision grid:**
+```javascript
+const input = MortarCalculator.prepareInput(
+    "0475/0695",  // Mortar at exact position
+    "0584/0713",  // Target at exact position
+    "RUS",
+    "SMOKE"
+);
 ```
 
 ---
@@ -335,6 +362,104 @@ const bearing = MortarCalculator.calculateBearing(
     { x: 100, y: 0, z: 0 }
 );
 // Returns: 90 (East)
+```
+
+---
+
+### Grid Coordinate Functions
+
+#### `parseGridToMeters(gridString)`
+
+Convert Arma Reforger grid coordinates to meter coordinates.
+
+**Parameters:**
+- `gridString` (string) - Grid coordinate string (e.g., "047/069" or "0475/0695")
+
+**Returns:**
+- `Object` - `{ x, y }` coordinates in meters
+
+**Grid Format:**
+- **3-digit format:** `"047/069"` represents a 10m×10m grid square
+  - Converts to the center of the square (475m, 695m)
+- **4-digit format:** `"0475/0695"` represents exact 1m precision
+  - Converts to exact position (475m, 695m)
+
+**Example:**
+```javascript
+// 3-digit grid (10m precision) - returns center of square
+const pos1 = MortarCalculator.parseGridToMeters("047/069");
+// Returns: { x: 475, y: 695 }
+
+// 4-digit grid (1m precision) - exact position
+const pos2 = MortarCalculator.parseGridToMeters("0584/0713");
+// Returns: { x: 584, y: 713 }
+
+// Mixed precision
+const pos3 = MortarCalculator.parseGridToMeters("004/128");
+// Returns: { x: 45, y: 1285 }
+```
+
+---
+
+#### `metersToGrid(x, y, highPrecision = false)`
+
+Convert meter coordinates to Arma Reforger grid format.
+
+**Parameters:**
+- `x` (number) - X coordinate in meters
+- `y` (number) - Y coordinate in meters
+- `highPrecision` (boolean) - Use 4-digit format (default: false for 3-digit)
+
+**Returns:**
+- `string` - Grid coordinate string
+
+**Example:**
+```javascript
+// Convert to 3-digit grid (10m precision)
+const grid1 = MortarCalculator.metersToGrid(475, 695);
+// Returns: "047/069"
+
+// Convert to 4-digit grid (1m precision)
+const grid2 = MortarCalculator.metersToGrid(584, 713, true);
+// Returns: "0584/0713"
+
+// With decimals (rounds down)
+const grid3 = MortarCalculator.metersToGrid(478.6, 692.3, true);
+// Returns: "0478/0692"
+```
+
+---
+
+#### `parsePosition(position)`
+
+Universal position parser - accepts grid strings, grid objects, or meter coordinates.
+
+**Parameters:**
+- `position` (string|Object) - Position in any format
+
+**Accepted Formats:**
+1. Grid string: `"047/069"` or `"0475/0695"`
+2. Grid object: `{ grid: "047/069" }` or `{ grid: "047/069", z: 100 }`
+3. Meter object: `{ x: 475, y: 695, z: 100 }`
+
+**Returns:**
+- `Object` - `{ x, y, z }` coordinates in meters (z defaults to 0)
+
+**Example:**
+```javascript
+// All these produce the same result:
+const pos1 = MortarCalculator.parsePosition("047/069");
+const pos2 = MortarCalculator.parsePosition({ grid: "047/069" });
+const pos3 = MortarCalculator.parsePosition({ x: 475, y: 695 });
+// All return: { x: 475, y: 695, z: 0 }
+
+// With elevation
+const pos4 = MortarCalculator.parsePosition({ grid: "047/069", z: 125 });
+// Returns: { x: 475, y: 695, z: 125 }
+
+// High precision grid
+const pos5 = MortarCalculator.parsePosition("0584/0713");
+// Returns: { x: 584, y: 713, z: 0 }
 ```
 
 ---
