@@ -315,7 +315,25 @@
         </div>
         
         <div class="container">
-                <h2>Mortar Position</h2>
+            <h2>1️⃣ Weapon System</h2>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label for="mortarType">Mortar Type</label>
+                    <select id="mortarType">
+                        <!-- Populated dynamically from ballistic-data.json -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="shellType">Ammunition Type</label>
+                    <select id="shellType">
+                        <!-- Populated dynamically from ballistic-data.json -->
+                    </select>
+                </div>
+            </div>
+            
+            <h2>2️⃣ Mortar Position</h2>
                 
                 <!-- Grid Mode -->
                 <div id="mortarGridMode" class="coord-mode active">
@@ -385,10 +403,34 @@
                     📍 Range, Azimuth, and Alt Diff will be computed automatically from coordinates
                 </div>
             
-            <h2>💥 Fire for Effect (Optional)</h2>
+            <h2>3️⃣ Fire Correction (Optional)</h2>
             
             <div class="info" style="margin-bottom: 15px;">
-                🎯 Engage area targets with multiple rounds. Lateral sheaf for width coverage, linear sheaf for depth penetration.
+                💡 Adjust target based on observer corrections. Format: "Left 10, Add 20" or "Right 8, Drop 10"
+            </div>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label for="correctionLR">Left/Right Correction (meters)</label>
+                    <input type="number" id="correctionLR" placeholder="0" step="1" value="0">
+                    <small style="color: #999; display: block; margin-top: 5px;">+ = Right, - = Left</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="correctionAD">Add/Drop Correction (meters)</label>
+                    <input type="number" id="correctionAD" placeholder="0" step="1" value="0">
+                    <small style="color: #999; display: block; margin-top: 5px;">+ = Add (longer range), - = Drop (shorter range)</small>
+                </div>
+            </div>
+            
+            <button id="applyCorrection" style="background: linear-gradient(180deg, #d68910 0%, #c77808 100%); border-color: #b56907; margin-bottom: 20px;">
+                🔄 Apply Correction
+            </button>
+            
+            <h2>4️⃣ Fire for Effect (Optional)</h2>
+            
+            <div class="info" style="margin-bottom: 15px;">
+                🎯 Engage area targets with multiple rounds. Lateral sheaf for width coverage, linear sheaf for depth penetration. <strong>Uses corrected target coordinates if applied.</strong>
             </div>
             
             <div class="row">
@@ -437,50 +479,6 @@
                 </div>
             </div>
             
-            <h2>🎯 Fire Correction (Optional)</h2>
-            
-            <div class="info" style="margin-bottom: 15px;">
-                💡 Adjust target based on observer corrections. Format: "Left 10, Add 20" or "Right 8, Drop 10"
-            </div>
-            
-            <div class="row">
-                <div class="form-group">
-                    <label for="correctionLR">Left/Right Correction (meters)</label>
-                    <input type="number" id="correctionLR" placeholder="0" step="1" value="0">
-                    <small style="color: #999; display: block; margin-top: 5px;">+ = Right, - = Left</small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="correctionAD">Add/Drop Correction (meters)</label>
-                    <input type="number" id="correctionAD" placeholder="0" step="1" value="0">
-                    <small style="color: #999; display: block; margin-top: 5px;">+ = Add (longer range), - = Drop (shorter range)</small>
-                </div>
-            </div>
-            
-            <button id="applyCorrection" style="background: linear-gradient(180deg, #d68910 0%, #c77808 100%); border-color: #b56907; margin-bottom: 20px;">
-                🔄 Apply Correction
-            </button>
-                </div>
-            </div>
-            
-            <h2>Weapon System</h2>
-            
-            <div class="row">
-                <div class="form-group">
-                    <label for="mortarType">Mortar Type</label>
-                    <select id="mortarType">
-                        <!-- Populated dynamically from ballistic-data.json -->
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="shellType">Ammunition Type</label>
-                    <select id="shellType">
-                        <!-- Populated dynamically from ballistic-data.json -->
-                    </select>
-                </div>
-            </div>
-            
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <button id="calculate" style="flex: 3;">Compute Fire Mission</button>
                 <button id="reset" style="flex: 1; background: linear-gradient(180deg, #666 0%, #555 100%);">Reset</button>
@@ -502,7 +500,7 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.1.0"></script>
+    <script src="MortarCalculator.js?v=1.2.0"></script>
     <script>
         let ballisticDataLoaded = false;
         
@@ -903,6 +901,11 @@
                     // Parse mortar and target positions to ensure they're in {x,y,z} format
                     const mortarParsed = MortarCalculator.parsePosition(mortarPos);
                     const targetParsed = MortarCalculator.parsePosition(targetPos);
+                    
+                    console.log('🎯 FFE Using Coordinates:');
+                    console.log('  Target Position (input):', targetPos);
+                    console.log('  Target Position (parsed):', targetParsed);
+                    console.log('  Correction Applied:', window.correctionApplied ? 'YES (red coordinates)' : 'NO (original coordinates)');
                     
                     // Generate pattern positions based on pattern type
                     let targetPositions;
