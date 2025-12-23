@@ -189,13 +189,13 @@ function parsePosition(position) {
  * @param {Position3D} mortarPos - Mortar position
  * @param {Position3D} targetPos - Original target position
  * @param {number} leftRight - Left/Right correction in meters (+ = Right, - = Left)
- * @param {number} addDrop - Add/Drop correction in meters (+ = Add/longer range, - = Drop/shorter range)
+ * @param {number} addDrop - Add/Drop correction in meters (- = Add/raise elevation, + = Drop/lower elevation)
  * @returns {Position3D} Corrected target position
  * 
  * @example
  * const mortar = {x: 475, y: 695, z: 10};
  * const target = {x: 855, y: 1055, z: 25};
- * const corrected = applyFireCorrection(mortar, target, -10, 20); // Left 10m, Add 20m
+ * const corrected = applyFireCorrection(mortar, target, -10, -20); // Left 10m, Add 20m (raise elevation)
  */
 function applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) {
     // Calculate bearing from mortar to target
@@ -203,8 +203,11 @@ function applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) {
     const bearingRad = (bearing * Math.PI) / 180;
     
     // Apply corrections:
+    // Apply corrections:
     // Left/Right is perpendicular to bearing (subtract 90° for right, add 90° for left)
-    // Add/Drop is along the bearing (negative to move closer/raise elevation, positive to move farther/lower elevation)
+    // Add/Drop: bearing vector points away from mortar, so we negate to make:
+    //   negative input (Drop) = move backwards towards mortar = shorter range = raise elevation
+    //   positive input (Add) = move farther from mortar = longer range = lower elevation  
     const correctedX = targetPos.x + leftRight * Math.cos(bearingRad - Math.PI/2) - addDrop * Math.cos(bearingRad);
     const correctedY = targetPos.y + leftRight * Math.sin(bearingRad - Math.PI/2) - addDrop * Math.sin(bearingRad);
     
