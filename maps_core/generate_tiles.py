@@ -27,8 +27,12 @@ Usage:
     
     # By index (from all_arma_maps.json)
     python3 generate_tiles.py 0
+    
+    # With custom local image file
+    python3 generate_tiles.py seitenbuch --image /path/to/image.png
 """
 
+import argparse
 import json
 import math
 import shutil
@@ -258,13 +262,20 @@ def main():
     1. Interactive: Displays numbered list of maps for selection
     2. Namespace: Direct map identifier (e.g., 'everon')
     3. Index: Numeric index from map list (e.g., '0' for first map)
+    4. Custom image: Specify local image file with --image
     
     Process:
     - Loads map metadata from all_arma_maps.json
-    - Downloads source image from Cloudflare R2 CDN
+    - Downloads source image from Cloudflare R2 CDN or uses local file
     - Generates complete tile pyramid
     - Outputs to tiles/{namespace}/ directory
     """
+    # Parse arguments
+    parser = argparse.ArgumentParser(description='Generate map tiles for Arma Reforger maps')
+    parser.add_argument('namespace', nargs='?', help='Map namespace or index (or omit for interactive mode)')
+    parser.add_argument('--image', '-i', help='Path to local image file (overrides default location)')
+    args = parser.parse_args()
+    
     # Load maps data
     json_file = Path(__file__).parent / "all_arma_maps.json"
     with open(json_file, 'r') as f:
@@ -274,8 +285,8 @@ def main():
     output_dir.mkdir(exist_ok=True)
     
     # Check if namespace provided as argument
-    if len(sys.argv) > 1:
-        namespace = sys.argv[1]
+    if args.namespace:
+        namespace = args.namespace
         map_data = find_map_by_namespace(maps, namespace)
         
         if not map_data:
@@ -343,28 +354,37 @@ def main():
             shutil.rmtree(tile_dir)
             print(f"✓ Deleted {tile_dir}")
         
-        # Check if source image exists locally
-        local_image_path = Path(__file__).parent / map_data['dir'] / "sat_full.png"
-        
-        if not local_image_path.exists():
-            # Try to download from CDN if available
-            if 'resources' in map_data and 'map_image' in map_data['resources']:
-                cdn_url = map_data['resources']['map_image']
-                print(f"Local image not found, downloading from CDN...")
-                try:
-                    image = download_image(cdn_url)
-                except Exception as e:
-                    print(f"\n✗ Error downloading from {cdn_url}: {e}")
-                    print(f"Please ensure the satellite image exists locally at {local_image_path}")
+        # Check for custom image path or use default location
+        if args.image:
+            custom_image_path = Path(args.image)
+            if not custom_image_path.exists():
+                print(f"\n✗ Error: Custom image file not found at {custom_image_path}")
+                continue
+            print(f"Using custom image: {custom_image_path}")
+            image = Image.open(custom_image_path)
+        else:
+            # Check if source image exists locally
+            local_image_path = Path(__file__).parent / map_data['dir'] / "sat_full.png"
+            
+            if not local_image_path.exists():
+                # Try to download from CDN if available
+                if 'resources' in map_data and 'map_image' in map_data['resources']:
+                    cdn_url = map_data['resources']['map_image']
+                    print(f"Local image not found, downloading from CDN...")
+                    try:
+                        image = download_image(cdn_url)
+                    except Exception as e:
+                        print(f"\n✗ Error downloading from {cdn_url}: {e}")
+                        print(f"Please ensure the satellite image exists locally at {local_image_path}")
+                        continue
+                else:
+                    print(f"\n✗ Error: Source image not found at {local_image_path}")
+                    print(f"Please ensure the satellite image exists in the {map_data['dir']} directory")
                     continue
             else:
-                print(f"\n✗ Error: Source image not found at {local_image_path}")
-                print(f"Please ensure the satellite image exists in the {map_data['dir']} directory")
-                continue
-        else:
-            # Load local image
-            print(f"Loading image from {local_image_path}...")
-            image = Image.open(local_image_path)
+                # Load local image
+                print(f"Loading image from {local_image_path}...")
+                image = Image.open(local_image_path)
         
         try:
             # Special case: Seitenbuch needs landscape tiles despite portrait config

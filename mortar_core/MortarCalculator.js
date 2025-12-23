@@ -16,6 +16,12 @@
  */
 
 /**
+ * @typedef {Object} GridCoordinate
+ * @property {string} grid - Grid coordinate string (e.g., "058/071" or "0584/0713")
+ * @property {number} z - Elevation in meters
+ */
+
+/**
  * @typedef {Object} CalculatorInput
  * @property {number} distance - Horizontal distance in meters
  * @property {number} heightDifference - Target height - mortar height (meters)
@@ -92,18 +98,92 @@ function calculateBearing(pos1, pos2) {
 }
 
 /**
+ * Parse grid coordinate string to meters
+ * Supports both 3-digit (10m precision) and 4-digit (1m precision) formats
+ * @param {string} gridString - Grid coordinate (e.g., "058/071" or "0584/0713")
+ * @returns {Object} Object with x and y in meters
+ * @throws {Error} If format is invalid
+ */
+function parseGridToMeters(gridString) {
+    const cleaned = gridString.replace(/\s/g, '');
+    const parts = cleaned.split('/');
+    
+    if (parts.length !== 2) {
+        throw new Error('Invalid grid format. Use: 058/071 or 0584/0713');
+    }
+    
+    const gridX = parts[0];
+    const gridY = parts[1];
+    
+    if (gridX.length === 3 && gridY.length === 3) {
+        return {
+            x: parseInt(gridX, 10) * 10,
+            y: parseInt(gridY, 10) * 10
+        };
+    } else if (gridX.length === 4 && gridY.length === 4) {
+        return {
+            x: parseInt(gridX, 10),
+            y: parseInt(gridY, 10)
+        };
+    } else {
+        throw new Error('Grid coordinates must be 3 or 4 digits each (e.g., 058/071 or 0584/0713)');
+    }
+}
+
+/**
+ * Convert meters to grid coordinate string
+ * @param {number} x - X coordinate in meters
+ * @param {number} y - Y coordinate in meters
+ * @param {boolean} highPrecision - Use 4-digit format (1m) instead of 3-digit (10m)
+ * @returns {string} Grid coordinate string
+ */
+function metersToGrid(x, y, highPrecision = false) {
+    if (highPrecision) {
+        const gridX = Math.floor(x).toString().padStart(4, '0');
+        const gridY = Math.floor(y).toString().padStart(4, '0');
+        return `${gridX}/${gridY}`;
+    } else {
+        const gridX = Math.floor(x / 10).toString().padStart(3, '0');
+        const gridY = Math.floor(y / 10).toString().padStart(3, '0');
+        return `${gridX}/${gridY}`;
+    }
+}
+
+/**
+ * Parse position input - supports both meter coordinates and grid format
+ * @param {Position3D|GridCoordinate|string} position - Position as meters or grid string
+ * @returns {Position3D} Position in meters
+ */
+function parsePosition(position) {
+    if (typeof position === 'string') {
+        const coords = parseGridToMeters(position);
+        return { x: coords.x, y: coords.y, z: 0 };
+    }
+    
+    if (position.grid !== undefined) {
+        const coords = parseGridToMeters(position.grid);
+        return { x: coords.x, y: coords.y, z: position.z || 0 };
+    }
+    
+    return position;
+}
+
+/**
  * Prepare calculator input from two 3D positions
- * @param {Position3D} mortarPos - Mortar position
- * @param {Position3D} targetPos - Target position
+ * @param {Position3D|GridCoordinate|string} mortarPos - Mortar position
+ * @param {Position3D|GridCoordinate|string} targetPos - Target position
  * @param {string} mortarId - Weapon ID
  * @param {string} shellType - Shell type
  * @returns {CalculatorInput}
  */
 function prepareInput(mortarPos, targetPos, mortarId, shellType) {
+    const mortar = parsePosition(mortarPos);
+    const target = parsePosition(targetPos);
+    
     return {
-        distance: calculateHorizontalDistance(mortarPos, targetPos),
-        heightDifference: targetPos.z - mortarPos.z,
-        bearing: calculateBearing(mortarPos, targetPos),
+        distance: calculateHorizontalDistance(mortar, target),
+        heightDifference: target.z - mortar.z,
+        bearing: calculateBearing(mortar, target),
         mortarId,
         mortarType: mortarId.startsWith('RUS') ? 'RUS' : 'US',
         shellType
@@ -647,7 +727,10 @@ if (typeof module !== 'undefined' && module.exports) {
         milsToDegrees,
         getMilSystemName,
         formatForField,
-        generateTrajectoryPoints
+        generateTrajectoryPoints,
+        parseGridToMeters,
+        metersToGrid,
+        parsePosition
     };
 }
 
@@ -671,6 +754,9 @@ if (typeof window !== 'undefined') {
         milsToDegrees,
         getMilSystemName,
         formatForField,
-        generateTrajectoryPoints
+        generateTrajectoryPoints,
+        parseGridToMeters,
+        metersToGrid,
+        parsePosition
     };
 }
