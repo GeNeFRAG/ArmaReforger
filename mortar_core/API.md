@@ -116,16 +116,21 @@ Calculate firing solution for a target.
 **FiringSolution Type:**
 ```javascript
 {
-    inRange: boolean,          // Can target be engaged
-    charge: number,            // Selected charge level (0-4)
-    elevation: number,         // Gun elevation in mils
-    elevationDegrees: number,  // Gun elevation in degrees
-    azimuth: number,           // Azimuth in degrees
-    azimuthMils: number,       // Azimuth in mils
-    timeOfFlight: number,      // Projectile flight time in seconds
-    minRange: number,          // Minimum range for this charge (meters)
-    maxRange: number,          // Maximum range for this charge (meters)
-    error?: string             // Error message if not in range
+    inRange: boolean,            // Can target be engaged
+    charge: number,              // Selected charge level (0-4)
+    elevation: number,           // Gun elevation in mils (rounded to integer)
+    elevationPrecise: number,    // Gun elevation in mils (2 decimal places)
+    elevationCorrection: number, // Height correction applied in mils (2 decimal places)
+    dElev: number,               // Elevation correction factor per 100m height (integer)
+    elevationDegrees: number,    // Gun elevation in degrees (1 decimal place)
+    azimuth: number,             // Azimuth in degrees (1 decimal place)
+    azimuthMils: number,         // Azimuth in mils (rounded to integer)
+    timeOfFlight: number,        // Projectile flight time in seconds (1 decimal place)
+    tofCorrection: number,       // Time of flight correction applied in seconds (2 decimal places)
+    tofPer100m: number,          // TOF correction factor per 100m height (2 decimal places)
+    minRange: number,            // Minimum range for this charge (meters)
+    maxRange: number,            // Maximum range for this charge (meters)
+    error?: string               // Error message if not in range
 }
 ```
 
@@ -597,16 +602,17 @@ const bearing = MortarCalculator.calculateBearing(
 Convert Arma Reforger grid coordinates to meter coordinates.
 
 **Parameters:**
-- `gridString` (string) - Grid coordinate string (e.g., "047/069" or "0475/0695")
+- `gridString` (string) - Grid coordinate string (e.g., "047/069", "047,069", "0475/0695", or "0475,0695")
 
 **Returns:**
 - `Object` - `{ x, y }` coordinates in meters
 
 **Grid Format:**
-- **3-digit format:** `"047/069"` represents a 100m×100m grid square
+- **3-digit format:** `"047/069"` or `"047,069"` represents a 100m×100m grid square
   - Converts to the center of the square (4750m, 6950m)
-- **4-digit format:** `"0475/0695"` represents exact 10m precision
+- **4-digit format:** `"0475/0695"` or `"0475,0695"` represents exact 10m precision
   - Converts to exact position (4750m, 6950m)
+- **Delimiters:** Accepts both `/` (slash) and `,` (comma) as separators
 
 **Example:**
 ```javascript
@@ -614,8 +620,16 @@ Convert Arma Reforger grid coordinates to meter coordinates.
 const pos1 = MortarCalculator.parseGridToMeters("047/069");
 // Returns: { x: 4750, y: 6950 }
 
+// Comma delimiter also supported
+const pos1b = MortarCalculator.parseGridToMeters("047,069");
+// Returns: { x: 4750, y: 6950 }
+
 // 4-digit grid (10m precision) - exact position
 const pos2 = MortarCalculator.parseGridToMeters("0584/0713");
+// Returns: { x: 5840, y: 7130 }
+
+// 4-digit with comma delimiter
+const pos2b = MortarCalculator.parseGridToMeters("0584,0713");
 // Returns: { x: 5840, y: 7130 }
 
 // Mixed precision

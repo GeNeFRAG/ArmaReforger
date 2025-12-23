@@ -362,7 +362,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="mortarZ">Altitude (meters)</label>
+                    <label for="mortarZ">Height (m ASL)</label>
                     <input type="number" id="mortarZ" placeholder="168" step="0.1">
                 </div>
                 
@@ -395,12 +395,12 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="targetZ">Altitude (meters)</label>
+                    <label for="targetZ">Height (m ASL)</label>
                     <input type="number" id="targetZ" placeholder="64" step="0.1">
                 </div>
                 
                 <div class="info" style="margin-top: 15px;">
-                    📍 Range, Azimuth, and Alt Diff will be computed automatically from coordinates
+                    📍 Range, Azimuth, and Height Difference will be computed automatically from coordinates
                 </div>
             
             <h2>3️⃣ Fire Correction (Optional)</h2>
@@ -431,6 +431,10 @@
                         <input type="number" id="correctionAD" placeholder="0" step="1" value="0">
                         <small style="color: #999; display: block; margin-top: 5px;">+ = Add (longer range), - = Drop (shorter range)</small>
                     </div>
+                </div>
+                
+                <div id="correctionPreview" style="margin-top: 10px; padding: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 5px; font-size: 14px; color: #ffa726; display: none;">
+                    📍 <strong>Resulting correction:</strong> <span id="correctionText">Right 0, Add 0</span>
                 </div>
                 
                 <button id="applyCorrection" style="background: linear-gradient(180deg, #d68910 0%, #c77808 100%); border-color: #b56907; margin-bottom: 20px;">
@@ -511,7 +515,7 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.3.3"></script>
+    <script src="MortarCalculator.js?v=1.3.6"></script>
     <script>
         let ballisticDataLoaded = false;
         
@@ -646,6 +650,9 @@
                 // Reset correction input fields
                 document.getElementById('correctionLR').value = 0;
                 document.getElementById('correctionAD').value = 0;
+                
+                // Hide the correction preview
+                updateCorrectionPreview();
                 
             } catch (error) {
                 console.error('Correction error:', error);
@@ -792,6 +799,40 @@
                 correctionControls.style.display = this.checked ? 'block' : 'none';
             });
             
+            // Fire Correction preview update
+            const correctionLRInput = document.getElementById('correctionLR');
+            const correctionADInput = document.getElementById('correctionAD');
+            const correctionPreview = document.getElementById('correctionPreview');
+            const correctionText = document.getElementById('correctionText');
+            
+            function updateCorrectionPreview() {
+                const lr = parseFloat(correctionLRInput.value) || 0;
+                const ad = parseFloat(correctionADInput.value) || 0;
+                
+                if (lr === 0 && ad === 0) {
+                    correctionPreview.style.display = 'none';
+                    return;
+                }
+                
+                const lrText = lr === 0 ? '' : (lr > 0 ? `Right ${Math.abs(lr)}` : `Left ${Math.abs(lr)}`);
+                const adText = ad === 0 ? '' : (ad > 0 ? `Add ${Math.abs(ad)}` : `Drop ${Math.abs(ad)}`);
+                
+                let resultText = '';
+                if (lrText && adText) {
+                    resultText = `${lrText}, ${adText}`;
+                } else if (lrText) {
+                    resultText = lrText;
+                } else if (adText) {
+                    resultText = adText;
+                }
+                
+                correctionText.textContent = resultText;
+                correctionPreview.style.display = 'block';
+            }
+            
+            correctionLRInput.addEventListener('input', updateCorrectionPreview);
+            correctionADInput.addEventListener('input', updateCorrectionPreview);
+            
             // Fire for Effect toggle
             const ffeEnabled = document.getElementById('ffeEnabled');
             const ffeControls = document.getElementById('ffeControls');
@@ -845,6 +886,7 @@
                 document.getElementById('correctionControls').style.display = 'none';
                 document.getElementById('correctionLR').value = 0;
                 document.getElementById('correctionAD').value = 0;
+                updateCorrectionPreview();
                 
                 // Reset Fire for Effect
                 document.getElementById('ffeEnabled').checked = false;
@@ -1004,6 +1046,8 @@
                         let ffeHTML = `
                             <h2>💥 Fire for Effect Mission</h2>
                             
+                            ${window.correctionApplied ? '<div style="background: rgba(255, 107, 107, 0.15); padding: 10px; border-radius: 4px; border: 1px solid rgba(255, 107, 107, 0.3); margin-bottom: 15px; color: #ff9999; font-size: 13px;">🔴 <strong>Fire correction applied:</strong> Red values include observer correction</div>' : ''}
+                            
                             <div style="background: rgba(60, 75, 50, 0.4); padding: 12px; border-radius: 4px; border: 1px solid #6b8e23; margin-bottom: 15px; color: #d8e4b0;">
                                 <strong>📊 Sheaf Type:</strong> ${patternDesc}<br>
                                 <strong>🎯 Salvo Size:</strong> ${sortedFFE.length} of ${ffeRounds} rounds (in range)<br>
@@ -1028,12 +1072,13 @@
                                         <div class="solution-item">
                                             <strong>AZIMUTH</strong>
                                             <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.azimuthMils} mils</div>
-                                            <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.azimuth.toFixed(1)}°)</div>
+                                            <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.azimuth}°)</div>
                                         </div>
                                         <div class="solution-item">
                                             <strong>ELEVATION</strong>
                                             <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.elevation} mils</div>
-                                            <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${MortarCalculator.milsToDegrees(solution.elevation, input.mortarType).toFixed(1)}°)</div>
+                                            <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.elevationDegrees}°)</div>
+                                            ${solution.elevationCorrection && solution.elevationCorrection !== 0 ? `<div style="color: #95a585; font-size: 11px; margin-top: 2px;">dElev: ${solution.dElev} and Elevation Correction: ${solution.elevationCorrection > 0 ? '+' : ''}${solution.elevationCorrection.toFixed(1)} mils</div>` : ''}
                                         </div>
                                         <div class="solution-item">
                                             <strong>CHARGE</strong>
@@ -1042,6 +1087,7 @@
                                         <div class="solution-item">
                                             <strong>TIME OF FLIGHT</strong>
                                             <div class="value">${solution.timeOfFlight}s</div>
+                                            ${solution.tofCorrection && solution.tofCorrection !== 0 ? `<div style="color: #95a585; font-size: 11px; margin-top: 2px;">Correction: ${solution.tofCorrection > 0 ? '+' : ''}${solution.tofCorrection.toFixed(1)}s (TOF/100m: ${solution.tofPer100m})</div>` : ''}
                                         </div>
                                     </div>
                                     <div style="margin-top: 10px; padding: 8px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; font-size: 12px; color: #a8b898;">
@@ -1059,7 +1105,7 @@
                     return; // Exit early, don't run normal calculation
                 }
                 
-                // Use prepareInput to calculate range, azimuth, and altitude difference
+                // Use prepareInput to calculate range, azimuth, and height difference
                 const input = MortarCalculator.prepareInput(mortarPos, targetPos, mortarId, shellType);
                 
                 console.log('Mortar Position:', mortarPos);
@@ -1119,6 +1165,11 @@
                     
                     let solutionsHTML = '';
                     
+                    // Add correction hint if correction was applied
+                    if (window.correctionApplied) {
+                        solutionsHTML += '<div style="background: rgba(255, 107, 107, 0.15); padding: 10px; border-radius: 4px; border: 1px solid rgba(255, 107, 107, 0.3); margin-bottom: 15px; color: #ff9999; font-size: 13px;">🔴 <strong>Fire correction applied:</strong> Red values include observer correction</div>';
+                    }
+                    
                     solutions.forEach((solution, index) => {
                         let trajectoryLabel;
                         if (index === 0) {
@@ -1156,12 +1207,13 @@
                                     <div class="solution-item">
                                         <strong>AZIMUTH</strong>
                                         <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.azimuthMils} mils</div>
-                                        <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.azimuth.toFixed(1)}°)</div>
+                                        <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.azimuth}°)</div>
                                     </div>
                                     <div class="solution-item">
                                         <strong>ELEVATION</strong>
                                         <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.elevation} mils</div>
-                                        <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${MortarCalculator.milsToDegrees(solution.elevation, input.mortarType).toFixed(1)}°)</div>
+                                        <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.elevationDegrees}°)</div>
+                                        ${solution.elevationCorrection && solution.elevationCorrection !== 0 ? `<div style="color: #95a585; font-size: 11px; margin-top: 2px;">dElev: ${solution.dElev} and Elevation Correction: ${solution.elevationCorrection > 0 ? '+' : ''}${solution.elevationCorrection.toFixed(1)} mils</div>` : ''}
                                     </div>
                                     <div class="solution-item">
                                         <strong>CHARGE</strong>
@@ -1170,6 +1222,7 @@
                                     <div class="solution-item">
                                         <strong>TIME OF FLIGHT</strong>
                                         <div class="value">${solution.timeOfFlight}s</div>
+                                        ${solution.tofCorrection && solution.tofCorrection !== 0 ? `<div style="color: #95a585; font-size: 11px; margin-top: 2px;">Correction: ${solution.tofCorrection > 0 ? '+' : ''}${solution.tofCorrection.toFixed(1)}s (TOF/100m: ${solution.tofPer100m})</div>` : ''}
                                     </div>
                                 </div>
                                 <div style="margin-top: 10px; padding: 8px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; font-size: 12px; color: #a8b898;">

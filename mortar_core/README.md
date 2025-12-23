@@ -14,12 +14,14 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 
 **Features:**
 - 🎯 Grid coordinate input (3-digit 100m & 4-digit 10m precision)
+- � Flexible delimiter support (slash `/` or comma `,` separators)
 - 📏 Traditional meter coordinates
 - 🔄 Toggle between input modes (auto-clears on switch)
 - 🎯 Fire correction system (Left/Right, Add/Drop adjustments)
 - 💥 Fire for Effect patterns (Lateral/Linear sheaf, Circular saturation)
 - 📊 Trajectory visualization with comparison charts
 - 🎨 Multiple firing solutions with charge options
+- 📐 Height correction factors displayed (dElev, TOF per 100m)
 - 🔴 Visual feedback for corrected values (red highlighting)
 - 🔄 Auto-recalculation when toggling FFE on/off
 - 📐 Sorted FFE rounds by azimuth for easier gun traverse
@@ -76,14 +78,15 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 
 - ✅ **Pure JavaScript** - No external dependencies
 - ✅ **Framework-agnostic** - Works in Node.js and browsers
-- ✅ **Grid coordinates** - 3-digit (10m) and 4-digit (1m) precision
+- ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision with `/` or `,` delimiter support
 - ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
-- ✅ **Height correction** - Automatic elevation adjustment
+- ✅ **Height correction** - Automatic elevation adjustment with correction factors displayed
+- ✅ **Transparent calculations** - Shows dElev and TOF per 100m correction factors
 - ✅ **Fire correction** - Observer-based adjustments (Left/Right, Add/Drop in meters)
 - ✅ **Fire for Effect** - Multiple pattern types (Lateral/Linear sheaf, Circular saturation)
 - ✅ **Automatic charge selection** - Or force specific charge
 - ✅ **Trajectory visualization** - Generate trajectory points for SVG/Canvas rendering
-- ✅ **Military terminology** - NATO/US Army standard nomenclature (Azimuth, Range, Altitude)
+- ✅ **Military terminology** - NATO/US Army standard nomenclature (Azimuth, Range, Height)
 - ✅ **Visual feedback** - Red highlighting for corrected fire solutions
 - ✅ **SEO optimized** - Fully discoverable on search engines
 

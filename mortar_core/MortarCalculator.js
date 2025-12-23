@@ -35,11 +35,14 @@
  * @typedef {Object} FiringSolution
  * @property {boolean} inRange - Can target be engaged
  * @property {number} charge - Selected charge level (0-4)
- * @property {number} elevation - Gun elevation in mils
+ * @property {number} elevation - Gun elevation in mils (rounded for display)
+ * @property {number} elevationPrecise - Gun elevation in mils (fractional precision)
+ * @property {number} elevationCorrection - Elevation correction applied for height difference (mils)
  * @property {number} elevationDegrees - Gun elevation in degrees
  * @property {number} azimuth - Azimuth in degrees
  * @property {number} azimuthMils - Azimuth in mils
- * @property {number} timeOfFlight - Projectile flight time in seconds
+ * @property {number} timeOfFlight - Projectile flight time in seconds (corrected for height)
+ * @property {number} tofCorrection - TOF correction applied for height difference (seconds)
  * @property {number} minRange - Minimum range for this charge (meters)
  * @property {number} maxRange - Maximum range for this charge (meters)
  * @property {string} [error] - Error message if not in range
@@ -100,16 +103,25 @@ function calculateBearing(pos1, pos2) {
 /**
  * Parse grid coordinate string to meters
  * Supports both 3-digit (10m precision) and 4-digit (1m precision) formats
- * @param {string} gridString - Grid coordinate (e.g., "058/071" or "0584/0713")
+ * @param {string} gridString - Grid coordinate (e.g., "058/071", "058,071", "0584/0713", or "0584,0713")
  * @returns {Object} Object with x and y in meters
  * @throws {Error} If format is invalid
  */
 function parseGridToMeters(gridString) {
     const cleaned = gridString.replace(/\s/g, '');
-    const parts = cleaned.split('/');
+    
+    // Support both / and , as delimiters
+    let parts;
+    if (cleaned.includes('/')) {
+        parts = cleaned.split('/');
+    } else if (cleaned.includes(',')) {
+        parts = cleaned.split(',');
+    } else {
+        throw new Error('Invalid grid format. Use: 058/071, 058,071, 0584/0713, or 0584,0713');
+    }
     
     if (parts.length !== 2) {
-        throw new Error('Invalid grid format. Use: 058/071 or 0584/0713');
+        throw new Error('Invalid grid format. Use: 058/071, 058,071, 0584/0713, or 0584,0713');
     }
     
     const gridX = parts[0];
@@ -126,7 +138,7 @@ function parseGridToMeters(gridString) {
             y: parseInt(gridY, 10) * 10
         };
     } else {
-        throw new Error('Grid coordinates must be 3 or 4 digits each (e.g., 058/071 or 0584/0713)');
+        throw new Error('Grid coordinates must be 3 or 4 digits each (e.g., 058/071, 058,071, 0584/0713, or 0584,0713)');
     }
 }
 
@@ -440,7 +452,8 @@ function interpolateFromTable(rangeTable, distance) {
             return {
                 elevation: entry.elevation,
                 tof: entry.tof,
-                dElev: entry.dElev
+                dElev: entry.dElev,
+                tofPer100m: entry.tofPer100m || 0
             };
         }
         
@@ -459,11 +472,13 @@ function interpolateFromTable(rangeTable, distance) {
     const elevation = lerp(distance, lower.range, upper.range, lower.elevation, upper.elevation);
     const tof = lerp(distance, lower.range, upper.range, lower.tof, upper.tof);
     const dElev = lerp(distance, lower.range, upper.range, lower.dElev, upper.dElev);
+    const tofPer100m = lerp(distance, lower.range, upper.range, lower.tofPer100m || 0, upper.tofPer100m || 0);
     
     return {
-        elevation: Math.round(elevation),
-        tof: parseFloat(tof.toFixed(1)),
-        dElev: Math.round(dElev)
+        elevation: elevation,
+        tof: tof,
+        dElev: dElev,
+        tofPer100m: tofPer100m
     };
 }
 
@@ -484,7 +499,22 @@ function applyHeightCorrection(baseElevation, heightDifference, dElev) {
     }
     
     // Original engine SUBTRACTS the correction (which adds for negative heightDiff)
-    return Math.round(baseElevation - correction);
+    return baseElevation - correction;
+}
+
+/**
+ * Apply height correction to time of flight
+ * @param {number} baseTOF - Base time of flight in seconds
+ * @param {number} heightDifference - Height difference in meters (positive = target higher)
+ * @param {number} tofPer100m - TOF change per 100m height difference
+ * @returns {number} Corrected time of flight in seconds
+ */
+function applyTOFCorrection(baseTOF, heightDifference, tofPer100m) {
+    if (heightDifference === 0) return baseTOF;
+    
+    const correction = (heightDifference / 100) * tofPer100m;
+    
+    return baseTOF + correction;
 }
 
 /**
@@ -676,18 +706,37 @@ function calculateForCharge(charge, input) {
         ballistics.dElev
     );
     
+    const correctedTOF = applyTOFCorrection(
+        ballistics.tof,
+        input.heightDifference,
+        ballistics.tofPer100m || 0
+    );
+    
+    const elevationCorrection = input.heightDifference !== 0 
+        ? ballistics.elevation - correctedElevation 
+        : 0;
+    
+    const tofCorrection = input.heightDifference !== 0 && ballistics.tofPer100m
+        ? correctedTOF - ballistics.tof
+        : 0;
+    
     const mortarType = input.mortarType || (input.mortarId.startsWith('RUS') ? 'RUS' : 'US');
     const elevationDegrees = milsToDegrees(correctedElevation, mortarType);
-    const azimuthMils = degreesToMils(input.bearing, mortarType);
+    const azimuthMils = calculateAzimuthMils(input.bearing, mortarType);
     
     return {
         inRange: true,
         charge: charge.level,
-        elevation: correctedElevation,
-        elevationDegrees,
-        azimuth: input.bearing,
-        azimuthMils,
-        timeOfFlight: ballistics.tof,
+        elevation: Math.round(correctedElevation),
+        elevationPrecise: parseFloat(correctedElevation.toFixed(2)),
+        elevationCorrection: parseFloat(elevationCorrection.toFixed(2)),
+        dElev: Math.round(ballistics.dElev || 0),
+        elevationDegrees: parseFloat(elevationDegrees.toFixed(1)),
+        azimuth: parseFloat(input.bearing.toFixed(1)),
+        azimuthMils: Math.round(azimuthMils),
+        timeOfFlight: parseFloat(correctedTOF.toFixed(1)),
+        tofCorrection: parseFloat(tofCorrection.toFixed(1)),
+        tofPer100m: ballistics.tofPer100m || 0,
         minRange: charge.minRange,
         maxRange: charge.maxRange,
         trajectoryType: correctedElevation > 800 ? 'high' : 'low'
@@ -745,20 +794,44 @@ function calculate(input) {
         ballistics.dElev
     );
     
+    const correctedTOF = applyTOFCorrection(
+        ballistics.tof,
+        input.heightDifference,
+        ballistics.tofPer100m || 0
+    );
+    
+    const elevationCorrection = input.heightDifference !== 0 
+        ? ballistics.elevation - correctedElevation 
+        : 0;
+    
+    const tofCorrection = input.heightDifference !== 0 && ballistics.tofPer100m
+        ? correctedTOF - ballistics.tof
+        : 0;
+    
     const elevationDegrees = milsToDegrees(correctedElevation, input.mortarType);
     const azimuthMils = calculateAzimuthMils(input.bearing, input.mortarType);
     
-    return {
+    const solution = {
         inRange: true,
         charge: charge.level,
-        elevation: correctedElevation,
-        elevationDegrees,
-        azimuth: input.bearing,
-        azimuthMils,
-        timeOfFlight: ballistics.tof,
+        elevation: Math.round(correctedElevation),
+        elevationPrecise: parseFloat(correctedElevation.toFixed(2)),
+        elevationCorrection: parseFloat(elevationCorrection.toFixed(2)),
+        dElev: Math.round(ballistics.dElev || 0),
+        elevationDegrees: parseFloat(elevationDegrees.toFixed(1)),
+        azimuth: parseFloat(input.bearing.toFixed(1)),
+        azimuthMils: Math.round(azimuthMils),
+        timeOfFlight: parseFloat(correctedTOF.toFixed(1)),
+        tofCorrection: parseFloat(tofCorrection.toFixed(1)),
+        tofPer100m: ballistics.tofPer100m || 0,
         minRange: charge.minRange,
         maxRange: charge.maxRange
     };
+    
+    console.log('=== FiringSolution Object ===');
+    console.log(JSON.stringify(solution, null, 2));
+    
+    return solution;
 }
 
 /**
@@ -848,6 +921,7 @@ if (typeof module !== 'undefined' && module.exports) {
         findOptimalCharge,
         interpolateFromTable,
         applyHeightCorrection,
+        applyTOFCorrection,
         degreesToMils,
         milsToDegrees,
         getMilSystemName,
@@ -879,6 +953,7 @@ if (typeof window !== 'undefined') {
         findOptimalCharge,
         interpolateFromTable,
         applyHeightCorrection,
+        applyTOFCorrection,
         degreesToMils,
         milsToDegrees,
         getMilSystemName,
