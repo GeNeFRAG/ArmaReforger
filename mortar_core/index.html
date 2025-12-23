@@ -1089,7 +1089,8 @@
                                         </div>
                                         <div class="solution-item">
                                             <strong>CHARGE</strong>
-                                            <div class="value">${solution.charge}</div>
+                                            <div class="value" ${typeof window.previousCharge === 'number' && window.previousCharge !== solution.charge ? 'style="color: #ff6b6b"' : ''}>${solution.charge}</div>
+                                            ${typeof window.previousCharge === 'number' && window.previousCharge !== solution.charge ? `<div style="color: #ff6b6b; font-size: 11px; margin-top: 2px;">was: ${window.previousCharge}</div>` : ''}
                                         </div>
                                         <div class="solution-item">
                                             <strong>TIME OF FLIGHT</strong>
@@ -1236,7 +1237,8 @@
                                     </div>
                                     <div class="solution-item">
                                         <strong>CHARGE</strong>
-                                        <div class="value">${solution.charge}</div>
+                                        <div class="value" ${typeof window.previousCharge === 'number' && window.previousCharge !== solution.charge ? 'style="color: #ff6b6b"' : ''}>${solution.charge}</div>
+                                        ${typeof window.previousCharge === 'number' && window.previousCharge !== solution.charge ? `<div style="color: #ff6b6b; font-size: 11px; margin-top: 2px;">was: ${window.previousCharge}</div>` : ''}
                                     </div>
                                     <div class="solution-item">
                                         <strong>TIME OF FLIGHT</strong>
