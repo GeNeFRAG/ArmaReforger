@@ -328,17 +328,19 @@
                 
                 <!-- Meters Mode -->
                 <div id="mortarMetersMode" class="coord-mode">
-                    <div class="row">
-                        <div class="form-group">
-                            <label for="mortarX">X Coordinate (meters)</label>
-                            <input type="number" id="mortarX" placeholder="4800" step="0.1">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="form-group">
+                                <label for="mortarX">X Coordinate (meters)</label>
+                                <input type="number" id="mortarX" placeholder="4800" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="mortarY">Y Coordinate (meters)</label>
+                                <input type="number" id="mortarY" placeholder="7049" step="0.1">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="mortarY">Y Coordinate (meters)</label>
-                            <input type="number" id="mortarY" placeholder="7049" step="0.1">
-                        </div>
+                        <small style="color: #999; display: block; margin-top: -15px;">Enter map coordinates in meters</small>
                     </div>
-                    <small style="color: #999; display: block; margin-top: 5px;">Enter map coordinates in meters</small>
                 </div>
                 
                 <div class="form-group">
@@ -359,17 +361,19 @@
                 
                 <!-- Meters Mode -->
                 <div id="targetMetersMode" class="coord-mode">
-                    <div class="row">
-                        <div class="form-group">
-                            <label for="targetX">X Coordinate (meters)</label>
-                            <input type="number" id="targetX" placeholder="4696" step="0.1">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="form-group">
+                                <label for="targetX">X Coordinate (meters)</label>
+                                <input type="number" id="targetX" placeholder="4696" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="targetY">Y Coordinate (meters)</label>
+                                <input type="number" id="targetY" placeholder="5516" step="0.1">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="targetY">Y Coordinate (meters)</label>
-                            <input type="number" id="targetY" placeholder="5516" step="0.1">
-                        </div>
+                        <small style="color: #999; display: block; margin-top: -15px;">Enter map coordinates in meters</small>
                     </div>
-                    <small style="color: #999; display: block; margin-top: 5px;">Enter map coordinates in meters</small>
                 </div>
                 
                 <div class="form-group">
@@ -399,7 +403,10 @@
                 </div>
             </div>
             
-            <button id="calculate">Calculate Firing Solution</button>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button id="calculate" style="flex: 3;">Calculate Firing Solution</button>
+                <button id="reset" style="flex: 1; background: linear-gradient(180deg, #666 0%, #555 100%);">Reset</button>
+            </div>
         </div>
         
         <div id="output" class="result"></div>
@@ -563,6 +570,25 @@
             mortarTypeSelect.addEventListener('change', updateShellTypes);
             
             calculateBtn.addEventListener('click', calculateSolution);
+            
+            // Reset button
+            const resetBtn = document.getElementById('reset');
+            resetBtn.addEventListener('click', function() {
+                // Clear all input fields
+                document.getElementById('mortarGrid').value = '';
+                document.getElementById('mortarX').value = '';
+                document.getElementById('mortarY').value = '';
+                document.getElementById('mortarZ').value = '';
+                document.getElementById('targetGrid').value = '';
+                document.getElementById('targetX').value = '';
+                document.getElementById('targetY').value = '';
+                document.getElementById('targetZ').value = '';
+                
+                // Clear output and remove error class
+                const output = document.getElementById('output');
+                output.innerHTML = '';
+                output.className = 'result';
+            });
             
             // Allow Enter key to trigger calculation
             document.querySelectorAll('input').forEach(input => {
