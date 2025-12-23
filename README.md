@@ -1,6 +1,8 @@
 # Arma Reforger Tools & Resources
 
-Comprehensive toolset for Arma Reforger server management, map resources, and artillery calculations.
+**Live Mortar Calculator:** [https://armamortars.org](https://armamortars.org)
+
+Comprehensive toolset for Arma Reforger server management, map resources, and artillery calculations with grid coordinate support.
 
 ## Project Structure
 
@@ -46,7 +48,9 @@ if 'height_data' in everon['resources']:
 ```
 
 ### Mortar Core
-Calculate artillery fire solutions with dynamic ballistic data:
+Calculate artillery fire solutions with grid coordinates or meters:
+
+**Web Calculator:** [armamortars.org](https://armamortars.org)
 
 ```javascript
 const MortarCalculator = require('./MortarCalculator');
@@ -58,8 +62,18 @@ await MortarCalculator.loadBallisticData('./ballistic-data.json');
 const mortars = MortarCalculator.getAllMortarTypes();
 // [{id: "RUS", name: "Russian 82mm Mortar", caliber: 82}, ...]
 
-// Calculate firing solution
-const solution = MortarCalculator.calculate({
+// Using grid coordinates (3-digit or 4-digit)
+const solution = MortarCalculator.calculate(
+    MortarCalculator.prepareInput(
+        { grid: "047/069", z: 15 },  // Mortar position
+        { grid: "085/105", z: 25 },  // Target position
+        "US",
+        "HE"
+    )
+);
+
+// Or using traditional meters
+const solution2 = MortarCalculator.calculate({
     distance: 1500,
     heightDifference: 0,
     bearing: 45,

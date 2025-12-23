@@ -1,6 +1,8 @@
 # Mortar Core
 
-Mortar ballistics calculation engine for Arma Reforger artillery systems.
+**Live Calculator:** [https://armamortars.org](https://armamortars.org)
+
+Mortar ballistics calculation engine for Arma Reforger artillery systems with grid coordinate support.
 
 Part of the [ArmaReforger](../README.md) project.
 
@@ -8,7 +10,14 @@ Part of the [ArmaReforger](../README.md) project.
 
 ### Web Calculator
 
-Open [index.html](index.html) in a browser for interactive calculations with trajectory visualization.
+Visit **[armamortars.org](https://armamortars.org)** for the online calculator, or open [index.html](index.html) locally.
+
+**Features:**
+- 🎯 Grid coordinate input (3-digit 10m & 4-digit 1m precision)
+- 📏 Traditional meter coordinates
+- 🔄 Toggle between input modes
+- 📊 Trajectory visualization
+- 🎨 Multiple firing solutions with comparison charts
 
 ### Node.js
 
@@ -60,10 +69,12 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 
 - ✅ **Pure JavaScript** - No external dependencies
 - ✅ **Framework-agnostic** - Works in Node.js and browsers
-- ✅ **Coordinate-system independent** - Uses simple 3D positions
+- ✅ **Grid coordinates** - 3-digit (10m) and 4-digit (1m) precision
+- ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
 - ✅ **Height correction** - Automatic elevation adjustment
 - ✅ **Automatic charge selection** - Or force specific charge
 - ✅ **Trajectory visualization** - Generate trajectory points for SVG/Canvas rendering
+- ✅ **SEO optimized** - Fully discoverable on search engines
 
 ## 🔧 API Overview
 
@@ -82,8 +93,40 @@ calculateAllTrajectories(input) → Array<FiringSolution>
 // Generate trajectory points for visualization
 generateTrajectoryPoints(solutions, distance, mortarType) → TrajectoryData
 
-// Convert positions to input
+// Convert positions to input (supports grid coordinates)
 prepareInput(mortarPos, targetPos, mortarId, shellType)
+
+// Grid coordinate utilities
+parseGridToMeters(gridString) → {x, y}
+metersToGrid(x, y, highPrecision) → gridString
+parsePosition(position) → Position3D
+```
+
+### Grid Coordinate Examples
+
+```javascript
+// Using grid coordinates (3-digit = center of 10m square)
+const solution = MortarCalculator.calculate(
+    MortarCalculator.prepareInput(
+        { grid: "047/069", z: 15 },  // Mortar at 475m/695m, elevation 15m
+        { grid: "085/105", z: 25 },  // Target at 855m/1055m, elevation 25m
+        "US",
+        "HE"
+    )
+);
+
+// Using 4-digit grid (1m precision)
+const input = MortarCalculator.prepareInput(
+    "0475/0695",  // Simple string format
+    { grid: "0850/1050", z: 30 },
+    "RUS",
+    "HE"
+);
+
+// Conversion functions
+MortarCalculator.parseGridToMeters("047/069");  // → {x: 475, y: 695}
+MortarCalculator.metersToGrid(475, 695, false); // → "047/069"
+MortarCalculator.metersToGrid(475, 695, true);  // → "0475/0695"
 ```
 
 ### Geometry Utilities
