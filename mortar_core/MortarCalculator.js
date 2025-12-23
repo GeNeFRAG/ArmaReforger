@@ -117,13 +117,13 @@ function parseGridToMeters(gridString) {
     
     if (gridX.length === 3 && gridY.length === 3) {
         return {
-            x: parseInt(gridX, 10) * 10 + 5,
-            y: parseInt(gridY, 10) * 10 + 5
+            x: parseInt(gridX, 10) * 100 + 50,
+            y: parseInt(gridY, 10) * 100 + 50
         };
     } else if (gridX.length === 4 && gridY.length === 4) {
         return {
-            x: parseInt(gridX, 10),
-            y: parseInt(gridY, 10)
+            x: parseInt(gridX, 10) * 10,
+            y: parseInt(gridY, 10) * 10
         };
     } else {
         throw new Error('Grid coordinates must be 3 or 4 digits each (e.g., 058/071 or 0584/0713)');
@@ -139,12 +139,12 @@ function parseGridToMeters(gridString) {
  */
 function metersToGrid(x, y, highPrecision = false) {
     if (highPrecision) {
-        const gridX = Math.floor(x).toString().padStart(4, '0');
-        const gridY = Math.floor(y).toString().padStart(4, '0');
+        const gridX = Math.floor(x / 10).toString().padStart(4, '0');
+        const gridY = Math.floor(y / 10).toString().padStart(4, '0');
         return `${gridX}/${gridY}`;
     } else {
-        const gridX = Math.floor(x / 10).toString().padStart(3, '0');
-        const gridY = Math.floor(y / 10).toString().padStart(3, '0');
+        const gridX = Math.floor(x / 100).toString().padStart(3, '0');
+        const gridY = Math.floor(y / 100).toString().padStart(3, '0');
         return `${gridX}/${gridY}`;
     }
 }
