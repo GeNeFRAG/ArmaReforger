@@ -673,7 +673,7 @@
                 }
                 
                 // Store previous charge before recalculation
-                const previousCharge = window.lastSolution ? window.lastSolution.charge : null;
+                window.previousCharge = window.lastSolution ? window.lastSolution.charge : null;
                 
                 // Mark that correction was applied (for highlighting output)
                 window.correctionApplied = true;
@@ -681,24 +681,12 @@
                 // Automatically recalculate firing mission
                 calculateSolution();
                 
-                // Check if charge changed after recalculation
-                if (previousCharge !== null && window.lastSolution && window.lastSolution.charge !== previousCharge) {
-                    window.chargeChanged = true;
-                    window.previousCharge = previousCharge;
-                }
-                
                 // Reset correction input fields
                 document.getElementById('correctionLR').value = 0;
                 document.getElementById('correctionAD').value = 0;
                 
                 // Hide the correction preview
                 updateCorrectionPreview();
-                
-                // Clear charge change flag after a delay
-                setTimeout(() => {
-                    window.chargeChanged = false;
-                    window.previousCharge = null;
-                }, 100);
                 
             } catch (error) {
                 console.error('Correction error:', error);
@@ -1195,7 +1183,7 @@
                     }
                     
                     // Add charge change warning if charge changed
-                    if (window.chargeChanged && window.previousCharge !== null) {
+                    if (window.previousCharge !== null && window.previousCharge !== solutions[0].charge) {
                         solutionsHTML += `<div style="background: rgba(255, 165, 0, 0.15); padding: 10px; border-radius: 4px; border: 1px solid rgba(255, 165, 0, 0.4); margin-bottom: 15px; color: #ffcc99; font-size: 13px;">⚠️ <strong>Charge changed:</strong> Correction moved target from Charge ${window.previousCharge} to Charge ${solutions[0].charge} (different ballistic trajectory)</div>`;
                     }
                     
