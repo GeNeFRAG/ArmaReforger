@@ -169,6 +169,41 @@ function parsePosition(position) {
 }
 
 /**
+ * Apply fire correction to a target position based on observer corrections
+ * Uses military standard terminology:
+ * - Left/Right: Deflection correction perpendicular to line of fire
+ * - Add/Drop: Range correction along line of fire
+ * 
+ * @param {Position3D} mortarPos - Mortar position
+ * @param {Position3D} targetPos - Original target position
+ * @param {number} leftRight - Left/Right correction in meters (+ = Right, - = Left)
+ * @param {number} addDrop - Add/Drop correction in meters (+ = Add/longer range, - = Drop/shorter range)
+ * @returns {Position3D} Corrected target position
+ * 
+ * @example
+ * const mortar = {x: 475, y: 695, z: 10};
+ * const target = {x: 855, y: 1055, z: 25};
+ * const corrected = applyFireCorrection(mortar, target, -10, 20); // Left 10m, Add 20m
+ */
+function applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) {
+    // Calculate bearing from mortar to target
+    const bearing = calculateBearing(mortarPos, targetPos);
+    const bearingRad = (bearing * Math.PI) / 180;
+    
+    // Apply corrections:
+    // Left/Right is perpendicular to bearing (add 90°)
+    // Add/Drop is along the bearing
+    const correctedX = targetPos.x + leftRight * Math.cos(bearingRad + Math.PI/2) + addDrop * Math.cos(bearingRad);
+    const correctedY = targetPos.y + leftRight * Math.sin(bearingRad + Math.PI/2) + addDrop * Math.sin(bearingRad);
+    
+    return {
+        x: correctedX,
+        y: correctedY,
+        z: targetPos.z
+    };
+}
+
+/**
  * Prepare calculator input from two 3D positions
  * @param {Position3D|GridCoordinate|string} mortarPos - Mortar position
  * @param {Position3D|GridCoordinate|string} targetPos - Target position
@@ -730,7 +765,8 @@ if (typeof module !== 'undefined' && module.exports) {
         generateTrajectoryPoints,
         parseGridToMeters,
         metersToGrid,
-        parsePosition
+        parsePosition,
+        applyFireCorrection
     };
 }
 
@@ -757,6 +793,7 @@ if (typeof window !== 'undefined') {
         generateTrajectoryPoints,
         parseGridToMeters,
         metersToGrid,
-        parsePosition
+        parsePosition,
+        applyFireCorrection
     };
 }

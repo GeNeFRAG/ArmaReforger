@@ -15,9 +15,12 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 **Features:**
 - 🎯 Grid coordinate input (3-digit 10m & 4-digit 1m precision)
 - 📏 Traditional meter coordinates
-- 🔄 Toggle between input modes
+- 🔄 Toggle between input modes (auto-clears on switch)
+- 🎯 Fire correction system (Left/Right, Add/Drop adjustments)
 - 📊 Trajectory visualization
 - 🎨 Multiple firing solutions with comparison charts
+- 🔴 Visual feedback for corrected values (red highlighting)
+- 🔄 Reset button to clear all inputs and outputs
 
 ### Node.js
 
@@ -72,8 +75,11 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 - ✅ **Grid coordinates** - 3-digit (10m) and 4-digit (1m) precision
 - ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
 - ✅ **Height correction** - Automatic elevation adjustment
+- ✅ **Fire correction** - Observer-based adjustments (Left/Right, Add/Drop in meters)
 - ✅ **Automatic charge selection** - Or force specific charge
 - ✅ **Trajectory visualization** - Generate trajectory points for SVG/Canvas rendering
+- ✅ **Military terminology** - NATO/US Army standard nomenclature (Azimuth, Range, Altitude)
+- ✅ **Visual feedback** - Red highlighting for corrected fire solutions
 - ✅ **SEO optimized** - Fully discoverable on search engines
 
 ## 🔧 API Overview
@@ -92,6 +98,9 @@ calculateAllTrajectories(input) → Array<FiringSolution>
 
 // Generate trajectory points for visualization
 generateTrajectoryPoints(solutions, distance, mortarType) → TrajectoryData
+
+// Apply fire correction (observer adjustments)
+applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) → Position3D
 
 // Convert positions to input (supports grid coordinates)
 prepareInput(mortarPos, targetPos, mortarId, shellType)
@@ -135,6 +144,19 @@ MortarCalculator.metersToGrid(475, 695, true);  // → "0475/0695"
 calculateDistance(pos1, pos2)
 calculateHorizontalDistance(pos1, pos2)
 calculateBearing(pos1, pos2)
+```
+
+### Fire Correction Example
+
+```javascript
+// Apply observer corrections to target position
+const correctedTarget = MortarCalculator.applyFireCorrection(
+    mortarPos,          // {x: 4750, y: 6950, z: 15}
+    targetPos,          // {x: 8550, y: 10500, z: 25}
+    10,                 // Left/Right: +10 = Right 10m, -10 = Left 10m
+    -20                 // Add/Drop: +20 = Add 20m, -20 = Drop 20m
+);
+// Returns corrected position perpendicular (L/R) and along bearing (A/D)
 ```
 
 See **[API.md](API.md)** for complete documentation.

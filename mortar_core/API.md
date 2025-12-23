@@ -10,6 +10,7 @@
 - ✅ Framework-agnostic - works in Node.js and browsers
 - ✅ Coordinate-system independent - uses simple 3D positions
 - ✅ **Grid coordinate support** - 3-digit (10m) and 4-digit (1m) precision
+- ✅ **Fire correction system** - Observer-based adjustments (Left/Right, Add/Drop)
 - ✅ Comprehensive JSDoc type definitions
 - ✅ Height correction support
 - ✅ Automatic charge selection
@@ -294,6 +295,76 @@ trajectoryData.series.forEach(traj => {
     console.log(`Charge ${traj.charge}: ${traj.points.length} points`);
     console.log(`  Max height: ${traj.maxY.toFixed(1)}m`);
 });
+```
+
+---
+
+#### `applyFireCorrection(mortarPos, targetPos, leftRight, addDrop)`
+
+Apply observer fire corrections to target position. Adjusts target coordinates based on observed impacts using military fire correction terminology.
+
+**Parameters:**
+- `mortarPos` (Position3D) - Mortar position `{ x, y, z }`
+- `targetPos` (Position3D) - Original target position `{ x, y, z }`
+- `leftRight` (number) - Lateral correction in meters (positive = right, negative = left)
+- `addDrop` (number) - Range correction in meters (positive = add range, negative = drop/reduce range)
+
+**Returns:**
+- `Position3D` - Corrected target position `{ x, y, z }`
+
+**Fire Correction Mechanics:**
+- **Left/Right:** Perpendicular adjustment to line of fire (bearing + 90°)
+  - Positive value moves impact point to the RIGHT
+  - Negative value moves impact point to the LEFT
+- **Add/Drop:** Along the line of fire (bearing direction)
+  - Positive value ADDS range (target moves further from mortar)
+  - Negative value DROPS range (target moves closer to mortar)
+
+**Example:**
+```javascript
+const mortarPos = { x: 4750, y: 6950, z: 15 };
+const targetPos = { x: 8550, y: 10500, z: 25 };
+
+// Observer reports: "Right 10, Drop 20"
+const correctedTarget = MortarCalculator.applyFireCorrection(
+    mortarPos,
+    targetPos,
+    10,    // Right 10 meters
+    -20    // Drop 20 meters (reduce range)
+);
+
+// Use corrected position for new fire mission
+const input = MortarCalculator.prepareInput(
+    mortarPos,
+    correctedTarget,
+    "US",
+    "HE"
+);
+
+const solution = MortarCalculator.calculate(input);
+```
+
+**Typical Fire Correction Workflow:**
+```javascript
+// 1. Initial fire mission
+let targetPos = { x: 8550, y: 10500, z: 25 };
+const mortarPos = { x: 4750, y: 6950, z: 15 };
+
+let input = MortarCalculator.prepareInput(mortarPos, targetPos, "US", "HE");
+let solution = MortarCalculator.calculate(input);
+console.log(`Initial: Elevation ${solution.elevation} mils, Azimuth ${solution.azimuth}°`);
+
+// 2. Observer reports: "Left 15, Add 30"
+targetPos = MortarCalculator.applyFireCorrection(mortarPos, targetPos, -15, 30);
+
+// 3. Recalculate with corrected position
+input = MortarCalculator.prepareInput(mortarPos, targetPos, "US", "HE");
+solution = MortarCalculator.calculate(input);
+console.log(`Corrected: Elevation ${solution.elevation} mils, Azimuth ${solution.azimuth}°`);
+
+// 4. Continue iterative corrections as needed
+targetPos = MortarCalculator.applyFireCorrection(mortarPos, targetPos, 5, -10);
+// ...
 ```
 
 ---

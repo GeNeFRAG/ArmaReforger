@@ -344,7 +344,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="mortarZ">Elevation / Height (meters)</label>
+                    <label for="mortarZ">Altitude (meters)</label>
                     <input type="number" id="mortarZ" placeholder="168" step="0.1">
                 </div>
                 
@@ -377,15 +377,39 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="targetZ">Elevation / Height (meters)</label>
+                    <label for="targetZ">Altitude (meters)</label>
                     <input type="number" id="targetZ" placeholder="64" step="0.1">
                 </div>
                 
                 <div class="info" style="margin-top: 15px;">
-                    📍 Distance, Bearing, and Height Difference will be computed automatically from coordinates
+                    📍 Range, Azimuth, and Alt Diff will be computed automatically from coordinates
                 </div>
             
-            <h2>Weapon Configuration</h2>
+            <h2>🎯 Fire Correction (Optional)</h2>
+            
+            <div class="info" style="margin-bottom: 15px;">
+                💡 Adjust target based on observer corrections. Format: "Left 10, Add 20" or "Right 8, Drop 10"
+            </div>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label for="correctionLR">Left/Right Correction (meters)</label>
+                    <input type="number" id="correctionLR" placeholder="0" step="1" value="0">
+                    <small style="color: #999; display: block; margin-top: 5px;">+ = Right, - = Left</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="correctionAD">Add/Drop Correction (meters)</label>
+                    <input type="number" id="correctionAD" placeholder="0" step="1" value="0">
+                    <small style="color: #999; display: block; margin-top: 5px;">+ = Add (longer range), - = Drop (shorter range)</small>
+                </div>
+            </div>
+            
+            <button id="applyCorrection" style="background: linear-gradient(180deg, #d68910 0%, #c77808 100%); border-color: #b56907; margin-bottom: 20px;">
+                🔄 Apply Correction
+            </button>
+            
+            <h2>Weapon System</h2>
             
             <div class="row">
                 <div class="form-group">
@@ -396,7 +420,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="shellType">Shell Type</label>
+                    <label for="shellType">Ammunition Type</label>
                     <select id="shellType">
                         <!-- Populated dynamically from ballistic-data.json -->
                     </select>
@@ -404,7 +428,7 @@
             </div>
             
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button id="calculate" style="flex: 3;">Calculate Firing Solution</button>
+                <button id="calculate" style="flex: 3;">Compute Fire Mission</button>
                 <button id="reset" style="flex: 1; background: linear-gradient(180deg, #666 0%, #555 100%);">Reset</button>
             </div>
         </div>
@@ -445,6 +469,113 @@
                 meterModes.forEach(el => el.classList.add('active'));
                 toggleGrid.classList.remove('active');
                 toggleMeters.classList.add('active');
+            }
+            
+            // Clear all input fields
+            document.getElementById('mortarGrid').value = '';
+            document.getElementById('mortarX').value = '';
+            document.getElementById('mortarY').value = '';
+            document.getElementById('mortarZ').value = '';
+            document.getElementById('targetGrid').value = '';
+            document.getElementById('targetX').value = '';
+            document.getElementById('targetY').value = '';
+            document.getElementById('targetZ').value = '';
+            
+            // Clear red highlighting
+            document.getElementById('targetGrid').style.color = '';
+            document.getElementById('targetX').style.color = '';
+            document.getElementById('targetY').style.color = '';
+            
+            // Reset correction flag
+            window.correctionApplied = false;
+            
+            // Clear output
+            const output = document.getElementById('output');
+            output.innerHTML = '';
+            output.className = 'result';
+        }
+        
+        // Apply fire correction to target position
+        function applyFireCorrectionUI() {
+            const correctionLR = parseFloat(document.getElementById('correctionLR').value) || 0;
+            const correctionAD = parseFloat(document.getElementById('correctionAD').value) || 0;
+            
+            if (correctionLR === 0 && correctionAD === 0) {
+                return;
+            }
+            
+            try {
+                // Parse mortar position
+                let mortarPos;
+                const mortarGrid = document.getElementById('mortarGrid').value.trim();
+                if (mortarGrid) {
+                    const mortarZ = parseFloat(document.getElementById('mortarZ').value) || 0;
+                    mortarPos = MortarCalculator.parsePosition({ grid: mortarGrid, z: mortarZ });
+                } else {
+                    const mortarX = parseFloat(document.getElementById('mortarX').value);
+                    const mortarY = parseFloat(document.getElementById('mortarY').value);
+                    const mortarZ = parseFloat(document.getElementById('mortarZ').value) || 0;
+                    if (isNaN(mortarX) || isNaN(mortarY)) {
+                        throw new Error('Enter mortar position first');
+                    }
+                    mortarPos = { x: mortarX, y: mortarY, z: mortarZ };
+                }
+                
+                // Parse target position
+                let targetPos;
+                const targetGrid = document.getElementById('targetGrid').value.trim();
+                if (targetGrid) {
+                    const targetZ = parseFloat(document.getElementById('targetZ').value) || 0;
+                    targetPos = MortarCalculator.parsePosition({ grid: targetGrid, z: targetZ });
+                } else {
+                    const targetX = parseFloat(document.getElementById('targetX').value);
+                    const targetY = parseFloat(document.getElementById('targetY').value);
+                    const targetZ = parseFloat(document.getElementById('targetZ').value) || 0;
+                    if (isNaN(targetX) || isNaN(targetY)) {
+                        throw new Error('Enter target position first');
+                    }
+                    targetPos = { x: targetX, y: targetY, z: targetZ };
+                }
+                
+                // Apply fire correction
+                const corrected = MortarCalculator.applyFireCorrection(mortarPos, targetPos, correctionLR, correctionAD);
+                
+                // Update target fields with corrected position and highlight in red
+                const targetXInput = document.getElementById('targetX');
+                const targetYInput = document.getElementById('targetY');
+                const targetGridInput = document.getElementById('targetGrid');
+                
+                targetXInput.value = corrected.x.toFixed(1);
+                targetYInput.value = corrected.y.toFixed(1);
+                targetXInput.style.color = '#ff6b6b';
+                targetYInput.style.color = '#ff6b6b';
+                
+                // Convert to grid if in grid mode
+                const gridMode = document.getElementById('targetGridMode').classList.contains('active');
+                if (gridMode) {
+                    const gridCoords = MortarCalculator.metersToGrid(corrected.x, corrected.y, true);
+                    targetGridInput.value = gridCoords;
+                    targetGridInput.style.color = '#ff6b6b';
+                }
+                
+                // Mark that correction was applied (for highlighting output)
+                window.correctionApplied = true;
+                
+                // Automatically recalculate firing solution
+                calculateSolution();
+                
+                // Reset correction input fields
+                document.getElementById('correctionLR').value = 0;
+                document.getElementById('correctionAD').value = 0;
+                
+            } catch (error) {
+                console.error('Correction error:', error);
+                const output = document.getElementById('output');
+                output.className = 'result active error';
+                output.innerHTML = `
+                    <h2>❌ Correction Error</h2>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `;
             }
         }
         
@@ -571,6 +702,10 @@
             
             calculateBtn.addEventListener('click', calculateSolution);
             
+            // Apply correction button
+            const applyCorrectionBtn = document.getElementById('applyCorrection');
+            applyCorrectionBtn.addEventListener('click', applyFireCorrectionUI);
+            
             // Reset button
             const resetBtn = document.getElementById('reset');
             resetBtn.addEventListener('click', function() {
@@ -584,10 +719,26 @@
                 document.getElementById('targetY').value = '';
                 document.getElementById('targetZ').value = '';
                 
+                // Clear red highlighting from corrected fields
+                document.getElementById('targetGrid').style.color = '';
+                document.getElementById('targetX').style.color = '';
+                document.getElementById('targetY').style.color = '';
+                
+                // Reset correction flag
+                window.correctionApplied = false;
+                
                 // Clear output and remove error class
                 const output = document.getElementById('output');
                 output.innerHTML = '';
                 output.className = 'result';
+            });
+            
+            // Clear red highlighting when user manually edits target fields
+            ['targetGrid', 'targetX', 'targetY'].forEach(id => {
+                document.getElementById(id).addEventListener('input', function() {
+                    this.style.color = '';
+                    window.correctionApplied = false;
+                });
             });
             
             // Allow Enter key to trigger calculation
@@ -646,7 +797,7 @@
                     targetPos = { x: targetX, y: targetY, z: targetZ };
                 }
                 
-                // Use prepareInput to calculate distance, bearing, and height difference
+                // Use prepareInput to calculate range, azimuth, and altitude difference
                 const input = MortarCalculator.prepareInput(mortarPos, targetPos, mortarId, shellType);
                 
                 console.log('Mortar Position:', mortarPos);
@@ -746,13 +897,13 @@
                                     </div>
                                     <div class="solution-item">
                                         <strong>ELEVATION</strong>
-                                        <div class="value">${solution.elevation} mils</div>
-                                        <div style="color: #95a585; font-size: 12px;">(${MortarCalculator.milsToDegrees(solution.elevation, input.mortarType).toFixed(1)}°)</div>
+                                        <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.elevation} mils</div>
+                                        <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${MortarCalculator.milsToDegrees(solution.elevation, input.mortarType).toFixed(1)}°)</div>
                                     </div>
                                     <div class="solution-item">
                                         <strong>AZIMUTH</strong>
-                                        <div class="value">${solution.azimuthMils} mils</div>
-                                        <div style="color: #95a585; font-size: 12px;">(${solution.azimuth.toFixed(1)}°)</div>
+                                        <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.azimuthMils} mils</div>
+                                        <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.azimuth.toFixed(1)}°)</div>
                                     </div>
                                     <div class="solution-item">
                                         <strong>TIME OF FLIGHT</strong>
@@ -777,18 +928,18 @@
                             <h3 style="margin-top: 0; font-size: 16px; color: #d8e4b0;">📍 Target Analysis</h3>
                             <div class="solution-grid">
                                 <div class="solution-item">
-                                    <strong>DISTANCE</strong>
-                                    <div class="value">${input.distance.toFixed(1)}m</div>
+                                    <strong>RANGE</strong>
+                                    <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${input.distance.toFixed(1)}m</div>
                                 </div>
                                 <div class="solution-item">
-                                    <strong>BEARING</strong>
-                                    <div class="value">${solutions[0].azimuthMils} mils</div>
-                                    <div style="color: #95a585; font-size: 12px;">(${input.bearing.toFixed(1)}°)</div>
+                                    <strong>AZIMUTH</strong>
+                                    <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solutions[0].azimuthMils} mils</div>
+                                    <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${input.bearing.toFixed(1)}°)</div>
                                 </div>
                                 <div class="solution-item">
-                                    <strong>HEIGHT DIFF</strong>
-                                    <div class="value">${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m</div>
-                                    <div style="color: #95a585; font-size: 12px;">${input.heightDifference > 0 ? 'Target higher' : input.heightDifference < 0 ? 'Target lower' : 'Same level'}</div>
+                                    <strong>ALT DIFF</strong>
+                                    <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m</div>
+                                    <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">${input.heightDifference > 0 ? 'Target higher' : input.heightDifference < 0 ? 'Target lower' : 'Same level'}</div>
                                 </div>
                             </div>
                         </div>
