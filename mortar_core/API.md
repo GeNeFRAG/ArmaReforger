@@ -564,8 +564,8 @@ Shell type availability depends on mortar type:
 | Type | Description | RUS | US |
 |------|-------------|-----|----|
 | `HE` | High Explosive | ✅ | ✅ |
-| `SMOKE` | Smoke Round | ✅ | ❌ |
-| `ILLUM` | Illumination | ✅ | ❌ |
+| `SMOKE` | Smoke Round | ✅ | ✅ |
+| `ILLUM` | Illumination | ✅ | ✅ |
 
 Shell types are dynamically loaded from `ballistic-data.json` using `getWeaponConfig()`.
 
