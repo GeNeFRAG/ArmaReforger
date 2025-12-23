@@ -578,6 +578,37 @@
             output.className = 'result';
         }
         
+        // Update correction preview to show doctrinal terms
+        function updateCorrectionPreview() {
+            const correctionLRInput = document.getElementById('correctionLR');
+            const correctionADInput = document.getElementById('correctionAD');
+            const correctionPreview = document.getElementById('correctionPreview');
+            const correctionText = document.getElementById('correctionText');
+            
+            const lr = parseFloat(correctionLRInput.value) || 0;
+            const ad = parseFloat(correctionADInput.value) || 0;
+            
+            if (lr === 0 && ad === 0) {
+                correctionPreview.style.display = 'none';
+                return;
+            }
+            
+            const lrText = lr === 0 ? '' : (lr > 0 ? `Right ${Math.abs(lr)}` : `Left ${Math.abs(lr)}`);
+            const adText = ad === 0 ? '' : (ad > 0 ? `Add ${Math.abs(ad)}` : `Drop ${Math.abs(ad)}`);
+            
+            let resultText = '';
+            if (lrText && adText) {
+                resultText = `${lrText}, ${adText}`;
+            } else if (lrText) {
+                resultText = lrText;
+            } else if (adText) {
+                resultText = adText;
+            }
+            
+            correctionText.textContent = resultText;
+            correctionPreview.style.display = 'block';
+        }
+        
         // Apply fire correction to target position
         function applyFireCorrectionUI() {
             const correctionLR = parseFloat(document.getElementById('correctionLR').value) || 0;
@@ -799,36 +830,9 @@
                 correctionControls.style.display = this.checked ? 'block' : 'none';
             });
             
-            // Fire Correction preview update
+            // Fire Correction preview update - attach event listeners
             const correctionLRInput = document.getElementById('correctionLR');
             const correctionADInput = document.getElementById('correctionAD');
-            const correctionPreview = document.getElementById('correctionPreview');
-            const correctionText = document.getElementById('correctionText');
-            
-            function updateCorrectionPreview() {
-                const lr = parseFloat(correctionLRInput.value) || 0;
-                const ad = parseFloat(correctionADInput.value) || 0;
-                
-                if (lr === 0 && ad === 0) {
-                    correctionPreview.style.display = 'none';
-                    return;
-                }
-                
-                const lrText = lr === 0 ? '' : (lr > 0 ? `Right ${Math.abs(lr)}` : `Left ${Math.abs(lr)}`);
-                const adText = ad === 0 ? '' : (ad > 0 ? `Add ${Math.abs(ad)}` : `Drop ${Math.abs(ad)}`);
-                
-                let resultText = '';
-                if (lrText && adText) {
-                    resultText = `${lrText}, ${adText}`;
-                } else if (lrText) {
-                    resultText = lrText;
-                } else if (adText) {
-                    resultText = adText;
-                }
-                
-                correctionText.textContent = resultText;
-                correctionPreview.style.display = 'block';
-            }
             
             correctionLRInput.addEventListener('input', updateCorrectionPreview);
             correctionADInput.addEventListener('input', updateCorrectionPreview);
