@@ -429,7 +429,7 @@
                     <div class="form-group">
                         <label for="correctionAD">Add/Drop Correction (meters)</label>
                         <input type="number" id="correctionAD" placeholder="0" step="1" value="0">
-                        <small style="color: #999; display: block; margin-top: 5px;">- = Add (raise elevation), + = Drop (lower elevation)</small>
+                        <small style="color: #999; display: block; margin-top: 5px;">- = Drop (raise elevation/shoot closer), + = Add (lower elevation/shoot farther)</small>
                     </div>
                 </div>
                 
@@ -614,7 +614,10 @@
             const correctionLR = parseFloat(document.getElementById('correctionLR').value) || 0;
             const correctionAD = parseFloat(document.getElementById('correctionAD').value) || 0;
             
-            if (correctionLR === 0 && correctionAD === 0) {
+            // Reverse Add/Drop sign: negative input should move closer (raise elevation)
+            const reversedAD = -correctionAD;
+            
+            if (correctionLR === 0 && reversedAD === 0) {
                 return;
             }
             
@@ -652,7 +655,7 @@
                 }
                 
                 // Apply fire correction
-                const corrected = MortarCalculator.applyFireCorrection(mortarPos, targetPos, correctionLR, correctionAD);
+                const corrected = MortarCalculator.applyFireCorrection(mortarPos, targetPos, correctionLR, reversedAD);
                 
                 // Update target fields with corrected position and highlight in red
                 const targetXInput = document.getElementById('targetX');

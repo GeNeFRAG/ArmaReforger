@@ -203,13 +203,10 @@ function applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) {
     const bearingRad = (bearing * Math.PI) / 180;
     
     // Apply corrections:
-    // Apply corrections:
     // Left/Right is perpendicular to bearing (subtract 90° for right, add 90° for left)
-    // Add/Drop: bearing vector points away from mortar, so we negate to make:
-    //   negative input (Drop) = move backwards towards mortar = shorter range = raise elevation
-    //   positive input (Add) = move farther from mortar = longer range = lower elevation  
-    const correctedX = targetPos.x + leftRight * Math.cos(bearingRad - Math.PI/2) - addDrop * Math.cos(bearingRad);
-    const correctedY = targetPos.y + leftRight * Math.sin(bearingRad - Math.PI/2) - addDrop * Math.sin(bearingRad);
+    // Add/Drop along bearing: positive = away from mortar, negative = towards mortar
+    const correctedX = targetPos.x + leftRight * Math.cos(bearingRad - Math.PI/2) + addDrop * Math.cos(bearingRad);
+    const correctedY = targetPos.y + leftRight * Math.sin(bearingRad - Math.PI/2) + addDrop * Math.sin(bearingRad);
     
     return {
         x: correctedX,
