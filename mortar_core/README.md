@@ -13,14 +13,17 @@ Part of the [ArmaReforger](../README.md) project.
 Visit **[armamortars.org](https://armamortars.org)** for the online calculator, or open [index.html](index.html) locally.
 
 **Features:**
-- 🎯 Grid coordinate input (3-digit 10m & 4-digit 1m precision)
+- 🎯 Grid coordinate input (3-digit 100m & 4-digit 10m precision)
 - 📏 Traditional meter coordinates
 - 🔄 Toggle between input modes (auto-clears on switch)
 - 🎯 Fire correction system (Left/Right, Add/Drop adjustments)
-- � Fire for Effect patterns (Lateral/Linear sheaf, Circular saturation)
-- �📊 Trajectory visualization
-- 🎨 Multiple firing solutions with comparison charts
+- 💥 Fire for Effect patterns (Lateral/Linear sheaf, Circular saturation)
+- 📊 Trajectory visualization with comparison charts
+- 🎨 Multiple firing solutions with charge options
 - 🔴 Visual feedback for corrected values (red highlighting)
+- 🔄 Auto-recalculation when toggling FFE on/off
+- 📐 Sorted FFE rounds by azimuth for easier gun traverse
+- 🎯 Unified fire mission display format
 - 🔄 Reset button to clear all inputs and outputs
 
 ### Node.js
@@ -120,11 +123,11 @@ parsePosition(position) → Position3D
 ### Grid Coordinate Examples
 
 ```javascript
-// Using grid coordinates (3-digit = center of 10m square)
+// Using grid coordinates (3-digit = center of 100m square, 4-digit = center of 10m square)
 const solution = MortarCalculator.calculate(
     MortarCalculator.prepareInput(
-        { grid: "047/069", z: 15 },  // Mortar at 475m/695m, elevation 15m
-        { grid: "085/105", z: 25 },  // Target at 855m/1055m, elevation 25m
+        { grid: "047/069", z: 15 },  // Mortar at 4750m/6950m, elevation 15m
+        { grid: "085/105", z: 25 },  // Target at 8550m/10550m, elevation 25m
         "US",
         "HE"
     )
@@ -150,6 +153,9 @@ MortarCalculator.metersToGrid(475, 695, true);  // → "0475/0695"
 calculateDistance(pos1, pos2)
 calculateHorizontalDistance(pos1, pos2)
 calculateBearing(pos1, pos2)
+
+// FFE utilities
+sortFFESolutionsByAzimuth(solutions)
 ```
 
 ### Fire Correction Example
@@ -170,6 +176,20 @@ const correctedTarget = MortarCalculator.applyFireCorrection(
 ```javascript
 // Lateral sheaf - 5 rounds spread perpendicular to line of fire, 50m apart
 const lateralTargets = MortarCalculator.generateFireForEffectPattern(
+    mortarPos,
+    targetPos,
+    5,                  // Number of rounds
+    50,                 // Spread distance (meters)
+    'lateral'           // Pattern type
+);
+
+// Sort FFE solutions by azimuth for easier gun traverse (single direction)
+const solutions = lateralTargets.map(target => 
+    MortarCalculator.calculate(MortarCalculator.prepareInput(
+        mortarPos, target, 'mortar_82mm', 'mortar_he'
+    ))
+);
+const sortedSolutions = MortarCalculator.sortFFESolutionsByAzimuth(solutions);
     mortarPos,          // {x: 4750, y: 6950, z: 15}
     targetPos,          // {x: 8550, y: 10500, z: 25}
     'perpendicular',    // Pattern type

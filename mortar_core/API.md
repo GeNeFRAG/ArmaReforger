@@ -9,9 +9,10 @@
 - ✅ Pure JavaScript - no external dependencies
 - ✅ Framework-agnostic - works in Node.js and browsers
 - ✅ Coordinate-system independent - uses simple 3D positions
-- ✅ **Grid coordinate support** - 3-digit (10m) and 4-digit (1m) precision
+- ✅ **Grid coordinate support** - 3-digit (100m) and 4-digit (10m) precision
 - ✅ **Fire correction system** - Observer-based adjustments (Left/Right, Add/Drop)
 - ✅ **Fire for Effect patterns** - Lateral/Linear sheaf, Circular saturation
+- ✅ **FFE sorting** - Sort FFE solutions by azimuth for optimal gun traverse
 - ✅ Comprehensive JSDoc type definitions
 - ✅ Height correction support
 - ✅ Automatic charge selection
@@ -209,8 +210,8 @@ Convert 3D positions or grid coordinates into calculator input.
 ```
 
 **Grid String Format:**
-- 3-digit format: `"047/069"` - 10m precision (center of square)
-- 4-digit format: `"0475/0695"` - 1m precision
+- 3-digit format: `"047/069"` - 100m precision (center of square)
+- 4-digit format: `"0475/0695"` - 10m precision
 
 **Returns:**
 - `CalculatorInput` - Ready for `calculate()`
@@ -233,8 +234,8 @@ const solution = MortarCalculator.calculate(input);
 **Example with grid coordinates:**
 ```javascript
 const input = MortarCalculator.prepareInput(
-    "047/069",    // Mortar at grid 047/069 (475m, 695m)
-    "058/071",    // Target at grid 058/071 (585m, 715m)
+    "047/069",    // Mortar at grid 047/069 (4750m, 6950m)
+    "058/071",    // Target at grid 058/071 (5850m, 7150m)
     "US",
     "HE"
 );
@@ -474,6 +475,53 @@ fireMission.forEach(round => {
 
 ---
 
+#### `sortFFESolutionsByAzimuth(solutions)`
+
+Sort Fire for Effect firing solutions by azimuth for easier gun traverse (single direction).
+
+**Parameters:**
+- `solutions` (Array<FiringSolution>) - Array of firing solutions to sort
+
+**Returns:**
+- `Array<FiringSolution>` - New array sorted by azimuth (ascending), with round numbers renumbered sequentially
+
+**Use Case:**
+When conducting Fire for Effect, gunners must traverse the gun between rounds. Sorting by azimuth allows the gunner to adjust in a single direction (clockwise) rather than swinging back and forth, improving speed and accuracy.
+
+**Example:**
+```javascript
+const mortarPos = { x: 4750, y: 6950, z: 15 };
+const targetPos = { x: 8550, y: 10500, z: 25 };
+
+// Generate lateral sheaf pattern
+const targets = MortarCalculator.generateFireForEffectPattern(
+    mortarPos, targetPos, 'perpendicular', 5, 50
+);
+
+// Calculate solutions for each target
+const solutions = targets.map(target => 
+    MortarCalculator.calculate(
+        MortarCalculator.prepareInput(mortarPos, target, "US", "HE")
+    )
+);
+
+// Sort by azimuth for optimal gun traverse
+const sortedSolutions = MortarCalculator.sortFFESolutionsByAzimuth(solutions);
+
+// Display fire commands in optimal order
+sortedSolutions.forEach((sol, idx) => {
+    console.log(`Round ${idx + 1}: Az ${sol.azimuth}°, El ${sol.elevation} mils, Charge ${sol.charge}`);
+});
+// Output:
+// Round 1: Az 52.3°, El 1245 mils, Charge 3
+// Round 2: Az 54.1°, El 1238 mils, Charge 3
+// Round 3: Az 56.8°, El 1229 mils, Charge 3
+// Round 4: Az 58.4°, El 1224 mils, Charge 3
+// Round 5: Az 60.2°, El 1218 mils, Charge 3
+```
+
+---
+
 ### Geometry Utilities
 
 #### `calculateDistance(pos1, pos2)`
@@ -555,24 +603,24 @@ Convert Arma Reforger grid coordinates to meter coordinates.
 - `Object` - `{ x, y }` coordinates in meters
 
 **Grid Format:**
-- **3-digit format:** `"047/069"` represents a 10m×10m grid square
-  - Converts to the center of the square (475m, 695m)
-- **4-digit format:** `"0475/0695"` represents exact 1m precision
-  - Converts to exact position (475m, 695m)
+- **3-digit format:** `"047/069"` represents a 100m×100m grid square
+  - Converts to the center of the square (4750m, 6950m)
+- **4-digit format:** `"0475/0695"` represents exact 10m precision
+  - Converts to exact position (4750m, 6950m)
 
 **Example:**
 ```javascript
-// 3-digit grid (10m precision) - returns center of square
+// 3-digit grid (100m precision) - returns center of square
 const pos1 = MortarCalculator.parseGridToMeters("047/069");
-// Returns: { x: 475, y: 695 }
+// Returns: { x: 4750, y: 6950 }
 
-// 4-digit grid (1m precision) - exact position
+// 4-digit grid (10m precision) - exact position
 const pos2 = MortarCalculator.parseGridToMeters("0584/0713");
-// Returns: { x: 584, y: 713 }
+// Returns: { x: 5840, y: 7130 }
 
 // Mixed precision
 const pos3 = MortarCalculator.parseGridToMeters("004/128");
-// Returns: { x: 45, y: 1285 }
+// Returns: { x: 450, y: 12850 }
 ```
 
 ---
@@ -591,12 +639,12 @@ Convert meter coordinates to Arma Reforger grid format.
 
 **Example:**
 ```javascript
-// Convert to 3-digit grid (10m precision)
-const grid1 = MortarCalculator.metersToGrid(475, 695);
+// Convert to 3-digit grid (100m precision)
+const grid1 = MortarCalculator.metersToGrid(4750, 6950);
 // Returns: "047/069"
 
-// Convert to 4-digit grid (1m precision)
-const grid2 = MortarCalculator.metersToGrid(584, 713, true);
+// Convert to 4-digit grid (10m precision)
+const grid2 = MortarCalculator.metersToGrid(5840, 7130, true);
 // Returns: "0584/0713"
 
 // With decimals (rounds down)
