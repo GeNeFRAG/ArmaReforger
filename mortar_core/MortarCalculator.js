@@ -278,33 +278,79 @@ function generateFireForEffectPattern(mortarPos, targetPos, patternType, numRoun
 }
 
 /**
- * Generate circular pattern positions
+ * Generate circular pattern positions using concentric rings
  * 
- * Engage area targets with 360° coverage using a circular impact pattern.
- * Ideal for saturating large area targets or suspected enemy positions.
+ * Engage area targets with multi-ring coverage pattern.
+ * Uses center point + outer ring(s) for better area saturation.
  * Works with corrected target coordinates from observer adjustments.
  * 
  * @param {Position3D} targetPos - Center target position {x, y, z} (can be corrected coordinates)
- * @param {number} radius - Radius of circle in meters
+ * @param {number} radius - Maximum radius in meters
  * @param {number} numRounds - Number of rounds (3-12)
  * @returns {Array<Position3D>} Array of target positions for each round
  * @example
- * // 6 rounds in a circle, 100m radius for area saturation
+ * // 6 rounds: 1 center + 5 outer ring, max radius 100m
  * const positions = generateCircularPattern(target, 100, 6);
  */
 function generateCircularPattern(targetPos, radius, numRounds) {
     const positions = [];
     
-    // Distribute rounds evenly around the circle
-    const angleStep = (2 * Math.PI) / numRounds;
-    
-    for (let i = 0; i < numRounds; i++) {
-        const angle = i * angleStep;
-        positions.push({
-            x: targetPos.x + radius * Math.cos(angle),
-            y: targetPos.y + radius * Math.sin(angle),
-            z: targetPos.z
-        });
+    if (numRounds === 1) {
+        // Single round at center
+        positions.push({ x: targetPos.x, y: targetPos.y, z: targetPos.z });
+    } else if (numRounds === 3) {
+        // 3 rounds: center + 2 on outer ring (180° apart)
+        positions.push({ x: targetPos.x, y: targetPos.y, z: targetPos.z });
+        for (let i = 0; i < 2; i++) {
+            const angle = i * Math.PI;
+            positions.push({
+                x: targetPos.x + radius * Math.cos(angle),
+                y: targetPos.y + radius * Math.sin(angle),
+                z: targetPos.z
+            });
+        }
+    } else if (numRounds <= 6) {
+        // 4-6 rounds: center + outer ring
+        positions.push({ x: targetPos.x, y: targetPos.y, z: targetPos.z });
+        const outerRounds = numRounds - 1;
+        const angleStep = (2 * Math.PI) / outerRounds;
+        for (let i = 0; i < outerRounds; i++) {
+            const angle = i * angleStep;
+            positions.push({
+                x: targetPos.x + radius * Math.cos(angle),
+                y: targetPos.y + radius * Math.sin(angle),
+                z: targetPos.z
+            });
+        }
+    } else {
+        // 7-12 rounds: center + inner ring + outer ring
+        positions.push({ x: targetPos.x, y: targetPos.y, z: targetPos.z });
+        
+        const remainingRounds = numRounds - 1;
+        const innerRounds = Math.floor(remainingRounds / 2);
+        const outerRounds = remainingRounds - innerRounds;
+        
+        const innerRadius = radius * 0.5;
+        const innerAngleStep = (2 * Math.PI) / innerRounds;
+        for (let i = 0; i < innerRounds; i++) {
+            const angle = i * innerAngleStep;
+            positions.push({
+                x: targetPos.x + innerRadius * Math.cos(angle),
+                y: targetPos.y + innerRadius * Math.sin(angle),
+                z: targetPos.z
+            });
+        }
+        
+        const outerAngleStep = (2 * Math.PI) / outerRounds;
+        const angleOffset = Math.PI / outerRounds;
+        for (let i = 0; i < outerRounds; i++) {
+            const angle = i * outerAngleStep + angleOffset;
+            positions.push({
+                x: targetPos.x + radius * Math.cos(angle),
+                y: targetPos.y + radius * Math.sin(angle),
+                z: targetPos.z
+            });
+        }
     }
     
     return positions;
