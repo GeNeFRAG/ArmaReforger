@@ -7,7 +7,7 @@
     <!-- Primary Meta Tags -->
     <title>Arma Reforger Military Ballistic Calculator for planning Mortar Fire Missions</title>
     <meta name="title" content="Arma Reforger Military Ballistic Calculator for planning Mortar Fire Missions">
-    <meta name="description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing missions with grid coordinates, elevation, azimuth, fire for effect and time of flight. Supports US 60mm and Russian 82mm mortars.">
+    <meta name="description" content="Free online ballistic calculator for Arma Reforger. Calculate precise firing missions with grid coordinates, elevation, azimuth, fire for effect and time of flight. Supports US 60mm and Russian 82mm mortars in the moment.">
     <meta name="keywords" content="arma reforger, mortar calculator, firing missons, ballistics, grid coordinates, artillery calculator, mil system, US mortar, Russian mortar, game tool">
     <meta name="author" content="ArmaMortars.org">
     <meta name="robots" content="index, follow">
@@ -24,8 +24,8 @@
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:url" content="https://armamortars.org/">
-    <meta name="twitter:title" content="Arma Reforger Mortar Calculator">
-    <meta name="twitter:description" content="Free online mortar calculator for Arma Reforger. Calculate precise firing missons with grid coordinates.">
+    <meta name="twitter:title" content="Arma Reforger Ballistic Calculator">
+    <meta name="twitter:description" content="Free online ballistic calculator for Arma Reforger. Calculate precise mortar firing missons in Arma Reforger with grid coordinates.">
     <meta name="twitter:image" content="https://armamortars.org/icon.png">
     
     <!-- Favicon -->
@@ -40,9 +40,9 @@
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "Arma Reforger Mortar Calculator",
+      "name": "Arma Reforger Ballistic Calculator",
       "url": "https://armamortars.org/",
-      "description": "Calculate precise mortar firing missons for Arma Reforger with grid coordinates, elevation, and ballistics data",
+      "description": "Calculate precise firing missons for Arma Reforger Mortar Weapon Systems with grid coordinates, elevation, ballistics data, fire corrections and fire for effect patterns.",
       "applicationCategory": "GameApplication",
       "operatingSystem": "Any",
       "offers": {
@@ -93,6 +93,7 @@
             font-weight: 600;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             font-size: 1.8em;
+            text-align: center;
         }
         h2 {
             color: #b8c7a0;
@@ -290,7 +291,7 @@
     <!-- Main Header -->
     <header class="header">
         <img src="https://vectorseek.com/wp-content/uploads/2023/07/Arma-Reforger-Logo-Vector.svg-.png" alt="Arma Reforger Logo - Mortar Calculator" class="logo">
-        <h1>Military Ballistic Fire Mission Calculator</h1>
+        <h1>ARMA REFORGER Military Ballistic Fire Mission Planner</h1>
     </header>
     
     <!-- Main Content -->
@@ -299,7 +300,7 @@
     
     <div id="app" style="display: none;">
         <div class="info">
-            ℹ️ Enter mortar and target coordinates to calculate firing mission. Charge is automatically selected for optimal range.
+            ℹ️ Enter weapon system and target coordinates to calculate firing mission. Mortar charge is automatically selected for optimal range.
         </div>
         
         <div class="toggle-container">
@@ -315,11 +316,11 @@
         </div>
         
         <div class="container">
-            <h2>1️⃣ Weapon System</h2>
+            <h2>1️⃣ Weapon System and Ammunition</h2>
             
             <div class="row">
                 <div class="form-group">
-                    <label for="mortarType">Mortar Type</label>
+                    <label for="mortarType">Weapon System Type</label>
                     <select id="mortarType">
                         <!-- Populated dynamically from ballistic-data.json -->
                     </select>
@@ -403,46 +404,7 @@
                     📍 Range, Azimuth, and Height Difference will be computed automatically from coordinates
                 </div>
             
-            <h2>3️⃣ Fire Correction (Optional)</h2>
-            
-            <div class="info" style="margin-bottom: 15px;">
-                💡 Adjust target based on observer corrections. Format: "Left 10, Add 20" or "Right 8, Drop 10"
-            </div>
-            
-            <div class="row">
-                <div class="form-group">
-                    <label for="correctionEnabled">
-                        <input type="checkbox" id="correctionEnabled" style="margin-right: 8px; width: auto; height: auto;">
-                        Enable Fire Correction
-                    </label>
-                </div>
-            </div>
-            
-            <div id="correctionControls" style="display: none;">
-                <div class="row">
-                    <div class="form-group">
-                        <label for="correctionLR">Left/Right Correction (meters)</label>
-                        <input type="number" id="correctionLR" placeholder="0" step="1" value="0">
-                        <small style="color: #999; display: block; margin-top: 5px;">+ = Right, - = Left</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="correctionAD">Add/Drop Correction (meters)</label>
-                        <input type="number" id="correctionAD" placeholder="0" step="1" value="0">
-                        <small style="color: #999; display: block; margin-top: 5px;">- = Drop (shoot closer/raise elevation), + = Add (shoot farther/lower elevation)</small>
-                    </div>
-                </div>
-                
-                <div id="correctionPreview" style="margin-top: 10px; padding: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 5px; font-size: 14px; color: #ffa726; display: none;">
-                    📍 <strong>Resulting correction:</strong> <span id="correctionText">Right 0, Add 0</span>
-                </div>
-                
-                <button id="applyCorrection" style="background: linear-gradient(180deg, #d68910 0%, #c77808 100%); border-color: #b56907; margin-bottom: 20px;">
-                    🔄 Apply Correction
-                </button>
-            </div>
-            
-            <h2>4️⃣ Fire for Effect (Optional)</h2>
+            <h2>3️⃣ Fire for Effect (Optional)</h2>
             
             <div class="info" style="margin-bottom: 15px;">
                 🎯 Engage area targets with multiple rounds. <strong>Lateral sheaf</strong> for width coverage, <strong>linear sheaf</strong> for depth penetration, <strong>circular pattern</strong> for 360° area saturation. <strong>Uses corrected target coordinates if applied.</strong>
@@ -495,8 +457,8 @@
             </div>
             
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button id="calculate" style="flex: 3;">Compute Fire Mission</button>
-                <button id="reset" style="flex: 1; background: linear-gradient(180deg, #666 0%, #555 100%);">Reset</button>
+                <button id="calculate" style="flex: 3; transition: transform 0.1s ease, box-shadow 0.1s ease;" onmousedown="this.style.transform='scale(0.95)'; this.style.boxShadow='0 0 20px rgba(143, 188, 30, 0.8)';" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='none';" onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='none';">Compute Fire Mission</button>
+                <button id="reset" style="flex: 1; background: linear-gradient(180deg, #666 0%, #555 100%); transition: transform 0.1s ease, box-shadow 0.1s ease;" onmousedown="this.style.transform='scale(0.95)'; this.style.boxShadow='0 0 20px rgba(255, 107, 107, 0.6)';" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='none';" onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='none';">Reset</button>
             </div>
         </div>
         
@@ -506,7 +468,7 @@
     
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
-        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator</p>
+        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.3.7</span></p>
         <p>Accurate ballistic calculations for US 60mm & Russian 82mm mortars | Grid coordinate support</p>
         <p>
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
@@ -515,7 +477,7 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.3.6"></script>
+    <script src="MortarCalculator.js?v=1.3.7"></script>
     <script>
         let ballisticDataLoaded = false;
         
@@ -555,12 +517,6 @@
             
             // Reset correction flag
             window.correctionApplied = false;
-            
-            // Reset Fire Correction
-            document.getElementById('correctionEnabled').checked = false;
-            document.getElementById('correctionControls').style.display = 'none';
-            document.getElementById('correctionLR').value = 0;
-            document.getElementById('correctionAD').value = 0;
             
             // Reset Fire for Effect
             document.getElementById('ffeEnabled').checked = false;
@@ -673,20 +629,13 @@
                 }
                 
                 // Store previous charge before recalculation
-                window.previousCharge = window.lastSolution ? window.lastSolution.charge : null;
+                window.previousCharge = window.selectedCharge || (window.lastSolution ? window.lastSolution.charge : null);
                 
                 // Mark that correction was applied (for highlighting output)
                 window.correctionApplied = true;
                 
-                // Automatically recalculate firing mission
+                // Automatically recalculate firing mission with SELECTED CHARGE
                 calculateSolution();
-                
-                // Reset correction input fields
-                document.getElementById('correctionLR').value = 0;
-                document.getElementById('correctionAD').value = 0;
-                
-                // Hide the correction preview
-                updateCorrectionPreview();
                 
             } catch (error) {
                 console.error('Correction error:', error);
@@ -822,24 +771,6 @@
             
             calculateBtn.addEventListener('click', calculateSolution);
             
-            // Apply correction button
-            const applyCorrectionBtn = document.getElementById('applyCorrection');
-            applyCorrectionBtn.addEventListener('click', applyFireCorrectionUI);
-            
-            // Fire Correction toggle
-            const correctionEnabled = document.getElementById('correctionEnabled');
-            const correctionControls = document.getElementById('correctionControls');
-            correctionEnabled.addEventListener('change', function() {
-                correctionControls.style.display = this.checked ? 'block' : 'none';
-            });
-            
-            // Fire Correction preview update - attach event listeners
-            const correctionLRInput = document.getElementById('correctionLR');
-            const correctionADInput = document.getElementById('correctionAD');
-            
-            correctionLRInput.addEventListener('input', updateCorrectionPreview);
-            correctionADInput.addEventListener('input', updateCorrectionPreview);
-            
             // Fire for Effect toggle
             const ffeEnabled = document.getElementById('ffeEnabled');
             const ffeControls = document.getElementById('ffeControls');
@@ -888,13 +819,6 @@
                 // Reset correction flag
                 window.correctionApplied = false;
                 
-                // Reset Fire Correction
-                document.getElementById('correctionEnabled').checked = false;
-                document.getElementById('correctionControls').style.display = 'none';
-                document.getElementById('correctionLR').value = 0;
-                document.getElementById('correctionAD').value = 0;
-                updateCorrectionPreview();
-                
                 // Reset Fire for Effect
                 document.getElementById('ffeEnabled').checked = false;
                 document.getElementById('ffeControls').style.display = 'none';
@@ -925,11 +849,161 @@
                     if (e.key === 'Enter') calculateSolution();
                 });
             });
+            
+            // Setup event delegation for dynamically created correction controls
+            document.addEventListener('input', function(e) {
+                if (e.target.id === 'correctionLR' || e.target.id === 'correctionAD') {
+                    updateCorrectionPreview();
+                }
+            });
         });
+        
+        // Toggle visibility of alternative fire missions
+        function toggleAlternativeMissions() {
+            const altMissions = document.querySelectorAll('.alternativeMission');
+            const btn = document.getElementById('toggleAltBtn');
+            const isHidden = altMissions[0] && altMissions[0].style.display === 'none';
+            
+            altMissions.forEach(mission => {
+                mission.style.display = isHidden ? 'block' : 'none';
+            });
+            
+            if (btn) {
+                btn.textContent = isHidden 
+                    ? `▲ Hide Alternative Mission${altMissions.length > 1 ? 's' : ''}`
+                    : `▼ Show ${altMissions.length} Alternative Mission${altMissions.length > 1 ? 's' : ''}`;
+            }
+        }
+        
+        // Select a specific fire mission for correction
+        function selectMission(charge) {
+            window.selectedCharge = charge;
+            
+            // Store the original optimal charge if not already stored
+            if (window.originalOptimalCharge === undefined && window.lastSolutions && window.lastSolutions.length > 0) {
+                window.originalOptimalCharge = window.lastSolutions[0].charge;
+            }
+            
+            // Find the correction widget and all mission elements
+            const correctionWidget = document.getElementById('fireCorrectionWidget');
+            const selectedBtn = document.getElementById(`selectBtn_${charge}`);
+            
+            if (correctionWidget && selectedBtn) {
+                // Find the selected mission card
+                const selectedCard = selectedBtn.closest('div[style*="background"]');
+                
+                if (selectedCard && selectedCard.parentNode) {
+                    // Get all solution cards
+                    const solutions = window.lastSolutions || [];
+                    const allCards = [];
+                    
+                    solutions.forEach(sol => {
+                        const btn = document.getElementById(`selectBtn_${sol.charge}`);
+                        if (btn) {
+                            const card = btn.closest('div[style*="background"]');
+                            if (card) {
+                                allCards.push({ charge: sol.charge, card: card });
+                            }
+                        }
+                    });
+                    
+                    // Find the parent container
+                    const container = selectedCard.parentNode;
+                    
+                    // Store the toggle button and alternative missions
+                    const toggleBtn = document.getElementById('toggleAltBtn');
+                    
+                    // Remove all mission cards temporarily
+                    allCards.forEach(item => {
+                        if (item.card.parentNode) {
+                            item.card.remove();
+                        }
+                    });
+                    
+                    // Remove toggle button and correction widget temporarily
+                    if (correctionWidget.parentNode) correctionWidget.remove();
+                    if (toggleBtn && toggleBtn.parentNode) toggleBtn.remove();
+                    
+                    // Find the selected card object
+                    const selectedCardObj = allCards.find(item => item.charge === charge);
+                    const otherCards = allCards.filter(item => item.charge !== charge);
+                    
+                    // Re-insert in new order
+                    if (selectedCardObj) {
+                        // Insert selected mission first (make it optimal)
+                        container.appendChild(selectedCardObj.card);
+                        selectedCardObj.card.style.display = 'block';
+                        selectedCardObj.card.removeAttribute('id');
+                        selectedCardObj.card.classList.remove('alternativeMission');
+                        
+                        // Update styling to optimal
+                        selectedCardObj.card.style.background = 'rgba(40, 55, 45, 0.9)';
+                        selectedCardObj.card.style.border = '2px solid #6b8e23';
+                        
+                        // Update title in the selected card
+                        const title = selectedCardObj.card.querySelector('h3');
+                        if (title) {
+                            title.innerHTML = `🎯 Optimal Fire Mission - Charge ${charge}`;
+                        }
+                        
+                        // Insert correction widget
+                        container.appendChild(correctionWidget);
+                        correctionWidget.style.display = 'block';
+                        
+                        // Insert toggle button if there are alternatives
+                        if (otherCards.length > 0 && toggleBtn) {
+                            container.appendChild(toggleBtn);
+                            toggleBtn.textContent = `▼ Show ${otherCards.length} Alternative Mission${otherCards.length > 1 ? 's' : ''}`;
+                        }
+                        
+                        // Insert other missions as alternatives (hidden)
+                        otherCards.forEach((item, index) => {
+                            item.card.id = `altMission_${index + 1}`;
+                            item.card.classList.add('alternativeMission');
+                            item.card.style.display = 'none';
+                            item.card.style.background = 'rgba(35, 45, 42, 0.7)';
+                            item.card.style.border = '1px solid #4a5a52';
+                            
+                            // Mark the original optimal charge
+                            const title = item.card.querySelector('h3');
+                            if (title && item.charge === window.originalOptimalCharge) {
+                                title.innerHTML = `⭐ Alternative Fire Mission - Charge ${item.charge} <span style="color: #ffd700; font-size: 11px;">(Original Optimal)</span>`;
+                            } else if (title) {
+                                title.innerHTML = `🔄 Alternative Fire Mission - Charge ${item.charge}`;
+                            }
+                            
+                            container.appendChild(item.card);
+                        });
+                    }
+                }
+            }
+            
+            // Update all buttons
+            const solutions = window.lastSolutions || [];
+            solutions.forEach(sol => {
+                const btn = document.getElementById(`selectBtn_${sol.charge}`);
+                if (btn) {
+                    if (sol.charge === charge) {
+                        btn.style.background = 'linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%)';
+                        btn.style.borderColor = '#8fbc1e';
+                        btn.textContent = '✓ Selected Mission';
+                    } else {
+                        btn.style.background = 'linear-gradient(180deg, #555 0%, #444 100%)';
+                        btn.style.borderColor = '#666';
+                        btn.textContent = 'Use This Mission';
+                    }
+                }
+            });
+            
+            // Update correction widget header
+            const chargeDisplay = document.getElementById('selectedChargeDisplay');
+            if (chargeDisplay) {
+                chargeDisplay.textContent = `(Charge ${charge})`;
+            }
+        }
         
         function calculateSolution() {
             if (!ballisticDataLoaded) {
-                alert('Ballistic data not loaded yet. Please wait...');
                 return;
             }
             
@@ -1134,7 +1208,20 @@
                 console.log('Input:', input);
                 
                 // Calculate all trajectory options
-                const solutions = MortarCalculator.calculateAllTrajectories(input);
+                let solutions = MortarCalculator.calculateAllTrajectories(input);
+                
+                // If correction was applied and a charge was selected, keep that charge as primary
+                if (window.correctionApplied && window.selectedCharge !== undefined && solutions.length > 0) {
+                    const selectedChargeIdx = solutions.findIndex(s => s.charge === window.selectedCharge);
+                    if (selectedChargeIdx > 0) {
+                        // Move selected charge to first position (keep as optimal)
+                        const selectedSolution = solutions.splice(selectedChargeIdx, 1)[0];
+                        solutions.unshift(selectedSolution);
+                    }
+                }
+                
+                // Store solutions globally for mission selection
+                window.lastSolutions = solutions;
                 
                 // Store the primary solution for charge change detection
                 if (solutions.length > 0 && solutions[0].inRange) {
@@ -1197,6 +1284,9 @@
                     // Store previous charge for highlighting (before clearing)
                     const previousChargeForDisplay = window.previousCharge;
                     
+                    let optimalMissionHTML = '';
+                    let alternativeMissionsHTML = '';
+                    
                     solutions.forEach((solution, index) => {
                         let trajectoryLabel;
                         if (index === 0) {
@@ -1220,8 +1310,8 @@
                             chargeDesc = `+${timeDiff.toFixed(1)}s slower, ${elevSign}${elevDiff} mils (${elevSign}${elevDegDiff.toFixed(1)}°) vs charge ${solutions[0].charge}`;
                         }
                         
-                        solutionsHTML += `
-                            <div style="background: ${index === 0 ? 'rgba(40, 55, 45, 0.9)' : 'rgba(35, 45, 42, 0.7)'}; padding: 15px; border-radius: 4px; margin-bottom: 10px; border: ${index === 0 ? '2px solid #6b8e23' : '1px solid #4a5a52'};">
+                        const missionHTML = `
+                            <div ${index > 0 ? 'id="altMission_' + index + '" class="alternativeMission"' : ''} style="${index > 0 ? 'display: none; ' : ''}background: ${index === 0 ? 'rgba(40, 55, 45, 0.9)' : 'rgba(35, 45, 42, 0.7)'}; padding: 15px; border-radius: 4px; margin-bottom: 10px; border: ${index === 0 ? '2px solid #6b8e23' : '1px solid #4a5a52'};">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                     <h3 style="margin: 0; font-size: 16px; color: ${index === 0 ? '#c8d4a0' : '#a8b898'};">
                                         ${trajectoryLabel} - Charge ${solution.charge}
@@ -1256,8 +1346,17 @@
                                 <div style="margin-top: 10px; padding: 8px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; font-size: 12px; color: #a8b898;">
                                     <strong>Charge Range:</strong> ${solution.minRange}m - ${solution.maxRange}m
                                 </div>
+                                <button onclick="selectMission(${solution.charge})" id="selectBtn_${solution.charge}" style="width: 100%; margin-top: 10px; padding: 8px; background: ${index === 0 ? 'linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%)' : 'linear-gradient(180deg, #555 0%, #444 100%)'}; border: 1px solid ${index === 0 ? '#8fbc1e' : '#666'}; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px; transition: transform 0.1s ease, box-shadow 0.1s ease;" onmousedown="this.style.transform='scale(0.95)'; this.style.boxShadow='0 0 20px rgba(143, 188, 30, 0.8)';" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='none';" onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                                    ${index === 0 ? '✓ Selected Mission' : 'Use This Mission'}
+                                </button>
                             </div>
                         `;
+                        
+                        if (index === 0) {
+                            optimalMissionHTML = missionHTML;
+                        } else {
+                            alternativeMissionsHTML += missionHTML;
+                        }
                     });
                     
                     output.innerHTML = `
@@ -1265,42 +1364,63 @@
                         
                         <div style="background: rgba(60, 75, 50, 0.4); padding: 12px; border-radius: 4px; border: 1px solid #6b8e23; margin-bottom: 15px; color: #d8e4b0;">
                             <strong>📐 Mil System:</strong> ${MortarCalculator.getMilSystemName(input.mortarType)} &nbsp;|&nbsp; 
-                            <strong>📏 Range:</strong> ${input.distance.toFixed(1)}m &nbsp;|&nbsp; 
+                            <strong style="${window.correctionApplied ? 'color: #ff6b6b;' : ''}">📏 Range:</strong> <span style="${window.correctionApplied ? 'color: #ff6b6b;' : ''}">${input.distance.toFixed(1)}m</span> &nbsp;|&nbsp; 
                             <strong>⛰️ Alt Diff:</strong> ${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m
                         </div>
                         
                         ${solutions.length > 1 ? '<div style="background: rgba(60, 75, 50, 0.4); padding: 12px; border-radius: 4px; border: 1px solid #6b8e23; margin-bottom: 15px; color: #d8e4b0;"><strong>💡 Multiple Charge Options Available:</strong><br><small>Lower charges are more accurate but have limited range. Higher charges reach further but are less precise. High angle trajectories can clear obstacles.</small></div>' : ''}
                         
                         <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Missions (${solutions.length}): <span style="font-size: 16px; color: #ffffff; font-weight: normal;"></span></h3>
-                        ${solutionsHTML}
+                        
+                        ${optimalMissionHTML}
+                        
+                        <!-- Inline Fire Correction Widget -->
+                        <div id="fireCorrectionWidget" style="display: none; background: rgba(40, 55, 45, 0.9); padding: 15px; border-radius: 4px; margin-bottom: 10px; border: 2px solid #6b8e23;">
+                            <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #c8d4a0;">🔄 Adjust Fire <span id="selectedChargeDisplay" style="color: #8fbc1e;">(Charge ${solutions[0].charge})</span></h3>
+                            <div>
+                                <div style="color: #95a585; font-size: 12px; margin-bottom: 12px;">
+                                    Apply military fire corrections. Left/Right adjusts azimuth. Add/Drop adjusts range/elevation.
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label style="display: block; color: #a8b898; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Left/Right (meters)</label>
+                                        <input type="number" id="correctionLR" placeholder="0" step="1" value="0" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
+                                        <small style="color: #7a8a7a; display: block; margin-top: 3px; font-size: 11px;">Left: negative, Right: positive</small>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; color: #a8b898; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Add/Drop (meters)</label>
+                                        <input type="number" id="correctionAD" placeholder="0" step="1" value="0" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
+                                        <small style="color: #7a8a7a; display: block; margin-top: 3px; font-size: 11px;">Add: farther, Drop: closer</small>
+                                    </div>
+                                </div>
+                                <button id="applyCorrection" onclick="const btn = this; btn.style.background = 'linear-gradient(180deg, #8fbc1e 0%, #7aaa18 100%)'; btn.style.transform = 'scale(0.95)'; btn.style.boxShadow = '0 0 20px rgba(143, 188, 30, 0.8)'; btn.textContent = '⏳ Applying...'; btn.disabled = true; setTimeout(() => { applyFireCorrectionUI(); }, 150);" style="width: 100%; padding: 10px; margin-top: 5px; background: linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%); border: 1px solid #8fbc1e; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.15s ease;">
+                                    Apply Fire Correction
+                                </button>
+                            </div>
+                        </div>
                         
                         ${solutions.length > 1 ? `
-                        <div style="background: rgba(35, 45, 42, 0.85); padding: 15px; border-radius: 4px; margin-top: 20px; margin-bottom: 15px; border: 1px solid #3a4a45;">
-                            <h3 style="margin-top: 0; font-size: 16px; color: #d8e4b0;">📊 Trajectory Comparison</h3>
-                            <svg width="100%" height="250" viewBox="0 0 600 250" style="background: #1a2422; border-radius: 4px;">
-                                <!-- Ground and labels -->
-                                <line x1="50" y1="220" x2="550" y2="220" stroke="#6b8e23" stroke-width="2"/>
-                                <text x="50" y="240" text-anchor="middle" font-size="11" fill="#95a585">0m</text>
-                                <text x="300" y="240" text-anchor="middle" font-size="11" fill="#95a585">${(input.distance/2).toFixed(0)}m</text>
-                                <text x="550" y="240" text-anchor="middle" font-size="11" fill="#95a585">${input.distance.toFixed(0)}m</text>
-                                
-                                <!-- Mortar marker -->
-                                <circle cx="50" cy="220" r="4" fill="#6b8e23"/>
-                                <text x="50" y="210" text-anchor="middle" font-size="10" fill="#c8d4a0" font-weight="bold">M</text>
-                                
-                                ${trajectorySVG}
-                            </svg>
-                        </div>
+                        <button onclick="toggleAlternativeMissions()" id="toggleAltBtn" style="width: 100%; padding: 10px; margin-top: 20px; background: linear-gradient(180deg, #555 0%, #444 100%); border: 1px solid #666; border-radius: 4px; color: #c8d4a0; font-weight: 600; cursor: pointer; font-size: 13px; transition: transform 0.1s ease, box-shadow 0.1s ease;" onmousedown="this.style.transform='scale(0.95)'; this.style.boxShadow='0 0 20px rgba(200, 212, 160, 0.5)';" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='none';" onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                            ▼ Show ${solutions.length - 1} Alternative Mission${solutions.length > 2 ? 's' : ''}
+                        </button>
                         ` : ''}
                         
-                        <div style="margin-top: 20px; padding: 15px; background: rgba(60, 75, 50, 0.4); border-radius: 4px; border: 1px solid #6b8e23; color: #d8e4b0;">
-                            <strong>🎯 Recommended Fire Mission</strong><br>
-                            <small>Charge ${solutions[0].charge} | Elevation ${solutions[0].elevation} mils | Azimuth ${solutions[0].azimuthMils} mils | TOF ${solutions[0].timeOfFlight}s</small>
-                        </div>
+                        ${alternativeMissionsHTML}
                     `;
                     
                     // Clear previous charge after output is complete
                     window.previousCharge = null;
+                    
+                    // Store original optimal charge for marking
+                    window.originalOptimalCharge = solutions[0].charge;
+                    
+                    // Initialize selected charge to optimal (first) solution and show correction widget
+                    window.selectedCharge = solutions[0].charge;
+                    
+                    // Auto-select optimal mission to show correction widget immediately
+                    setTimeout(() => {
+                        selectMission(solutions[0].charge);
+                    }, 50);
                 } else {
                     const solution = solutions[0];
                     output.classList.add('error');
