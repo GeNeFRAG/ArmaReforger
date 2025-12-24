@@ -506,7 +506,7 @@ function interpolateFromTable(rangeTable, distance) {
         elevation: elevation,
         tof: tof,
         dElev: dElev,
-        tofPer100m: tofPer100m
+        tofPer100m: parseFloat(tofPer100m.toFixed(2))
     };
 }
 
