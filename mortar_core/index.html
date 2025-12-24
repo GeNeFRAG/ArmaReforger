@@ -468,7 +468,7 @@
     
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
-        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.3.7</span></p>
+        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.3.8</span></p>
         <p>Accurate ballistic calculations for US 60mm & Russian 82mm mortars | Grid coordinate support</p>
         <p>
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
@@ -477,7 +477,7 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.3.7"></script>
+    <script src="MortarCalculator.js?v=1.3.8"></script>
     <script>
         let ballisticDataLoaded = false;
         
@@ -1090,17 +1090,31 @@
                         patternParam = ffeSpacing;
                     }
                     
-                    // Calculate solutions for each position
+                    // Calculate solutions for each position using consistent charge
                     const ffeSolutions = [];
+                    
+                    // First, determine optimal charge from center target
+                    const centerInput = MortarCalculator.prepareInput(mortarPos, targetParsed, mortarId, shellType);
+                    const centerSolutions = MortarCalculator.calculateAllTrajectories(centerInput);
+                    
+                    if (centerSolutions.length === 0 || !centerSolutions[0].inRange) {
+                        throw new Error('Center target out of range - cannot calculate FFE pattern');
+                    }
+                    
+                    // Use the optimal charge for all FFE rounds
+                    const ffeCharge = centerSolutions[0].charge;
+                    
                     targetPositions.forEach((pos, index) => {
                         const input = MortarCalculator.prepareInput(mortarPos, pos, mortarId, shellType);
+                        // Force the same charge for all FFE rounds
+                        input.chargeLevel = ffeCharge;
                         const solutions = MortarCalculator.calculateAllTrajectories(input);
                         if (solutions.length > 0 && solutions[0].inRange) {
                             ffeSolutions.push({
                                 roundNumber: index + 1,
                                 targetPos: pos,
                                 input: input,
-                                solution: solutions[0] // Use optimal solution
+                                solution: solutions[0]
                             });
                         }
                     });
@@ -1379,18 +1393,18 @@
                             <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #c8d4a0;">🔄 Adjust Fire <span id="selectedChargeDisplay" style="color: #8fbc1e;">(Charge ${solutions[0].charge})</span></h3>
                             <div>
                                 <div style="color: #95a585; font-size: 12px; margin-bottom: 12px;">
-                                    Apply military fire corrections. Left/Right adjusts azimuth. Add/Drop adjusts range/elevation.
+                                    Observer corrections: Left/Right shifts azimuth. Add/Drop changes range.
                                 </div>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                                     <div>
                                         <label style="display: block; color: #a8b898; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Left/Right (meters)</label>
                                         <input type="number" id="correctionLR" placeholder="0" step="1" value="0" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
-                                        <small style="color: #7a8a7a; display: block; margin-top: 3px; font-size: 11px;">Left: negative, Right: positive</small>
+                                        <small style="color: #7a8a7a; display: block; margin-top: 3px; font-size: 11px;">Right: +, Left: −</small>
                                     </div>
                                     <div>
                                         <label style="display: block; color: #a8b898; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Add/Drop (meters)</label>
                                         <input type="number" id="correctionAD" placeholder="0" step="1" value="0" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
-                                        <small style="color: #7a8a7a; display: block; margin-top: 3px; font-size: 11px;">Add: farther, Drop: closer</small>
+                                        <small style="color: #7a8a7a; display: block; margin-top: 3px; font-size: 11px;">Add: +, Drop: −</small>
                                     </div>
                                 </div>
                                 <button id="applyCorrection" onclick="const btn = this; btn.style.background = 'linear-gradient(180deg, #8fbc1e 0%, #7aaa18 100%)'; btn.style.transform = 'scale(0.95)'; btn.style.boxShadow = '0 0 20px rgba(143, 188, 30, 0.8)'; btn.textContent = '⏳ Applying...'; btn.disabled = true; setTimeout(() => { applyFireCorrectionUI(); }, 150);" style="width: 100%; padding: 10px; margin-top: 5px; background: linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%); border: 1px solid #8fbc1e; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.15s ease;">
