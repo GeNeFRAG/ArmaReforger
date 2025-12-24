@@ -1,6 +1,18 @@
 /**
  * Arma Reforger Mortar Ballistic Calculator
  * Framework-agnostic calculation engine
+ * 
+ * Features:
+ * - Precision ballistic calculations for mortar fire missions
+ * - Support for multiple mortar types (RUS/US) and shell types
+ * - Height correction for elevation differences
+ * - Fire for Effect (FFE) pattern generation:
+ *   - Lateral sheaf (perpendicular): Width coverage for area targets
+ *   - Linear sheaf (along-bearing): Depth penetration for linear targets
+ *   - Circular pattern: 360° area saturation
+ * - Fire correction support (observer adjustments)
+ * - Works with corrected target coordinates
+ * 
  * @module MortarCalculator
  */
 
@@ -219,15 +231,22 @@ function applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) {
 
 /**
  * Generate Fire for Effect pattern positions
- * Creates a linear pattern of impact points for area saturation
+ * 
+ * Engage area targets with multiple rounds using military fire patterns:
+ * - Lateral sheaf (perpendicular): Provides width coverage across the target area
+ * - Linear sheaf (along-bearing): Provides depth penetration through linear targets
+ * 
+ * Works with corrected target coordinates from observer adjustments.
+ * Pattern is symmetric around the center target position.
+ * 
  * @param {Position3D} mortarPos - Mortar position {x, y, z}
- * @param {Position3D} targetPos - Center target position {x, y, z}
- * @param {string} patternType - 'perpendicular' (left-right spread) or 'along-bearing' (depth spread)
+ * @param {Position3D} targetPos - Center target position {x, y, z} (can be corrected coordinates)
+ * @param {string} patternType - 'perpendicular' (lateral sheaf) or 'along-bearing' (linear sheaf)
  * @param {number} numRounds - Number of rounds (3-10)
  * @param {number} spacing - Spacing between impacts in meters
  * @returns {Array<Position3D>} Array of target positions for each round
  * @example
- * // 5 rounds perpendicular to line of fire, 50m apart
+ * // 5 rounds perpendicular to line of fire (lateral sheaf), 50m apart
  * const positions = generateFireForEffectPattern(mortar, target, 'perpendicular', 5, 50);
  * // positions[0] = 100m left, positions[2] = center, positions[4] = 100m right
  */
@@ -260,13 +279,17 @@ function generateFireForEffectPattern(mortarPos, targetPos, patternType, numRoun
 
 /**
  * Generate circular pattern positions
- * Creates rounds evenly distributed around a circle for area saturation
- * @param {Position3D} targetPos - Center target position {x, y, z}
+ * 
+ * Engage area targets with 360° coverage using a circular impact pattern.
+ * Ideal for saturating large area targets or suspected enemy positions.
+ * Works with corrected target coordinates from observer adjustments.
+ * 
+ * @param {Position3D} targetPos - Center target position {x, y, z} (can be corrected coordinates)
  * @param {number} radius - Radius of circle in meters
  * @param {number} numRounds - Number of rounds (3-12)
  * @returns {Array<Position3D>} Array of target positions for each round
  * @example
- * // 6 rounds in a circle, 100m radius
+ * // 6 rounds in a circle, 100m radius for area saturation
  * const positions = generateCircularPattern(target, 100, 6);
  */
 function generateCircularPattern(targetPos, radius, numRounds) {
@@ -408,6 +431,9 @@ function getAllMortarTypes() {
 // SECTION 4: Ballistic Solver
 // ============================================================================
 
+// Ballistic correction constants
+const HEIGHT_CORRECTION_FACTOR = 0.6;
+
 /**
  * Linear interpolation between two values
  * @param {number} x - Input value
@@ -497,7 +523,7 @@ function applyHeightCorrection(baseElevation, heightDifference, dElev) {
     let correction = (heightDifference / 100) * dElev;
     
     if (heightDifference < -100) {
-        correction *= 0.6;
+        correction *= HEIGHT_CORRECTION_FACTOR;
     }
     
     // Original engine SUBTRACTS the correction (which adds for negative heightDiff)
