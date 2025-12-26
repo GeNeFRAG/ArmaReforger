@@ -339,9 +339,17 @@
                 <!-- Grid Mode -->
                 <div id="mortarGridMode" class="coord-mode active">
                     <div class="form-group">
-                        <label for="mortarGrid">Grid Coordinates</label>
-                        <input type="text" id="mortarGrid" placeholder="047/069 or 0475/0695" style="font-family: monospace; font-size: 16px;">
-                        <small style="color: #999; display: block; margin-top: 5px;">3-digit (10m squares) or 4-digit (1m precision)</small>
+                        <div class="row">
+                            <div class="form-group">
+                                <label for="mortarGridX">Grid X Coordinate</label>
+                                <input type="text" id="mortarGridX" placeholder="047 or 0475" style="font-family: monospace; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label for="mortarGridY">Grid Y Coordinate</label>
+                                <input type="text" id="mortarGridY" placeholder="069 or 0695" style="font-family: monospace; font-size: 16px;">
+                            </div>
+                        </div>
+                        <small style="color: #999; display: block; margin-top: -15px;">3-digit (10m squares) or 4-digit (1m precision)</small>
                     </div>
                 </div>
                 
@@ -372,9 +380,17 @@
                 <!-- Grid Mode -->
                 <div id="targetGridMode" class="coord-mode active">
                     <div class="form-group">
-                        <label for="targetGrid">Grid Coordinates</label>
-                        <input type="text" id="targetGrid" placeholder="085/105 or 0850/1050" style="font-family: monospace; font-size: 16px;">
-                        <small style="color: #999; display: block; margin-top: 5px;">3-digit (10m squares) or 4-digit (1m precision)</small>
+                        <div class="row">
+                            <div class="form-group">
+                                <label for="targetGridX">Grid X Coordinate</label>
+                                <input type="text" id="targetGridX" placeholder="085 or 0850" style="font-family: monospace; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label for="targetGridY">Grid Y Coordinate</label>
+                                <input type="text" id="targetGridY" placeholder="105 or 1050" style="font-family: monospace; font-size: 16px;">
+                            </div>
+                        </div>
+                        <small style="color: #999; display: block; margin-top: -15px;">3-digit (10m squares) or 4-digit (1m precision)</small>
                     </div>
                 </div>
                 
@@ -468,7 +484,7 @@
     
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
-        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.3.9</span></p>
+        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.4.0</span></p>
         <p>Accurate ballistic calculations for US 60mm & Russian 82mm mortars | Grid coordinate support</p>
         <p>
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
@@ -477,9 +493,165 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.3.9"></script>
+    <script src="MortarCalculator.js?v=1.4.0"></script>
     <script>
         let ballisticDataLoaded = false;
+        
+        // Color constants
+        const COLORS = {
+            success: '#6b8e23',
+            successBg: 'rgba(107, 142, 35, 0.15)',
+            successBorder: 'rgba(107, 142, 35, 0.4)',
+            successShadow: 'rgba(107, 142, 35, 0.3)',
+            successText: '#8fbc1e',
+            error: '#c85050',
+            errorBg: 'rgba(200, 80, 80, 0.15)',
+            errorBorder: 'rgba(200, 80, 80, 0.4)',
+            errorShadow: 'rgba(200, 80, 80, 0.3)',
+            errorText: '#ff6b6b'
+        };
+        
+        // Button styles
+        const BTN_STYLES = {
+            selected: 'linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%)',
+            unselected: 'linear-gradient(180deg, #555 0%, #444 100%)',
+            selectedBorder: '#8fbc1e',
+            unselectedBorder: '#666'
+        };
+        
+        // Generate info banner HTML
+        function createInfoBanner(message, type = 'info') {
+            const styles = {
+                info: { bg: 'rgba(60, 75, 50, 0.4)', border: '#6b8e23', color: '#d8e4b0' },
+                warning: { bg: 'rgba(255, 165, 0, 0.15)', border: 'rgba(255, 165, 0, 0.4)', color: '#ffcc99' },
+                error: { bg: 'rgba(255, 107, 107, 0.15)', border: 'rgba(255, 107, 107, 0.3)', color: '#ff9999' }
+            };
+            const style = styles[type] || styles.info;
+            return `<div style="background: ${style.bg}; padding: 10px; border-radius: 4px; border: 1px solid ${style.border}; margin-bottom: 15px; color: ${style.color}; font-size: 13px;">${message}</div>`;
+        }
+        
+        // Populate select dropdown with options
+        function populateSelect(select, items, valueKey, textKey) {
+            select.innerHTML = '';
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item[valueKey];
+                option.textContent = item[textKey];
+                select.appendChild(option);
+            });
+        }
+        
+        // Get FFE control elements
+        function getFFEControls() {
+            return {
+                enabled: document.getElementById('ffeEnabled'),
+                controls: document.getElementById('ffeControls'),
+                pattern: document.getElementById('ffePattern'),
+                spacingGroup: document.getElementById('ffeSpacingGroup'),
+                radiusGroup: document.getElementById('ffeRadiusGroup')
+            };
+        }
+        
+        // Set element display style
+        function setDisplay(element, visible) {
+            element.style.display = visible ? 'block' : 'none';
+        }
+        
+        // Get all target input elements
+        function getTargetInputs() {
+            return {
+                gridX: document.getElementById('targetGridX'),
+                gridY: document.getElementById('targetGridY'),
+                x: document.getElementById('targetX'),
+                y: document.getElementById('targetY')
+            };
+        }
+        
+        // Clear or set highlighting on target fields
+        function setTargetHighlight(color = '') {
+            const inputs = getTargetInputs();
+            Object.values(inputs).forEach(input => {
+                if (input) input.style.color = color;
+            });
+        }
+        
+        // Reset Fire for Effect controls to defaults
+        function resetFFEControls() {
+            const ffe = getFFEControls();
+            ffe.enabled.checked = false;
+            setDisplay(ffe.controls, false);
+            ffe.pattern.value = 'perpendicular';
+            document.getElementById('ffeRounds').value = '5';
+            document.getElementById('ffeSpacing').value = '50';
+            document.getElementById('ffeRadius').value = '100';
+            setDisplay(ffe.spacingGroup, true);
+            setDisplay(ffe.radiusGroup, false);
+        }
+        
+        // Clear all coordinate input fields
+        function clearAllInputs() {
+            const ids = [
+                'mortarGridX', 'mortarGridY', 'mortarX', 'mortarY', 'mortarZ',
+                'targetGridX', 'targetGridY', 'targetX', 'targetY', 'targetZ'
+            ];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+        }
+        
+        // Clear/reset output display
+        function clearOutput() {
+            const output = document.getElementById('output');
+            output.innerHTML = '';
+            output.className = 'result';
+        }
+        
+        // Show error in output
+        function showOutputError(title, message) {
+            const output = document.getElementById('output');
+            output.className = 'result active error';
+            output.innerHTML = `
+                <h2>❌ ${title}</h2>
+                <p><strong>Error:</strong> ${message}</p>
+            `;
+        }
+        
+        // Generate solution grid HTML (used in FFE and normal missions)
+        function generateSolutionGridHTML(solution, previousChargeForDisplay) {
+            const correctionColor = window.correctionApplied ? COLORS.errorText : '';
+            const normalColor = window.correctionApplied ? COLORS.errorText : '#95a585';
+            const chargeChanged = typeof previousChargeForDisplay === 'number' && previousChargeForDisplay !== solution.charge;
+            
+            return `
+                <div class="solution-grid">
+                    <div class="solution-item">
+                        <strong>AZIMUTH</strong>
+                        <div class="value" ${correctionColor ? `style="color: ${correctionColor}"` : ''}>${solution.azimuthMils} mils</div>
+                        <div style="color: ${normalColor}; font-size: 12px;">(${solution.azimuth}°)</div>
+                    </div>
+                    <div class="solution-item">
+                        <strong>ELEVATION</strong>
+                        <div class="value" ${correctionColor ? `style="color: ${correctionColor}"` : ''}>${solution.elevation} mils</div>
+                        <div style="color: ${normalColor}; font-size: 12px;">(${solution.elevationDegrees}°)</div>
+                        ${solution.elevationCorrection && solution.elevationCorrection !== 0 ? `<div style="color: #95a585; font-size: 11px; margin-top: 2px;">dElev: ${solution.dElev} and Elevation Correction: ${solution.elevationCorrection > 0 ? '+' : ''}${solution.elevationCorrection.toFixed(1)} mils</div>` : ''}
+                    </div>
+                    <div class="solution-item">
+                        <strong>CHARGE</strong>
+                        <div class="value" ${chargeChanged ? `style="color: ${COLORS.errorText}"` : ''}>${solution.charge}</div>
+                        ${chargeChanged ? `<div style="color: ${COLORS.errorText}; font-size: 11px; margin-top: 2px;">was: ${previousChargeForDisplay}</div>` : ''}
+                    </div>
+                    <div class="solution-item">
+                        <strong>TIME OF FLIGHT</strong>
+                        <div class="value">${solution.timeOfFlight}s</div>
+                        ${solution.tofCorrection && solution.tofCorrection !== 0 ? `<div style="color: #95a585; font-size: 11px; margin-top: 2px;">Correction: ${solution.tofCorrection > 0 ? '+' : ''}${solution.tofCorrection.toFixed(1)}s (TOF/100m: ${solution.tofPer100m})</div>` : ''}
+                    </div>
+                </div>
+                <div style="margin-top: 10px; padding: 8px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; font-size: 12px; color: #a8b898;">
+                    <strong>Charge Range:</strong> ${solution.minRange}m - ${solution.maxRange}m
+                </div>
+            `;
+        }
         
         // Toggle between grid and meters coordinate input
         function setCoordMode(mode) {
@@ -501,37 +673,19 @@
             }
             
             // Clear all input fields
-            document.getElementById('mortarGrid').value = '';
-            document.getElementById('mortarX').value = '';
-            document.getElementById('mortarY').value = '';
-            document.getElementById('mortarZ').value = '';
-            document.getElementById('targetGrid').value = '';
-            document.getElementById('targetX').value = '';
-            document.getElementById('targetY').value = '';
-            document.getElementById('targetZ').value = '';
+            clearAllInputs();
             
             // Clear red highlighting
-            document.getElementById('targetGrid').style.color = '';
-            document.getElementById('targetX').style.color = '';
-            document.getElementById('targetY').style.color = '';
+            setTargetHighlight();
             
             // Reset correction flag
             window.correctionApplied = false;
             
             // Reset Fire for Effect
-            document.getElementById('ffeEnabled').checked = false;
-            document.getElementById('ffeControls').style.display = 'none';
-            document.getElementById('ffePattern').value = 'perpendicular';
-            document.getElementById('ffeRounds').value = '5';
-            document.getElementById('ffeSpacing').value = '50';
-            document.getElementById('ffeRadius').value = '100';
-            document.getElementById('ffeSpacingGroup').style.display = 'block';
-            document.getElementById('ffeRadiusGroup').style.display = 'none';
+            resetFFEControls();
             
             // Clear output
-            const output = document.getElementById('output');
-            output.innerHTML = '';
-            output.className = 'result';
+            clearOutput();
         }
         
         // Update correction preview to show doctrinal terms
@@ -545,7 +699,7 @@
             const ad = parseFloat(correctionADInput.value) || 0;
             
             if (lr === 0 && ad === 0) {
-                correctionPreview.style.display = 'none';
+                setDisplay(correctionPreview, false);
                 return;
             }
             
@@ -565,6 +719,165 @@
             correctionPreview.style.display = 'block';
         }
         
+        // Parse position from UI inputs (grid or meters mode)
+        function parsePositionFromUI(prefix, allowNull = false) {
+            const gridX = document.getElementById(`${prefix}GridX`).value.trim();
+            const gridY = document.getElementById(`${prefix}GridY`).value.trim();
+            const z = parseFloat(document.getElementById(`${prefix}Z`).value) || 0;
+            
+            if (gridX && gridY) {
+                const grid = gridX + '/' + gridY;
+                return MortarCalculator.parsePosition({ grid, z });
+            } else {
+                const x = parseFloat(document.getElementById(`${prefix}X`).value);
+                const y = parseFloat(document.getElementById(`${prefix}Y`).value);
+                if (!isNaN(x) && !isNaN(y)) {
+                    return { x, y, z };
+                } else if (!allowNull) {
+                    throw new Error(`Enter either grid coordinates or X/Y meter values for ${prefix}`);
+                }
+                return null;
+            }
+        }
+        
+        // Validate grid coordinate format in real-time
+        function validateGridFormat(input) {
+            const value = input.value.trim();
+            
+            // Empty is OK (user might be typing)
+            if (!value) {
+                input.style.borderColor = '';
+                input.style.boxShadow = '';
+                return true;
+            }
+            
+            // Grid coordinates must be 3-4 digits
+            const isValid = /^\d{3,4}$/.test(value);
+            
+            if (!isValid) {
+                input.style.borderColor = COLORS.error;
+                input.style.boxShadow = `0 0 8px ${COLORS.errorShadow}`;
+                
+                // Show warning message
+                const rangeIndicator = document.getElementById('rangeIndicator');
+                if (rangeIndicator) {
+                    rangeIndicator.innerHTML = `<span style="color: ${COLORS.errorText};">⚠️ Grid coordinates must be 3-4 digits (e.g., 047 or 0475)</span>`;
+                }
+            } else {
+                input.style.borderColor = '';
+                input.style.boxShadow = '';
+            }
+            
+            return isValid;
+        }
+        
+        // Real-time range validation
+        function validateCoordinateRange() {
+            if (!ballisticDataLoaded) return;
+            
+            // First validate grid format if using grid coordinates
+            const gridInputs = [
+                document.getElementById('mortarGridX'),
+                document.getElementById('mortarGridY'),
+                document.getElementById('targetGridX'),
+                document.getElementById('targetGridY')
+            ];
+            
+            let hasFormatError = false;
+            gridInputs.forEach(input => {
+                if (input && input.value.trim()) {
+                    if (!validateGridFormat(input)) {
+                        hasFormatError = true;
+                    }
+                }
+            });
+            
+            // Don't proceed with range validation if there's a format error
+            if (hasFormatError) return;
+            
+            try {
+                const mortarId = document.getElementById('mortarType').value;
+                const shellType = document.getElementById('shellType').value;
+                
+                const mortarPos = parsePositionFromUI('mortar', true);
+                const targetPos = parsePositionFromUI('target', true);
+                
+                // Clear validation if incomplete
+                if (!mortarPos || !targetPos) {
+                    clearRangeValidation();
+                    return;
+                }
+                
+                // Get weapon config to check range (includes distance calculation)
+                const input = MortarCalculator.prepareInput(mortarPos, targetPos, mortarId, shellType);
+                const solutions = MortarCalculator.calculateAllTrajectories(input);
+                const distance = input.distance;
+                
+                const inRange = solutions.length > 0 && solutions[0].inRange;
+                
+                // Apply visual feedback
+                const targetInputs = getTargetInputs();
+                
+                Object.values(targetInputs).forEach(input => {
+                    if (input && input.value.trim()) {
+                        if (inRange) {
+                            input.style.borderColor = COLORS.success;
+                            input.style.boxShadow = `0 0 0 1px ${COLORS.successShadow}`;
+                        } else {
+                            input.style.borderColor = COLORS.error;
+                            input.style.boxShadow = `0 0 0 1px ${COLORS.errorShadow}`;
+                        }
+                    }
+                });
+                
+                // Show range indicator
+                let rangeIndicator = document.getElementById('rangeIndicator');
+                if (!rangeIndicator) {
+                    rangeIndicator = document.createElement('div');
+                    rangeIndicator.id = 'rangeIndicator';
+                    rangeIndicator.style.cssText = 'margin-top: 10px; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; transition: all 0.3s;';
+                    document.querySelector('#targetZ').parentElement.insertAdjacentElement('afterend', rangeIndicator);
+                }
+                
+                if (inRange) {
+                    rangeIndicator.style.background = COLORS.successBg;
+                    rangeIndicator.style.border = `1px solid ${COLORS.successBorder}`;
+                    rangeIndicator.style.color = COLORS.successText;
+                    rangeIndicator.innerHTML = `✓ In Range: ${distance.toFixed(0)}m (${solutions[0].minRange}m - ${solutions[0].maxRange}m)`;
+                } else {
+                    const solution = solutions[0];
+                    rangeIndicator.style.background = COLORS.errorBg;
+                    rangeIndicator.style.border = `1px solid ${COLORS.errorBorder}`;
+                    rangeIndicator.style.color = COLORS.errorText;
+                    if (solution.minRange && solution.maxRange) {
+                        const tooClose = distance < solution.minRange;
+                        rangeIndicator.innerHTML = `⚠ Out of Range: ${distance.toFixed(0)}m (valid: ${solution.minRange}m - ${solution.maxRange}m) - Target is ${tooClose ? 'too close' : 'too far'}`;
+                    } else {
+                        rangeIndicator.innerHTML = `⚠ Out of Range: ${distance.toFixed(0)}m`;
+                    }
+                }
+                
+            } catch (error) {
+                clearRangeValidation();
+            }
+        }
+        
+        function clearRangeValidation() {
+            const targetInputs = getTargetInputs();
+            
+            Object.values(targetInputs).forEach(input => {
+                if (input) {
+                    input.style.borderColor = '';
+                    input.style.boxShadow = '';
+                }
+            });
+            
+            const rangeIndicator = document.getElementById('rangeIndicator');
+            if (rangeIndicator) {
+                rangeIndicator.remove();
+            }
+        }
+        
         // Apply fire correction to target position
         function applyFireCorrectionUI() {
             const correctionLR = parseFloat(document.getElementById('correctionLR').value) || 0;
@@ -575,57 +888,26 @@
             }
             
             try {
-                // Parse mortar position
-                let mortarPos;
-                const mortarGrid = document.getElementById('mortarGrid').value.trim();
-                if (mortarGrid) {
-                    const mortarZ = parseFloat(document.getElementById('mortarZ').value) || 0;
-                    mortarPos = MortarCalculator.parsePosition({ grid: mortarGrid, z: mortarZ });
-                } else {
-                    const mortarX = parseFloat(document.getElementById('mortarX').value);
-                    const mortarY = parseFloat(document.getElementById('mortarY').value);
-                    const mortarZ = parseFloat(document.getElementById('mortarZ').value) || 0;
-                    if (isNaN(mortarX) || isNaN(mortarY)) {
-                        throw new Error('Enter mortar position first');
-                    }
-                    mortarPos = { x: mortarX, y: mortarY, z: mortarZ };
-                }
-                
-                // Parse target position
-                let targetPos;
-                const targetGrid = document.getElementById('targetGrid').value.trim();
-                if (targetGrid) {
-                    const targetZ = parseFloat(document.getElementById('targetZ').value) || 0;
-                    targetPos = MortarCalculator.parsePosition({ grid: targetGrid, z: targetZ });
-                } else {
-                    const targetX = parseFloat(document.getElementById('targetX').value);
-                    const targetY = parseFloat(document.getElementById('targetY').value);
-                    const targetZ = parseFloat(document.getElementById('targetZ').value) || 0;
-                    if (isNaN(targetX) || isNaN(targetY)) {
-                        throw new Error('Enter target position first');
-                    }
-                    targetPos = { x: targetX, y: targetY, z: targetZ };
-                }
+                const mortarPos = parsePositionFromUI('mortar');
+                const targetPos = parsePositionFromUI('target');
                 
                 // Apply fire correction
                 const corrected = MortarCalculator.applyFireCorrection(mortarPos, targetPos, correctionLR, correctionAD);
                 
                 // Update target fields with corrected position and highlight in red
-                const targetXInput = document.getElementById('targetX');
-                const targetYInput = document.getElementById('targetY');
-                const targetGridInput = document.getElementById('targetGrid');
+                const inputs = getTargetInputs();
                 
-                targetXInput.value = corrected.x.toFixed(1);
-                targetYInput.value = corrected.y.toFixed(1);
-                targetXInput.style.color = '#ff6b6b';
-                targetYInput.style.color = '#ff6b6b';
+                inputs.x.value = corrected.x.toFixed(1);
+                inputs.y.value = corrected.y.toFixed(1);
+                setTargetHighlight(COLORS.errorText);
                 
                 // Convert to grid if in grid mode
                 const gridMode = document.getElementById('targetGridMode').classList.contains('active');
                 if (gridMode) {
                     const gridCoords = MortarCalculator.metersToGrid(corrected.x, corrected.y, true);
-                    targetGridInput.value = gridCoords;
-                    targetGridInput.style.color = '#ff6b6b';
+                    const gridParts = gridCoords.split('/');
+                    inputs.gridX.value = gridParts[0];
+                    inputs.gridY.value = gridParts[1];
                 }
                 
                 // Store previous charge before recalculation
@@ -639,12 +921,7 @@
                 
             } catch (error) {
                 console.error('Correction error:', error);
-                const output = document.getElementById('output');
-                output.className = 'result active error';
-                output.innerHTML = `
-                    <h2>❌ Correction Error</h2>
-                    <p><strong>Error:</strong> ${error.message}</p>
-                `;
+                showOutputError('Correction Error', error.message);
             }
         }
         
@@ -690,13 +967,7 @@
                 return a.name.localeCompare(b.name);
             });
             
-            mortarTypeSelect.innerHTML = '';
-            availableMortars.forEach(mortar => {
-                const option = document.createElement('option');
-                option.value = mortar.id;
-                option.textContent = `${mortar.name}`;
-                mortarTypeSelect.appendChild(option);
-            });
+            populateSelect(mortarTypeSelect, availableMortars, 'id', 'name');
             
             // Restore previous selection if available, otherwise select US mortar
             const optionExists = availableMortars.some(m => m.id === currentValue);
@@ -716,13 +987,7 @@
             
             const availableShells = getShellTypesForMortar(mortarType);
             
-            shellTypeSelect.innerHTML = '';
-            availableShells.forEach(shell => {
-                const option = document.createElement('option');
-                option.value = shell.value;
-                option.textContent = shell.label;
-                shellTypeSelect.appendChild(option);
-            });
+            populateSelect(shellTypeSelect, availableShells, 'value', 'label');
             
             // Restore previous selection if available, otherwise select first
             const optionExists = availableShells.some(s => s.value === currentValue);
@@ -742,8 +1007,8 @@
                 await MortarCalculator.loadBallisticData('ballistic-data.json');
                 ballisticDataLoaded = true;
                 
-                loading.style.display = 'none';
-                app.style.display = 'block';
+                setDisplay(loading, false);
+                setDisplay(app, true);
                 
                 // Initialize mortar types and shell types after data is loaded
                 updateMortarTypes();
@@ -772,10 +1037,9 @@
             calculateBtn.addEventListener('click', calculateSolution);
             
             // Fire for Effect toggle
-            const ffeEnabled = document.getElementById('ffeEnabled');
-            const ffeControls = document.getElementById('ffeControls');
-            ffeEnabled.addEventListener('change', function() {
-                ffeControls.style.display = this.checked ? 'block' : 'none';
+            const ffe = getFFEControls();
+            ffe.enabled.addEventListener('change', function() {
+                setDisplay(ffe.controls, this.checked);
                 
                 // Recalculate when FFE is toggled
                 const output = document.getElementById('output');
@@ -785,63 +1049,54 @@
             });
             
             // Fire for Effect pattern type change
-            const ffePattern = document.getElementById('ffePattern');
-            const ffeSpacingGroup = document.getElementById('ffeSpacingGroup');
-            const ffeRadiusGroup = document.getElementById('ffeRadiusGroup');
-            ffePattern.addEventListener('change', function() {
-                if (this.value === 'circular') {
-                    ffeSpacingGroup.style.display = 'none';
-                    ffeRadiusGroup.style.display = 'block';
-                } else {
-                    ffeSpacingGroup.style.display = 'block';
-                    ffeRadiusGroup.style.display = 'none';
-                }
+            ffe.pattern.addEventListener('change', function() {
+                const isCircular = this.value === 'circular';
+                setDisplay(ffe.spacingGroup, !isCircular);
+                setDisplay(ffe.radiusGroup, isCircular);
             });
             
             // Reset button
             const resetBtn = document.getElementById('reset');
             resetBtn.addEventListener('click', function() {
                 // Clear all input fields
-                document.getElementById('mortarGrid').value = '';
-                document.getElementById('mortarX').value = '';
-                document.getElementById('mortarY').value = '';
-                document.getElementById('mortarZ').value = '';
-                document.getElementById('targetGrid').value = '';
-                document.getElementById('targetX').value = '';
-                document.getElementById('targetY').value = '';
-                document.getElementById('targetZ').value = '';
+                clearAllInputs();
                 
                 // Clear red highlighting from corrected fields
-                document.getElementById('targetGrid').style.color = '';
-                document.getElementById('targetX').style.color = '';
-                document.getElementById('targetY').style.color = '';
+                setTargetHighlight();
+                
+                // Clear range validation
+                clearRangeValidation();
                 
                 // Reset correction flag
                 window.correctionApplied = false;
                 
                 // Reset Fire for Effect
-                document.getElementById('ffeEnabled').checked = false;
-                document.getElementById('ffeControls').style.display = 'none';
-                document.getElementById('ffePattern').value = 'perpendicular';
-                document.getElementById('ffeRounds').value = '5';
-                document.getElementById('ffeSpacing').value = '50';
-                document.getElementById('ffeRadius').value = '100';
-                document.getElementById('ffeSpacingGroup').style.display = 'block';
-                document.getElementById('ffeRadiusGroup').style.display = 'none';
+                resetFFEControls();
                 
                 // Clear output and remove error class
-                const output = document.getElementById('output');
-                output.innerHTML = '';
-                output.className = 'result';
+                clearOutput();
             });
             
             // Clear red highlighting when user manually edits target fields
-            ['targetGrid', 'targetX', 'targetY'].forEach(id => {
-                document.getElementById(id).addEventListener('input', function() {
+            ['targetGridX', 'targetGridY', 'targetX', 'targetY'].forEach(id => {
+                const input = document.getElementById(id);
+                input.addEventListener('input', function() {
                     this.style.color = '';
                     window.correctionApplied = false;
+                    // Trigger range validation (includes format validation)
+                    validateCoordinateRange();
                 });
             });
+            
+            // Add range validation to all coordinate inputs
+            ['mortarGridX', 'mortarGridY', 'mortarX', 'mortarY', 'mortarZ'].forEach(id => {
+                const input = document.getElementById(id);
+                input.addEventListener('input', validateCoordinateRange);
+            });
+            
+            // Trigger validation when mortar type or shell type changes
+            document.getElementById('mortarType').addEventListener('change', validateCoordinateRange);
+            document.getElementById('shellType').addEventListener('change', validateCoordinateRange);
             
             // Allow Enter key to trigger calculation
             document.querySelectorAll('input').forEach(input => {
@@ -984,12 +1239,12 @@
                 const btn = document.getElementById(`selectBtn_${sol.charge}`);
                 if (btn) {
                     if (sol.charge === charge) {
-                        btn.style.background = 'linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%)';
-                        btn.style.borderColor = '#8fbc1e';
+                        btn.style.background = BTN_STYLES.selected;
+                        btn.style.borderColor = BTN_STYLES.selectedBorder;
                         btn.textContent = '✓ Selected Mission';
                     } else {
-                        btn.style.background = 'linear-gradient(180deg, #555 0%, #444 100%)';
-                        btn.style.borderColor = '#666';
+                        btn.style.background = BTN_STYLES.unselected;
+                        btn.style.borderColor = BTN_STYLES.unselectedBorder;
                         btn.textContent = 'Use This Mission';
                     }
                 }
@@ -1017,37 +1272,8 @@
                 const mortarId = document.getElementById('mortarType').value;
                 const shellType = document.getElementById('shellType').value;
                 
-                // Parse mortar position
-                let mortarPos;
-                const mortarGrid = document.getElementById('mortarGrid').value.trim();
-                if (mortarGrid) {
-                    const mortarZ = parseFloat(document.getElementById('mortarZ').value) || 0;
-                    mortarPos = { grid: mortarGrid, z: mortarZ };
-                } else {
-                    const mortarX = parseFloat(document.getElementById('mortarX').value);
-                    const mortarY = parseFloat(document.getElementById('mortarY').value);
-                    const mortarZ = parseFloat(document.getElementById('mortarZ').value) || 0;
-                    if (isNaN(mortarX) || isNaN(mortarY)) {
-                        throw new Error('Enter either grid coordinates or X/Y meter values for mortar');
-                    }
-                    mortarPos = { x: mortarX, y: mortarY, z: mortarZ };
-                }
-                
-                // Parse target position
-                let targetPos;
-                const targetGrid = document.getElementById('targetGrid').value.trim();
-                if (targetGrid) {
-                    const targetZ = parseFloat(document.getElementById('targetZ').value) || 0;
-                    targetPos = { grid: targetGrid, z: targetZ };
-                } else {
-                    const targetX = parseFloat(document.getElementById('targetX').value);
-                    const targetY = parseFloat(document.getElementById('targetY').value);
-                    const targetZ = parseFloat(document.getElementById('targetZ').value) || 0;
-                    if (isNaN(targetX) || isNaN(targetY)) {
-                        throw new Error('Enter either grid coordinates or X/Y meter values for target');
-                    }
-                    targetPos = { x: targetX, y: targetY, z: targetZ };
-                }
+                const mortarPos = parsePositionFromUI('mortar');
+                const targetPos = parsePositionFromUI('target');
                 
                 // Check if Fire for Effect is enabled
                 const ffeEnabled = document.getElementById('ffeEnabled').checked;
@@ -1141,13 +1367,13 @@
                         let ffeHTML = `
                             <h2>💥 Fire for Effect Mission</h2>
                             
-                            ${window.correctionApplied ? '<div style="background: rgba(255, 107, 107, 0.15); padding: 10px; border-radius: 4px; border: 1px solid rgba(255, 107, 107, 0.3); margin-bottom: 15px; color: #ff9999; font-size: 13px;">🔴 <strong>Fire correction applied:</strong> Red values include observer correction</div>' : ''}
+                            ${window.correctionApplied ? createInfoBanner('🔴 <strong>Fire correction applied:</strong> Red values include observer correction', 'error') : ''}
                             
-                            <div style="background: rgba(60, 75, 50, 0.4); padding: 12px; border-radius: 4px; border: 1px solid #6b8e23; margin-bottom: 15px; color: #d8e4b0;">
+                            ${createInfoBanner(`
                                 <strong>📊 Sheaf Type:</strong> ${patternDesc}<br>
                                 <strong>🎯 Salvo Size:</strong> ${sortedFFE.length} of ${ffeRounds} rounds (in range)<br>
                                 <strong>📏 ${patternParamDesc}</strong>
-                            </div>
+                            `)}
                             
                             <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Mission Commands</h3>
                         `;
@@ -1166,32 +1392,7 @@
                                             Range: ${input.distance.toFixed(1)}m | Alt Diff: ${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m
                                         </span>
                                     </div>
-                                    <div class="solution-grid">
-                                        <div class="solution-item">
-                                            <strong>AZIMUTH</strong>
-                                            <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.azimuthMils} mils</div>
-                                            <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.azimuth}°)</div>
-                                        </div>
-                                        <div class="solution-item">
-                                            <strong>ELEVATION</strong>
-                                            <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.elevation} mils</div>
-                                            <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.elevationDegrees}°)</div>
-                                            ${solution.elevationCorrection && solution.elevationCorrection !== 0 ? `<div style="color: #95a585; font-size: 11px; margin-top: 2px;">dElev: ${solution.dElev} and Elevation Correction: ${solution.elevationCorrection > 0 ? '+' : ''}${solution.elevationCorrection.toFixed(1)} mils</div>` : ''}
-                                        </div>
-                                        <div class="solution-item">
-                                            <strong>CHARGE</strong>
-                                            <div class="value" ${typeof previousChargeForDisplay === 'number' && previousChargeForDisplay !== solution.charge ? 'style="color: #ff6b6b"' : ''}>${solution.charge}</div>
-                                            ${typeof previousChargeForDisplay === 'number' && previousChargeForDisplay !== solution.charge ? `<div style="color: #ff6b6b; font-size: 11px; margin-top: 2px;">was: ${previousChargeForDisplay}</div>` : ''}
-                                        </div>
-                                        <div class="solution-item">
-                                            <strong>TIME OF FLIGHT</strong>
-                                            <div class="value">${solution.timeOfFlight}s</div>
-                                            ${solution.tofCorrection && solution.tofCorrection !== 0 ? `<div style="color: #95a585; font-size: 11px; margin-top: 2px;">Correction: ${solution.tofCorrection > 0 ? '+' : ''}${solution.tofCorrection.toFixed(1)}s (TOF/100m: ${solution.tofPer100m})</div>` : ''}
-                                        </div>
-                                    </div>
-                                    <div style="margin-top: 10px; padding: 8px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; font-size: 12px; color: #a8b898;">
-                                        <strong>Charge Range:</strong> ${solution.minRange}m - ${solution.maxRange}m
-                                    </div>
+                                    ${generateSolutionGridHTML(solution, previousChargeForDisplay)}
                                 </div>
                             `;
                         });
@@ -1287,12 +1488,12 @@
                     
                     // Add correction hint if correction was applied
                     if (window.correctionApplied) {
-                        solutionsHTML += '<div style="background: rgba(255, 107, 107, 0.15); padding: 10px; border-radius: 4px; border: 1px solid rgba(255, 107, 107, 0.3); margin-bottom: 15px; color: #ff9999; font-size: 13px;">🔴 <strong>Fire correction applied:</strong> Red values include observer correction</div>';
+                        solutionsHTML += createInfoBanner('🔴 <strong>Fire correction applied:</strong> Red values include observer correction', 'error');
                     }
                     
                     // Add charge change warning if charge changed (only if previousCharge is a valid number)
                     if (typeof window.previousCharge === 'number' && window.previousCharge !== solutions[0].charge) {
-                        solutionsHTML += `<div style="background: rgba(255, 165, 0, 0.15); padding: 10px; border-radius: 4px; border: 1px solid rgba(255, 165, 0, 0.4); margin-bottom: 15px; color: #ffcc99; font-size: 13px;">⚠️ <strong>Charge changed:</strong> Correction moved target from Charge ${window.previousCharge} to Charge ${solutions[0].charge} (different ballistic trajectory)</div>`;
+                        solutionsHTML += createInfoBanner(`⚠️ <strong>Charge changed:</strong> Correction moved target from Charge ${window.previousCharge} to Charge ${solutions[0].charge} (different ballistic trajectory)`, 'warning');
                     }
                     
                     // Store previous charge for highlighting (before clearing)
@@ -1334,33 +1535,8 @@
                                         ${chargeDesc}
                                     </span>
                                 </div>
-                                <div class="solution-grid">
-                                    <div class="solution-item">
-                                        <strong>AZIMUTH</strong>
-                                        <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.azimuthMils} mils</div>
-                                        <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.azimuth}°)</div>
-                                    </div>
-                                    <div class="solution-item">
-                                        <strong>ELEVATION</strong>
-                                        <div class="value" ${window.correctionApplied ? 'style="color: #ff6b6b"' : ''}>${solution.elevation} mils</div>
-                                        <div style="color: ${window.correctionApplied ? '#ff6b6b' : '#95a585'}; font-size: 12px;">(${solution.elevationDegrees}°)</div>
-                                        ${solution.elevationCorrection && solution.elevationCorrection !== 0 ? `<div style="color: #95a585; font-size: 11px; margin-top: 2px;">dElev: ${solution.dElev} and Elevation Correction: ${solution.elevationCorrection > 0 ? '+' : ''}${solution.elevationCorrection.toFixed(1)} mils</div>` : ''}
-                                    </div>
-                                    <div class="solution-item">
-                                        <strong>CHARGE</strong>
-                                        <div class="value" ${typeof previousChargeForDisplay === 'number' && previousChargeForDisplay !== solution.charge ? 'style="color: #ff6b6b"' : ''}>${solution.charge}</div>
-                                        ${typeof previousChargeForDisplay === 'number' && previousChargeForDisplay !== solution.charge ? `<div style="color: #ff6b6b; font-size: 11px; margin-top: 2px;">was: ${previousChargeForDisplay}</div>` : ''}
-                                    </div>
-                                    <div class="solution-item">
-                                        <strong>TIME OF FLIGHT</strong>
-                                        <div class="value">${solution.timeOfFlight}s</div>
-                                        ${solution.tofCorrection && solution.tofCorrection !== 0 ? `<div style="color: #95a585; font-size: 11px; margin-top: 2px;">Correction: ${solution.tofCorrection > 0 ? '+' : ''}${solution.tofCorrection.toFixed(1)}s (TOF/100m: ${solution.tofPer100m})</div>` : ''}
-                                    </div>
-                                </div>
-                                <div style="margin-top: 10px; padding: 8px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; font-size: 12px; color: #a8b898;">
-                                    <strong>Charge Range:</strong> ${solution.minRange}m - ${solution.maxRange}m
-                                </div>
-                                <button onclick="selectMission(${solution.charge})" id="selectBtn_${solution.charge}" style="width: 100%; margin-top: 10px; padding: 8px; background: ${index === 0 ? 'linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%)' : 'linear-gradient(180deg, #555 0%, #444 100%)'}; border: 1px solid ${index === 0 ? '#8fbc1e' : '#666'}; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px; transition: transform 0.1s ease, box-shadow 0.1s ease;" onmousedown="this.style.transform='scale(0.95)'; this.style.boxShadow='0 0 20px rgba(143, 188, 30, 0.8)';" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='none';" onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                                ${generateSolutionGridHTML(solution, previousChargeForDisplay)}
+                                <button onclick="selectMission(${solution.charge})" id="selectBtn_${solution.charge}" style="width: 100%; margin-top: 10px; padding: 8px; background: ${index === 0 ? BTN_STYLES.selected : BTN_STYLES.unselected}; border: 1px solid ${index === 0 ? BTN_STYLES.selectedBorder : BTN_STYLES.unselectedBorder}; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px; transition: transform 0.1s ease, box-shadow 0.1s ease;" onmousedown="this.style.transform='scale(0.95)'; this.style.boxShadow='0 0 20px rgba(143, 188, 30, 0.8)';" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='none';" onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='none';">
                                     ${index === 0 ? '✓ Selected Mission' : 'Use This Mission'}
                                 </button>
                             </div>
@@ -1376,13 +1552,13 @@
                     output.innerHTML = `
                         <h2>✅ Firing Mission${solutions.length > 1 ? 's' : ''} Found</h2>
                         
-                        <div style="background: rgba(60, 75, 50, 0.4); padding: 12px; border-radius: 4px; border: 1px solid #6b8e23; margin-bottom: 15px; color: #d8e4b0;">
+                        ${createInfoBanner(`
                             <strong>📐 Mil System:</strong> ${MortarCalculator.getMilSystemName(input.mortarType)} &nbsp;|&nbsp; 
-                            <strong style="${window.correctionApplied ? 'color: #ff6b6b;' : ''}">📏 Range:</strong> <span style="${window.correctionApplied ? 'color: #ff6b6b;' : ''}">${input.distance.toFixed(1)}m</span> &nbsp;|&nbsp; 
+                            <strong style="${window.correctionApplied ? 'color: ' + COLORS.errorText + ';' : ''}">📏 Range:</strong> <span style="${window.correctionApplied ? 'color: ' + COLORS.errorText + ';' : ''}">${input.distance.toFixed(1)}m</span> &nbsp;|&nbsp; 
                             <strong>⛰️ Alt Diff:</strong> ${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m
-                        </div>
+                        `)}
                         
-                        ${solutions.length > 1 ? '<div style="background: rgba(60, 75, 50, 0.4); padding: 12px; border-radius: 4px; border: 1px solid #6b8e23; margin-bottom: 15px; color: #d8e4b0;"><strong>💡 Multiple Charge Options Available:</strong><br><small>Lower charges are more accurate but have limited range. Higher charges reach further but are less precise. High angle trajectories can clear obstacles.</small></div>' : ''}
+                        ${solutions.length > 1 ? createInfoBanner('<strong>💡 Multiple Charge Options Available:</strong><br><small>Lower charges are more accurate but have limited range. Higher charges reach further but are less precise. High angle trajectories can clear obstacles.</small>') : ''}
                         
                         <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Missions (${solutions.length}): <span style="font-size: 16px; color: #ffffff; font-weight: normal;"></span></h3>
                         
@@ -1457,12 +1633,7 @@
                     `;
                 }
             } catch (error) {
-                output.className = 'result active error';
-                output.innerHTML = `
-                    <h2>❌ Calculation Error</h2>
-                    <p><strong>Error:</strong> ${error.message}</p>
-                    <p>Check your input values and try again.</p>
-                `;
+                showOutputError('Calculation Error', error.message + '<br>Check your input values and try again.');
                 console.error('Calculation error:', error);
             }
         }
