@@ -10,6 +10,8 @@
 - ✅ Framework-agnostic - works in Node.js and browsers
 - ✅ Coordinate-system independent - uses simple 3D positions
 - ✅ **Grid coordinate support** - 3-digit (100m) and 4-digit (10m) precision
+- ✅ **Separate X/Y inputs** - Individual grid coordinate fields (v1.4.0 UI)
+- ✅ **Real-time validation** - Format and range checking while typing (v1.4.0 UI)
 - ✅ **Fire correction system** - Observer-based adjustments (Left/Right, Add/Drop)
 - ✅ **Fire for Effect patterns** - Lateral/Linear sheaf, Circular saturation
 - ✅ **FFE sorting** - Sort FFE solutions by azimuth for optimal gun traverse
@@ -19,6 +21,7 @@
 - ✅ **Dynamic weapon data loading** - all ballistics from JSON
 - ✅ **Extensible** - add new weapons without code changes
 - ✅ **Multiple mil systems** - Warsaw Pact (6000) and NATO (6400)
+- ✅ **DRY architecture** - Helper functions, constants, ~300 lines eliminated (v1.4.0)
 
 ## Installation
 

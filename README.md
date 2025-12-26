@@ -1,8 +1,8 @@
 # Arma Reforger Tools & Resources
 
-**Live Mortar Calculator:** [https://armamortars.org](https://armamortars.org)
+**Live Mortar Calculator:** [https://armamortars.org](https://armamortars.org) **v1.4.0**
 
-Comprehensive toolset for Arma Reforger server management, map resources, and artillery calculations with grid coordinate support.
+Comprehensive toolset for Arma Reforger server management, map resources, and artillery calculations with grid coordinate support and real-time validation.
 
 ## Project Structure
 

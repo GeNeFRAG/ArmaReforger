@@ -13,8 +13,12 @@ Part of the [ArmaReforger](../README.md) project.
 Visit **[armamortars.org](https://armamortars.org)** for the online calculator, or open [index.html](index.html) locally.
 
 **Features:**
-- 🎯 Grid coordinate input (3-digit 100m & 4-digit 10m precision)
-- � Flexible delimiter support (slash `/` or comma `,` separators)
+- 🎯 **Separate X/Y grid inputs** - Individual fields for grid X and Y coordinates (v1.4.0)
+- ⚡ **Real-time validation** - Instant feedback while typing coordinates (v1.4.0)
+  - Format validation for grid inputs (3-4 digits)
+  - Range validation with visual indicators (green/red borders)
+  - Distance display showing valid range
+- 🎯 Grid coordinate support (3-digit 100m & 4-digit 10m precision)
 - 📏 Traditional meter coordinates
 - 🔄 Toggle between input modes (auto-clears on switch)
 - 🎯 Fire correction system (Left/Right, Add/Drop adjustments)
@@ -27,6 +31,7 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 - 📐 Sorted FFE rounds by azimuth for easier gun traverse
 - 🎯 Unified fire mission display format
 - 🔄 Reset button to clear all inputs and outputs
+- 🧹 **Clean codebase** - DRY principles with reusable helper functions (v1.4.0)
 
 ### Node.js
 
@@ -78,7 +83,9 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 
 - ✅ **Pure JavaScript** - No external dependencies
 - ✅ **Framework-agnostic** - Works in Node.js and browsers
-- ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision with `/` or `,` delimiter support
+- ✅ **Separate coordinate inputs** - Individual X/Y fields for grid coordinates (v1.4.0)
+- ✅ **Real-time validation** - Instant format and range checking while typing (v1.4.0)
+- ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision
 - ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
 - ✅ **Height correction** - Automatic elevation adjustment with correction factors displayed
 - ✅ **Transparent calculations** - Shows dElev and TOF per 100m correction factors
@@ -87,7 +94,8 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 - ✅ **Automatic charge selection** - Or force specific charge
 - ✅ **Trajectory visualization** - Generate trajectory points for SVG/Canvas rendering
 - ✅ **Military terminology** - NATO/US Army standard nomenclature (Azimuth, Range, Height)
-- ✅ **Visual feedback** - Red highlighting for corrected fire solutions
+- ✅ **Visual feedback** - Red highlighting for corrected fire solutions, colored borders for validation
+- ✅ **Clean architecture** - DRY principles, helper functions, ~300 lines of code eliminated (v1.4.0)
 - ✅ **SEO optimized** - Fully discoverable on search engines
 
 ## 🔧 API Overview
