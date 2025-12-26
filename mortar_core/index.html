@@ -484,7 +484,7 @@
     
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
-        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.4.0</span></p>
+        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.4.1</span></p>
         <p>Accurate ballistic calculations for US 60mm & Russian 82mm mortars | Grid coordinate support</p>
         <p>
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
@@ -493,7 +493,7 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.4.0"></script>
+    <script src="MortarCalculator.js?v=1.4.1"></script>
     <script>
         let ballisticDataLoaded = false;
         
@@ -626,6 +626,11 @@
             return `
                 <div class="solution-grid">
                     <div class="solution-item">
+                        <strong>CHARGE</strong>
+                        <div class="value" ${chargeChanged ? `style="color: ${COLORS.errorText}"` : ''}>${solution.charge}</div>
+                        ${chargeChanged ? `<div style="color: ${COLORS.errorText}; font-size: 11px; margin-top: 2px;">was: ${previousChargeForDisplay}</div>` : ''}
+                    </div>
+                    <div class="solution-item">
                         <strong>AZIMUTH</strong>
                         <div class="value" ${correctionColor ? `style="color: ${correctionColor}"` : ''}>${solution.azimuthMils} mils</div>
                         <div style="color: ${normalColor}; font-size: 12px;">(${solution.azimuth}°)</div>
@@ -635,11 +640,6 @@
                         <div class="value" ${correctionColor ? `style="color: ${correctionColor}"` : ''}>${solution.elevation} mils</div>
                         <div style="color: ${normalColor}; font-size: 12px;">(${solution.elevationDegrees}°)</div>
                         ${solution.elevationCorrection && solution.elevationCorrection !== 0 ? `<div style="color: #95a585; font-size: 11px; margin-top: 2px;">dElev: ${solution.dElev} and Elevation Correction: ${solution.elevationCorrection > 0 ? '+' : ''}${solution.elevationCorrection.toFixed(1)} mils</div>` : ''}
-                    </div>
-                    <div class="solution-item">
-                        <strong>CHARGE</strong>
-                        <div class="value" ${chargeChanged ? `style="color: ${COLORS.errorText}"` : ''}>${solution.charge}</div>
-                        ${chargeChanged ? `<div style="color: ${COLORS.errorText}; font-size: 11px; margin-top: 2px;">was: ${previousChargeForDisplay}</div>` : ''}
                     </div>
                     <div class="solution-item">
                         <strong>TIME OF FLIGHT</strong>
