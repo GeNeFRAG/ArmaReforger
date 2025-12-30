@@ -174,6 +174,13 @@
             cursor: not-allowed;
             opacity: 0.5;
         }
+        .btn-press {
+            transition: all 0.15s ease;
+        }
+        .btn-press:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 20px rgba(143, 188, 30, 0.8);
+        }
         .result {
             background: rgba(35, 45, 42, 0.9);
             padding: 20px;
@@ -557,8 +564,8 @@
             </div>
             
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button id="calculate" style="flex: 3; transition: transform 0.1s ease, box-shadow 0.1s ease;" onmousedown="this.style.transform='scale(0.95)'; this.style.boxShadow='0 0 20px rgba(143, 188, 30, 0.8)';" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='none';" onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='none';">Compute Fire Mission</button>
-                <button id="reset" style="flex: 1; background: linear-gradient(180deg, #666 0%, #555 100%); transition: transform 0.1s ease, box-shadow 0.1s ease;" onmousedown="this.style.transform='scale(0.95)'; this.style.boxShadow='0 0 20px rgba(255, 107, 107, 0.6)';" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='none';" onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='none';">Reset</button>
+                <button id="calculate" class="btn-press" style="flex: 3;">Compute Fire Mission</button>
+                <button id="reset" class="btn-press" style="flex: 1; background: linear-gradient(180deg, #666 0%, #555 100%);">Reset</button>
             </div>
         </div>
         
@@ -577,9 +584,17 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.5.0"></script>
+    <script src="MortarCalculator.js?v=1.5.1"></script>
     <script>
         let ballisticDataLoaded = false;
+        
+        // Input field ID constants
+        const INPUT_IDS = {
+            MORTAR_FIELDS: ['mortarGridX', 'mortarGridY', 'mortarX', 'mortarY', 'mortarZ'],
+            TARGET_FIELDS: ['targetGridX', 'targetGridY', 'targetX', 'targetY'],
+            ALL_COORD_FIELDS: ['mortarGridX', 'mortarGridY', 'mortarX', 'mortarY', 'mortarZ',
+                              'targetGridX', 'targetGridY', 'targetX', 'targetY', 'targetZ', 'missionLabel']
+        };
         
         // Color constants
         const COLORS = {
@@ -607,6 +622,15 @@
         const missionHistory = [];
         let currentHistoryIndex = -1;
         let isLoadingFromHistory = false;
+        
+        // Helper: Format position for display (grid or meters)
+        function formatPositionDisplay(pos, inputMode) {
+            if (inputMode === 'grid') {
+                return MortarCalculator.metersToGrid(pos.x, pos.y, true);
+            } else {
+                return `${Math.round(pos.x)}/${Math.round(pos.y)}`;
+            }
+        }
         
         function captureCurrentInputs() {
             return {
@@ -673,6 +697,16 @@
             
             const isGridMode = document.getElementById('targetGridMode').classList.contains('active');
             
+            // Safely get correction values from inputs or stored window state
+            let correctionLR = 0;
+            let correctionAD = 0;
+            if (window.correctionApplied) {
+                const corrLREl = document.getElementById('correctionLR');
+                const corrADEl = document.getElementById('correctionAD');
+                correctionLR = window.lastCorrectionLR || (corrLREl ? parseFloat(corrLREl.value) || 0 : 0);
+                correctionAD = window.lastCorrectionAD || (corrADEl ? parseFloat(corrADEl.value) || 0 : 0);
+            }
+            
             const entry = {
                 id: Date.now(),
                 timestamp: new Date(),
@@ -680,7 +714,11 @@
                 mortarPos,
                 targetPos,
                 distance,
-                inputMode: isGridMode ? 'grid' : 'meters'
+                inputMode: isGridMode ? 'grid' : 'meters',
+                correctionApplied: window.correctionApplied || false,
+                originalTargetPos: window.originalTargetPos || null,
+                correctionLR: correctionLR,
+                correctionAD: correctionAD
             };
             
             missionHistory.unshift(entry);
@@ -727,18 +765,15 @@
             historyList.innerHTML = missionHistory.map((entry, index) => {
                 const time = entry.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 
-                let mortarDisplay, targetDisplay;
-                if (entry.inputMode === 'grid') {
-                    mortarDisplay = MortarCalculator.metersToGrid(entry.mortarPos.x, entry.mortarPos.y, true);
-                    targetDisplay = MortarCalculator.metersToGrid(entry.targetPos.x, entry.targetPos.y, true);
-                } else {
-                    mortarDisplay = `${Math.round(entry.mortarPos.x)}/${Math.round(entry.mortarPos.y)}`;
-                    targetDisplay = `${Math.round(entry.targetPos.x)}/${Math.round(entry.targetPos.y)}`;
-                }
+                const mortarDisplay = formatPositionDisplay(entry.mortarPos, entry.inputMode);
+                const targetDisplay = formatPositionDisplay(entry.targetPos, entry.inputMode);
                 
                 const mortarName = getAllMortarTypes().find(m => m.id === entry.mortarType)?.name || entry.mortarType;
                 const ffeInfo = entry.ffeEnabled ? ` | FFE: ${entry.ffeRounds} rds` : '';
                 const labelDisplay = entry.missionLabel ? `<strong style="color: #8fbc1e;">${entry.missionLabel}</strong> - ` : '';
+                const correctionInfo = entry.correctionApplied 
+                    ? `<span style="color: ${COLORS.errorText}; font-weight: 600;"> | 🔴 CORRECTED (L/R: ${entry.correctionLR > 0 ? '+' : ''}${entry.correctionLR}m, A/D: ${entry.correctionAD > 0 ? '+' : ''}${entry.correctionAD}m)</span>` 
+                    : '';
                 
                 return `
                     <div class="history-item ${index === currentHistoryIndex ? 'active' : ''}" onclick="loadFromHistory(${index})">
@@ -750,7 +785,7 @@
                             <button class="history-delete" onclick="deleteFromHistory(${index}, event)" title="Delete mission">🗑️</button>
                         </div>
                         <div class="history-details">
-                            📍 ${mortarDisplay} → 🎯 ${targetDisplay} | ${entry.distance.toFixed(0)}m${ffeInfo}
+                            📍 ${mortarDisplay} → 🎯 ${targetDisplay} | ${entry.distance.toFixed(0)}m${ffeInfo}${correctionInfo}
                         </div>
                     </div>
                 `;
@@ -848,12 +883,7 @@
         
         // Clear all coordinate input fields
         function clearAllInputs() {
-            const ids = [
-                'mortarGridX', 'mortarGridY', 'mortarX', 'mortarY', 'mortarZ',
-                'targetGridX', 'targetGridY', 'targetX', 'targetY', 'targetZ',
-                'missionLabel'
-            ];
-            ids.forEach(id => {
+            INPUT_IDS.ALL_COORD_FIELDS.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = '';
             });
@@ -908,6 +938,48 @@
                 </div>
                 <div style="margin-top: 10px; padding: 8px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; font-size: 12px; color: #a8b898;">
                     <strong>Charge Range:</strong> ${solution.minRange}m - ${solution.maxRange}m
+                </div>
+            `;
+        }
+        
+        // Generate mission card HTML for optimal or alternative missions
+        function generateMissionCardHTML(solution, index, previousChargeForDisplay, solutions) {
+            let trajectoryLabel;
+            if (index === 0) {
+                trajectoryLabel = '🎯 Optimal Fire Mission';
+            } else {
+                trajectoryLabel = solution.trajectoryType === 'high' 
+                    ? '🔄 Alternative Fire Mission (High Angle)' 
+                    : '🔄 Alternative Fire Mission (Low Angle)';
+            }
+            
+            let chargeDesc = '';
+            if (index === 0) {
+                chargeDesc = solutions.length > 1 
+                    ? `Fastest - ${solution.timeOfFlight}s flight time`
+                    : 'Optimal solution';
+            } else {
+                const timeDiff = solution.timeOfFlight - solutions[0].timeOfFlight;
+                const elevDiff = solution.elevation - solutions[0].elevation;
+                const elevDegDiff = MortarCalculator.milsToDegrees(solution.elevation, window.lastInput.mortarType) - MortarCalculator.milsToDegrees(solutions[0].elevation, window.lastInput.mortarType);
+                const elevSign = elevDiff > 0 ? '+' : '';
+                chargeDesc = `+${timeDiff.toFixed(1)}s slower, ${elevSign}${elevDiff} mils (${elevSign}${elevDegDiff.toFixed(1)}°) vs charge ${solutions[0].charge}`;
+            }
+            
+            return `
+                <div ${index > 0 ? 'id="altMission_' + index + '" class="alternativeMission"' : ''} style="${index > 0 ? 'display: none; ' : ''}background: ${index === 0 ? 'rgba(40, 55, 45, 0.9)' : 'rgba(35, 45, 42, 0.7)'}; padding: 15px; border-radius: 4px; margin-bottom: 10px; border: ${index === 0 ? '2px solid #6b8e23' : '1px solid #4a5a52'};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 style="margin: 0; font-size: 16px; color: ${index === 0 ? '#c8d4a0' : '#a8b898'};">
+                            ${trajectoryLabel} - Charge ${solution.charge}
+                        </h3>
+                        <span style="font-size: 12px; color: #95a585; font-style: italic;">
+                            ${chargeDesc}
+                        </span>
+                    </div>
+                    ${generateSolutionGridHTML(solution, previousChargeForDisplay)}
+                    <button class="btn-press" onclick="selectMission(${solution.charge})" id="selectBtn_${solution.charge}" style="width: 100%; margin-top: 10px; padding: 8px; background: ${index === 0 ? BTN_STYLES.selected : BTN_STYLES.unselected}; border: 1px solid ${index === 0 ? BTN_STYLES.selectedBorder : BTN_STYLES.unselectedBorder}; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        ${index === 0 ? '✓ Selected Mission' : 'Use This Mission'}
+                    </button>
                 </div>
             `;
         }
@@ -1030,6 +1102,34 @@
             return isValid;
         }
         
+        // Helper: Create or update range indicator
+        function updateRangeIndicatorDisplay(inRange, distance, solution) {
+            const targetInputs = getTargetInputs();
+            let rangeIndicator = document.getElementById('rangeIndicator');
+            
+            if (!rangeIndicator) {
+                rangeIndicator = document.createElement('div');
+                rangeIndicator.id = 'rangeIndicator';
+                rangeIndicator.style.cssText = 'margin-top: 8px; padding: 8px; border-radius: 4px; font-size: 12px; font-weight: 600;';
+                const firstTargetInput = targetInputs.gridX || targetInputs.x;
+                if (firstTargetInput && firstTargetInput.parentElement) {
+                    firstTargetInput.parentElement.appendChild(rangeIndicator);
+                }
+            }
+            
+            if (inRange) {
+                rangeIndicator.textContent = `✓ Range: ${Math.round(distance)}m (Charge ${solution.charge})`;
+                rangeIndicator.style.background = COLORS.successBg;
+                rangeIndicator.style.border = `1px solid ${COLORS.successBorder}`;
+                rangeIndicator.style.color = COLORS.successText;
+            } else {
+                rangeIndicator.textContent = `⚠ Range: ${Math.round(distance)}m - Out of range for all charges`;
+                rangeIndicator.style.background = COLORS.errorBg;
+                rangeIndicator.style.border = `1px solid ${COLORS.errorBorder}`;
+                rangeIndicator.style.color = COLORS.errorText;
+            }
+        }
+        
         // Real-time range validation
         function validateCoordinateRange() {
             if (!ballisticDataLoaded) return;
@@ -1146,9 +1246,18 @@
                 return;
             }
             
+            // Store correction values for history
+            window.lastCorrectionLR = correctionLR;
+            window.lastCorrectionAD = correctionAD;
+            
             try {
                 const mortarPos = parsePositionFromUI('mortar');
                 const targetPos = parsePositionFromUI('target');
+                
+                // Store original target position before correction
+                if (!window.originalTargetPos) {
+                    window.originalTargetPos = {...targetPos};
+                }
                 
                 // Apply fire correction
                 const corrected = MortarCalculator.applyFireCorrection(mortarPos, targetPos, correctionLR, correctionAD);
@@ -1326,8 +1435,11 @@
                 // Clear range validation
                 clearRangeValidation();
                 
-                // Reset correction flag
+                // Reset correction flag and original position
                 window.correctionApplied = false;
+                window.originalTargetPos = null;
+                window.lastCorrectionLR = null;
+                window.lastCorrectionAD = null;
                 
                 // Reset Fire for Effect
                 resetFFEControls();
@@ -1342,6 +1454,9 @@
                 input.addEventListener('input', function() {
                     this.style.color = '';
                     window.correctionApplied = false;
+                    window.originalTargetPos = null;
+                    window.lastCorrectionLR = null;
+                    window.lastCorrectionAD = null;
                     // Trigger range validation (includes format validation)
                     validateCoordinateRange();
                 });
@@ -1764,45 +1879,11 @@
                     let optimalMissionHTML = '';
                     let alternativeMissionsHTML = '';
                     
+                    // Store input for mission card generation
+                    window.lastInput = input;
+                    
                     solutions.forEach((solution, index) => {
-                        let trajectoryLabel;
-                        if (index === 0) {
-                            trajectoryLabel = '🎯 Optimal Fire Mission';
-                        } else {
-                            trajectoryLabel = solution.trajectoryType === 'high' 
-                                ? '🔄 Alternative Fire Mission (High Angle)' 
-                                : '🔄 Alternative Fire Mission (Low Angle)';
-                        }
-                        
-                        let chargeDesc = '';
-                        if (index === 0) {
-                            chargeDesc = solutions.length > 1 
-                                ? `Fastest - ${solution.timeOfFlight}s flight time`
-                                : 'Optimal solution';
-                        } else {
-                            const timeDiff = solution.timeOfFlight - solutions[0].timeOfFlight;
-                            const elevDiff = solution.elevation - solutions[0].elevation;
-                            const elevDegDiff = MortarCalculator.milsToDegrees(solution.elevation, input.mortarType) - MortarCalculator.milsToDegrees(solutions[0].elevation, input.mortarType);
-                            const elevSign = elevDiff > 0 ? '+' : '';
-                            chargeDesc = `+${timeDiff.toFixed(1)}s slower, ${elevSign}${elevDiff} mils (${elevSign}${elevDegDiff.toFixed(1)}°) vs charge ${solutions[0].charge}`;
-                        }
-                        
-                        const missionHTML = `
-                            <div ${index > 0 ? 'id="altMission_' + index + '" class="alternativeMission"' : ''} style="${index > 0 ? 'display: none; ' : ''}background: ${index === 0 ? 'rgba(40, 55, 45, 0.9)' : 'rgba(35, 45, 42, 0.7)'}; padding: 15px; border-radius: 4px; margin-bottom: 10px; border: ${index === 0 ? '2px solid #6b8e23' : '1px solid #4a5a52'};">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                    <h3 style="margin: 0; font-size: 16px; color: ${index === 0 ? '#c8d4a0' : '#a8b898'};">
-                                        ${trajectoryLabel} - Charge ${solution.charge}
-                                    </h3>
-                                    <span style="font-size: 12px; color: #95a585; font-style: italic;">
-                                        ${chargeDesc}
-                                    </span>
-                                </div>
-                                ${generateSolutionGridHTML(solution, previousChargeForDisplay)}
-                                <button onclick="selectMission(${solution.charge})" id="selectBtn_${solution.charge}" style="width: 100%; margin-top: 10px; padding: 8px; background: ${index === 0 ? BTN_STYLES.selected : BTN_STYLES.unselected}; border: 1px solid ${index === 0 ? BTN_STYLES.selectedBorder : BTN_STYLES.unselectedBorder}; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px; transition: transform 0.1s ease, box-shadow 0.1s ease;" onmousedown="this.style.transform='scale(0.95)'; this.style.boxShadow='0 0 20px rgba(143, 188, 30, 0.8)';" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='none';" onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='none';">
-                                    ${index === 0 ? '✓ Selected Mission' : 'Use This Mission'}
-                                </button>
-                            </div>
-                        `;
+                        const missionHTML = generateMissionCardHTML(solution, index, previousChargeForDisplay, solutions);
                         
                         if (index === 0) {
                             optimalMissionHTML = missionHTML;
@@ -1852,7 +1933,7 @@
                         </div>
                         
                         ${solutions.length > 1 ? `
-                        <button onclick="toggleAlternativeMissions()" id="toggleAltBtn" style="width: 100%; padding: 10px; margin-top: 20px; background: linear-gradient(180deg, #555 0%, #444 100%); border: 1px solid #666; border-radius: 4px; color: #c8d4a0; font-weight: 600; cursor: pointer; font-size: 13px; transition: transform 0.1s ease, box-shadow 0.1s ease;" onmousedown="this.style.transform='scale(0.95)'; this.style.boxShadow='0 0 20px rgba(200, 212, 160, 0.5)';" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='none';" onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                        <button class="btn-press" onclick="toggleAlternativeMissions()" id="toggleAltBtn" style="width: 100%; padding: 10px; margin-top: 20px; background: linear-gradient(180deg, #555 0%, #444 100%); border: 1px solid #666; border-radius: 4px; color: #c8d4a0; font-weight: 600; cursor: pointer; font-size: 13px;">
                             ▼ Show ${solutions.length - 1} Alternative Mission${solutions.length > 2 ? 's' : ''}
                         </button>
                         ` : ''}
@@ -1860,8 +1941,9 @@
                         ${alternativeMissionsHTML}
                     `;
                     
-                    // Clear previous charge after output is complete
+                    // Clear previous charge and correction state after output is complete
                     window.previousCharge = null;
+                    window.originalTargetPos = null;
                     
                     // Store original optimal charge for marking
                     window.originalOptimalCharge = solutions[0].charge;
