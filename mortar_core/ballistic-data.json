@@ -5,7 +5,7 @@
   "mortarTypes": [
     {
       "id": "RUS",
-      "name": "Russian 82mm Mortar",
+      "name": "Soviet 2B14 82mm Mortar",
       "caliber": 82,
       "milSystem": {
         "name": "Warsaw Pact",
