@@ -15,7 +15,7 @@
       "shellTypes": [
         {
           "type": "HE",
-          "name": "High Explosive",
+          "name": "O-832 High Explosive",
           "charges": [
             {
               "level": 0,
@@ -525,7 +525,7 @@
         },
         {
           "type": "Illumination",
-          "name": "Illumination",
+          "name": "ILL-82 Illumination",
           "charges": [
             {
               "level": 1,
@@ -937,7 +937,7 @@
         },
         {
           "type": "Smoke",
-          "name": "Smoke",
+          "name": "D-832 Smoke",
           "charges": [
             {
               "level": 1,
@@ -1263,7 +1263,7 @@
       "shellTypes": [
         {
           "type": "HE",
-          "name": "High Explosive",
+          "name": "M821High Explosive",
           "charges": [
             {
               "level": 0,
@@ -1857,7 +1857,7 @@
         },
         {
           "type": "Illumination",
-          "name": "Illumination",
+          "name": "M721 Illumination",
           "charges": [
             {
               "level": 1,
@@ -2332,7 +2332,7 @@
         },
         {
           "type": "Smoke",
-          "name": "Smoke",
+          "name": "M375 Smoke",
           "charges": [
             {
               "level": 1,
