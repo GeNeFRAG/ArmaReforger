@@ -277,6 +277,75 @@
         .coord-mode.active {
             display: block;
         }
+        .history-panel {
+            background: rgba(35, 45, 42, 0.85);
+            padding: 20px;
+            border-radius: 4px;
+            border: 1px solid #3a4a45;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .history-item {
+            background: rgba(20, 25, 22, 0.8);
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 2px;
+            border: 1px solid #4a5a52;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .history-item:hover {
+            background: rgba(30, 35, 32, 0.9);
+            border-color: #6b8e23;
+        }
+        .history-item.active {
+            border: 2px solid #6b8e23;
+            background: rgba(40, 55, 45, 0.9);
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .history-title {
+            color: #c8d4a0;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .history-time {
+            color: #95a585;
+            font-size: 11px;
+        }
+        .history-details {
+            color: #b8c8d0;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .history-delete {
+            background: transparent;
+            border: none;
+            color: #a85050;
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 16px;
+            margin: 0;
+            width: auto;
+            transition: all 0.2s;
+        }
+        .history-delete:hover {
+            color: #ff6b6b;
+            transform: scale(1.2);
+        }
+        .clear-history-btn {
+            background: linear-gradient(180deg, #a85050 0%, #984040 100%);
+            border-color: #883030;
+            padding: 8px 16px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
         @media (max-width: 600px) {
             .row {
                 grid-template-columns: 1fr;
@@ -301,6 +370,15 @@
     <div id="app" style="display: none;">
         <div class="info">
             ℹ️ Enter weapon system and target coordinates to calculate firing mission. Mortar charge is automatically selected for optimal range.
+        </div>
+        
+        <!-- History Panel -->
+        <div id="historyPanel" class="history-panel" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0;">📜 Mission History</h2>
+                <button class="clear-history-btn" onclick="clearHistory()">Clear All</button>
+            </div>
+            <div id="historyList"></div>
         </div>
         
         <div class="toggle-container">
@@ -472,6 +550,12 @@
                 </div>
             </div>
             
+            <div class="form-group">
+                <label for="missionLabel">Mission Label (Optional)</label>
+                <input type="text" id="missionLabel" placeholder="e.g., TRP 1, TGT AA1234, HILL 201" maxlength="20">
+                <small style="color: #999; display: block; margin-top: 5px;">NATO-style identifier: Target Reference Point, Grid, or Designation</small>
+            </div>
+            
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <button id="calculate" style="flex: 3; transition: transform 0.1s ease, box-shadow 0.1s ease;" onmousedown="this.style.transform='scale(0.95)'; this.style.boxShadow='0 0 20px rgba(143, 188, 30, 0.8)';" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='none';" onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='none';">Compute Fire Mission</button>
                 <button id="reset" style="flex: 1; background: linear-gradient(180deg, #666 0%, #555 100%); transition: transform 0.1s ease, box-shadow 0.1s ease;" onmousedown="this.style.transform='scale(0.95)'; this.style.boxShadow='0 0 20px rgba(255, 107, 107, 0.6)';" onmouseup="this.style.transform='scale(1)'; this.style.boxShadow='none';" onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='none';">Reset</button>
@@ -493,7 +577,7 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.4.1"></script>
+    <script src="MortarCalculator.js?v=1.5.0"></script>
     <script>
         let ballisticDataLoaded = false;
         
@@ -518,6 +602,180 @@
             selectedBorder: '#8fbc1e',
             unselectedBorder: '#666'
         };
+        
+        // Mission history
+        const missionHistory = [];
+        let currentHistoryIndex = -1;
+        let isLoadingFromHistory = false;
+        
+        function captureCurrentInputs() {
+            return {
+                mortarType: document.getElementById('mortarType').value,
+                shellType: document.getElementById('shellType').value,
+                ffeEnabled: document.getElementById('ffeEnabled').checked,
+                ffePattern: document.getElementById('ffePattern').value,
+                ffeRounds: parseInt(document.getElementById('ffeRounds').value),
+                ffeSpacing: parseFloat(document.getElementById('ffeSpacing').value),
+                ffeRadius: parseFloat(document.getElementById('ffeRadius').value),
+                missionLabel: document.getElementById('missionLabel').value.trim()
+            };
+        }
+        
+        function setInputsFromData(data) {
+            document.getElementById('mortarType').value = data.mortarType;
+            updateShellTypes();
+            document.getElementById('shellType').value = data.shellType;
+            document.getElementById('missionLabel').value = data.missionLabel || '';
+            
+            document.getElementById('ffeEnabled').checked = data.ffeEnabled;
+            setDisplay(document.getElementById('ffeControls'), data.ffeEnabled);
+            
+            if (data.ffeEnabled) {
+                document.getElementById('ffePattern').value = data.ffePattern;
+                document.getElementById('ffeRounds').value = data.ffeRounds;
+                document.getElementById('ffeSpacing').value = data.ffeSpacing;
+                document.getElementById('ffeRadius').value = data.ffeRadius;
+                
+                const isCircular = data.ffePattern === 'circular';
+                setDisplay(document.getElementById('ffeSpacingGroup'), !isCircular);
+                setDisplay(document.getElementById('ffeRadiusGroup'), isCircular);
+            }
+        }
+        
+        function setPositionInputs(mortarPos, targetPos) {
+            const isGridMode = document.getElementById('targetGridMode').classList.contains('active');
+            
+            // Mortar position
+            if (isGridMode) {
+                const mortarGrid = MortarCalculator.metersToGrid(mortarPos.x, mortarPos.y, true).split('/');
+                document.getElementById('mortarGridX').value = mortarGrid[0];
+                document.getElementById('mortarGridY').value = mortarGrid[1];
+            } else {
+                document.getElementById('mortarX').value = mortarPos.x.toFixed(1);
+                document.getElementById('mortarY').value = mortarPos.y.toFixed(1);
+            }
+            document.getElementById('mortarZ').value = mortarPos.z.toFixed(1);
+            
+            // Target position
+            if (isGridMode) {
+                const targetGrid = MortarCalculator.metersToGrid(targetPos.x, targetPos.y, true).split('/');
+                document.getElementById('targetGridX').value = targetGrid[0];
+                document.getElementById('targetGridY').value = targetGrid[1];
+            } else {
+                document.getElementById('targetX').value = targetPos.x.toFixed(1);
+                document.getElementById('targetY').value = targetPos.y.toFixed(1);
+            }
+            document.getElementById('targetZ').value = targetPos.z.toFixed(1);
+        }
+        
+        function addToHistory(mortarPos, targetPos, distance, solutions) {
+            if (isLoadingFromHistory) return;
+            
+            const isGridMode = document.getElementById('targetGridMode').classList.contains('active');
+            
+            const entry = {
+                id: Date.now(),
+                timestamp: new Date(),
+                ...captureCurrentInputs(),
+                mortarPos,
+                targetPos,
+                distance,
+                inputMode: isGridMode ? 'grid' : 'meters'
+            };
+            
+            missionHistory.unshift(entry);
+            if (missionHistory.length > 20) missionHistory.pop();
+            
+            currentHistoryIndex = 0;
+            updateHistoryDisplay();
+        }
+        
+        function loadFromHistory(index) {
+            if (index < 0 || index >= missionHistory.length) return;
+            
+            const entry = missionHistory[index];
+            currentHistoryIndex = index;
+            
+            isLoadingFromHistory = true;
+            
+            // Switch to the correct coordinate input mode
+            const targetMode = entry.inputMode || 'grid';
+            setCoordMode(targetMode);
+            
+            setInputsFromData(entry);
+            setPositionInputs(entry.mortarPos, entry.targetPos);
+            
+            calculateSolution();
+            updateHistoryDisplay();
+            
+            setTimeout(() => {
+                isLoadingFromHistory = false;
+            }, 100);
+        }
+        
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            const historyPanel = document.getElementById('historyPanel');
+            
+            if (missionHistory.length === 0) {
+                setDisplay(historyPanel, false);
+                return;
+            }
+            
+            setDisplay(historyPanel, true);
+            
+            historyList.innerHTML = missionHistory.map((entry, index) => {
+                const time = entry.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                
+                let mortarDisplay, targetDisplay;
+                if (entry.inputMode === 'grid') {
+                    mortarDisplay = MortarCalculator.metersToGrid(entry.mortarPos.x, entry.mortarPos.y, true);
+                    targetDisplay = MortarCalculator.metersToGrid(entry.targetPos.x, entry.targetPos.y, true);
+                } else {
+                    mortarDisplay = `${Math.round(entry.mortarPos.x)}/${Math.round(entry.mortarPos.y)}`;
+                    targetDisplay = `${Math.round(entry.targetPos.x)}/${Math.round(entry.targetPos.y)}`;
+                }
+                
+                const mortarName = getAllMortarTypes().find(m => m.id === entry.mortarType)?.name || entry.mortarType;
+                const ffeInfo = entry.ffeEnabled ? ` | FFE: ${entry.ffeRounds} rds` : '';
+                const labelDisplay = entry.missionLabel ? `<strong style="color: #8fbc1e;">${entry.missionLabel}</strong> - ` : '';
+                
+                return `
+                    <div class="history-item ${index === currentHistoryIndex ? 'active' : ''}" onclick="loadFromHistory(${index})">
+                        <div class="history-header">
+                            <div>
+                                <span class="history-time">${time}</span>
+                                <span class="history-title">${labelDisplay}${mortarName} ${entry.shellType}</span>
+                            </div>
+                            <button class="history-delete" onclick="deleteFromHistory(${index}, event)" title="Delete mission">🗑️</button>
+                        </div>
+                        <div class="history-details">
+                            📍 ${mortarDisplay} → 🎯 ${targetDisplay} | ${entry.distance.toFixed(0)}m${ffeInfo}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function clearHistory() {
+            missionHistory.length = 0;
+            currentHistoryIndex = -1;
+            updateHistoryDisplay();
+        }
+        
+        function deleteFromHistory(index, event) {
+            event.stopPropagation();
+            
+            missionHistory.splice(index, 1);
+            
+            if (currentHistoryIndex === index) {
+                currentHistoryIndex = -1;
+            } else if (currentHistoryIndex > index) {
+                currentHistoryIndex--;
+            }
+            
+            updateHistoryDisplay();
+        }
         
         // Generate info banner HTML
         function createInfoBanner(message, type = 'info') {
@@ -592,7 +850,8 @@
         function clearAllInputs() {
             const ids = [
                 'mortarGridX', 'mortarGridY', 'mortarX', 'mortarY', 'mortarZ',
-                'targetGridX', 'targetGridY', 'targetX', 'targetY', 'targetZ'
+                'targetGridX', 'targetGridY', 'targetX', 'targetY', 'targetZ',
+                'missionLabel'
             ];
             ids.forEach(id => {
                 const el = document.getElementById(id);
@@ -1441,6 +1700,9 @@
                 // Store the primary solution for charge change detection
                 if (solutions.length > 0 && solutions[0].inRange) {
                     window.lastSolution = solutions[0];
+                    
+                    // Add to mission history
+                    addToHistory(mortarPos, targetPos, input.distance, solutions);
                 }
                 
                 console.log('Solutions:', solutions);
