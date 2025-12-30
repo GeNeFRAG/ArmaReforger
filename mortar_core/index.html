@@ -181,6 +181,10 @@
             transform: scale(0.95);
             box-shadow: 0 0 20px rgba(143, 188, 30, 0.8);
         }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
         .result {
             background: rgba(35, 45, 42, 0.9);
             padding: 20px;
@@ -575,7 +579,7 @@
     
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
-        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.5.1</span></p>
+        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.5.2</span></p>
         <p>Accurate ballistic calculations for US 60mm & Russian 82mm mortars | Grid coordinate support</p>
         <p>
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
@@ -584,7 +588,7 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.5.1"></script>
+    <script src="MortarCalculator.js?v=1.5.2"></script>
     <script>
         let ballisticDataLoaded = false;
         
@@ -1065,10 +1069,78 @@
                 if (!isNaN(x) && !isNaN(y)) {
                     return { x, y, z };
                 } else if (!allowNull) {
+                    // Highlight missing fields before throwing error
+                    highlightMissingFields(prefix);
                     throw new Error(`Enter either grid coordinates or X/Y meter values for ${prefix}`);
                 }
                 return null;
             }
+        }
+        
+        // Highlight missing input fields
+        function highlightMissingFields(prefix) {
+            const gridX = document.getElementById(`${prefix}GridX`);
+            const gridY = document.getElementById(`${prefix}GridY`);
+            const meterX = document.getElementById(`${prefix}X`);
+            const meterY = document.getElementById(`${prefix}Y`);
+            
+            // Check which mode should have values
+            const gridXVal = gridX.value.trim();
+            const gridYVal = gridY.value.trim();
+            const meterXVal = meterX.value.trim();
+            const meterYVal = meterY.value.trim();
+            
+            // If partial grid input, highlight missing grid fields
+            if (gridXVal || gridYVal) {
+                if (!gridXVal) highlightField(gridX);
+                if (!gridYVal) highlightField(gridY);
+            }
+            // If partial meter input, highlight missing meter fields
+            else if (meterXVal || meterYVal) {
+                if (!meterXVal) highlightField(meterX);
+                if (!meterYVal) highlightField(meterY);
+            }
+            // No input at all, highlight all primary fields based on active mode
+            else {
+                const isGridMode = document.getElementById(`${prefix}GridMode`)?.classList.contains('active');
+                if (isGridMode) {
+                    highlightField(gridX);
+                    highlightField(gridY);
+                } else {
+                    highlightField(meterX);
+                    highlightField(meterY);
+                }
+            }
+        }
+        
+        // Highlight a single field with error styling
+        function highlightField(element) {
+            if (!element) return;
+            element.style.borderColor = COLORS.error;
+            element.style.boxShadow = `0 0 8px ${COLORS.errorShadow}`;
+            
+            // Add pulse animation
+            element.style.animation = 'pulse 0.5s ease-in-out 2';
+        }
+        
+        // Clear error styling from a single field
+        function clearFieldErrorStyling(element) {
+            if (!element) return;
+            element.style.borderColor = '';
+            element.style.boxShadow = '';
+            element.style.animation = '';
+        }
+        
+        // Clear field highlighting
+        function clearFieldHighlighting(prefix) {
+            const fields = [
+                document.getElementById(`${prefix}GridX`),
+                document.getElementById(`${prefix}GridY`),
+                document.getElementById(`${prefix}X`),
+                document.getElementById(`${prefix}Y`)
+            ];
+            
+            fields.forEach(clearFieldErrorStyling);
         }
         
         // Validate grid coordinate format in real-time
@@ -1449,10 +1521,11 @@
             });
             
             // Clear red highlighting when user manually edits target fields
-            ['targetGridX', 'targetGridY', 'targetX', 'targetY'].forEach(id => {
+            INPUT_IDS.TARGET_FIELDS.forEach(id => {
                 const input = document.getElementById(id);
                 input.addEventListener('input', function() {
                     this.style.color = '';
+                    clearFieldErrorStyling(this);
                     window.correctionApplied = false;
                     window.originalTargetPos = null;
                     window.lastCorrectionLR = null;
@@ -1463,9 +1536,12 @@
             });
             
             // Add range validation to all coordinate inputs
-            ['mortarGridX', 'mortarGridY', 'mortarX', 'mortarY', 'mortarZ'].forEach(id => {
+            INPUT_IDS.MORTAR_FIELDS.forEach(id => {
                 const input = document.getElementById(id);
-                input.addEventListener('input', validateCoordinateRange);
+                input.addEventListener('input', function() {
+                    clearFieldErrorStyling(this);
+                    validateCoordinateRange();
+                });
             });
             
             // Trigger validation when mortar type or shell type changes
@@ -1645,6 +1721,10 @@
             try {
                 const mortarId = document.getElementById('mortarType').value;
                 const shellType = document.getElementById('shellType').value;
+                
+                // Clear any previous field highlighting
+                clearFieldHighlighting('mortar');
+                clearFieldHighlighting('target');
                 
                 const mortarPos = parsePositionFromUI('mortar');
                 const targetPos = parsePositionFromUI('target');

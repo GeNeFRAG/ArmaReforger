@@ -1,6 +1,7 @@
 /**
  * Arma Reforger Mortar Ballistic Calculator
  * Framework-agnostic calculation engine
+ * Version: 1.5.2
  * 
  * Features:
  * - Precision ballistic calculations for mortar fire missions
