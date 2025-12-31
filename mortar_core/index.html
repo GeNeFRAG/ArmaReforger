@@ -579,7 +579,7 @@
     
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
-        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.5.4</span></p>
+        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.5.5</span></p>
         <p>Accurate ballistic calculations for US M252 81mm and Soviet 2B14 82mm | Grid coordinate support</p>
         <p>
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
@@ -588,7 +588,7 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.5.4"></script>
+    <script src="MortarCalculator.js?v=1.5.5"></script>
     <script>
         let ballisticDataLoaded = false;
         
@@ -634,6 +634,19 @@
             } else {
                 return `${Math.round(pos.x)}/${Math.round(pos.y)}`;
             }
+        }
+        
+        // Debounce utility for performance optimization (reduces INP)
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func.apply(this, args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
         }
         
         function captureCurrentInputs() {
@@ -1293,6 +1306,9 @@
             }
         }
         
+        // Create debounced version for input events (300ms delay)
+        const debouncedValidateCoordinateRange = debounce(validateCoordinateRange, 300);
+        
         function clearRangeValidation() {
             const targetInputs = getTargetInputs();
             
@@ -1530,8 +1546,8 @@
                     window.originalTargetPos = null;
                     window.lastCorrectionLR = null;
                     window.lastCorrectionAD = null;
-                    // Trigger range validation (includes format validation)
-                    validateCoordinateRange();
+                    // Trigger range validation (debounced for performance)
+                    debouncedValidateCoordinateRange();
                 });
             });
             
@@ -1540,7 +1556,7 @@
                 const input = document.getElementById(id);
                 input.addEventListener('input', function() {
                     clearFieldErrorStyling(this);
-                    validateCoordinateRange();
+                    debouncedValidateCoordinateRange();
                 });
             });
             
