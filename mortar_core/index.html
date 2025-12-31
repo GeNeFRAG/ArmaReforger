@@ -357,6 +357,24 @@
             font-size: 12px;
             margin-top: 10px;
         }
+        .observer-label {
+            display: block;
+            color: #95a585;
+            font-size: 11px;
+            margin-bottom: 3px;
+        }
+        .observer-input {
+            width: 100%;
+            padding: 6px;
+            background: rgba(20, 25, 22, 0.8);
+            border: 1px solid #4a5a52;
+            border-radius: 3px;
+            color: #c8d4a0;
+            font-size: 12px;
+        }
+        .observer-input-grid {
+            font-family: monospace;
+        }
         @media (max-width: 600px) {
             .row {
                 grid-template-columns: 1fr;
@@ -431,11 +449,11 @@
                         <div class="row">
                             <div class="form-group">
                                 <label for="mortarGridX">Grid X Coordinate</label>
-                                <input type="text" id="mortarGridX" placeholder="047 or 0475" style="font-family: monospace; font-size: 16px;">
+                                <input type="text" id="mortarGridX" placeholder="047 or 0475" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="font-family: monospace; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label for="mortarGridY">Grid Y Coordinate</label>
-                                <input type="text" id="mortarGridY" placeholder="069 or 0695" style="font-family: monospace; font-size: 16px;">
+                                <input type="text" id="mortarGridY" placeholder="069 or 0695" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="font-family: monospace; font-size: 16px;">
                             </div>
                         </div>
                         <small style="color: #999; display: block; margin-top: -15px;">3-digit (10m squares) or 4-digit (1m precision)</small>
@@ -448,11 +466,11 @@
                         <div class="row">
                             <div class="form-group">
                                 <label for="mortarX">X Coordinate (meters)</label>
-                                <input type="number" id="mortarX" placeholder="4800" step="0.1">
+                                <input type="number" id="mortarX" placeholder="4800" step="0.1" min="0" max="99999.9">
                             </div>
                             <div class="form-group">
                                 <label for="mortarY">Y Coordinate (meters)</label>
-                                <input type="number" id="mortarY" placeholder="7049" step="0.1">
+                                <input type="number" id="mortarY" placeholder="7049" step="0.1" min="0" max="99999.9">
                             </div>
                         </div>
                         <small style="color: #999; display: block; margin-top: -15px;">Enter map coordinates in meters</small>
@@ -461,7 +479,7 @@
                 
                 <div class="form-group">
                     <label for="mortarZ">Height (m ASL)</label>
-                    <input type="number" id="mortarZ" placeholder="168" step="0.1">
+                    <input type="number" id="mortarZ" placeholder="168" step="0.1" min="-1000" max="9999">
                 </div>
                 
                 <h2>Target Position</h2>
@@ -472,11 +490,11 @@
                         <div class="row">
                             <div class="form-group">
                                 <label for="targetGridX">Grid X Coordinate</label>
-                                <input type="text" id="targetGridX" placeholder="085 or 0850" style="font-family: monospace; font-size: 16px;">
+                                <input type="text" id="targetGridX" placeholder="085 or 0850" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="font-family: monospace; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label for="targetGridY">Grid Y Coordinate</label>
-                                <input type="text" id="targetGridY" placeholder="105 or 1050" style="font-family: monospace; font-size: 16px;">
+                                <input type="text" id="targetGridY" placeholder="105 or 1050" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="font-family: monospace; font-size: 16px;">
                             </div>
                         </div>
                         <small style="color: #999; display: block; margin-top: -15px;">3-digit (10m squares) or 4-digit (1m precision)</small>
@@ -489,11 +507,11 @@
                         <div class="row">
                             <div class="form-group">
                                 <label for="targetX">X Coordinate (meters)</label>
-                                <input type="number" id="targetX" placeholder="4696" step="0.1">
+                                <input type="number" id="targetX" placeholder="4696" step="0.1" min="0" max="99999.9">
                             </div>
                             <div class="form-group">
                                 <label for="targetY">Y Coordinate (meters)</label>
-                                <input type="number" id="targetY" placeholder="5516" step="0.1">
+                                <input type="number" id="targetY" placeholder="5516" step="0.1" min="0" max="99999.9">
                             </div>
                         </div>
                         <small style="color: #999; display: block; margin-top: -15px;">Enter map coordinates in meters</small>
@@ -502,7 +520,7 @@
                 
                 <div class="form-group">
                     <label for="targetZ">Height (m ASL)</label>
-                    <input type="number" id="targetZ" placeholder="64" step="0.1">
+                    <input type="number" id="targetZ" placeholder="64" step="0.1" min="-1000" max="9999">
                 </div>
                 
                 <div class="info" style="margin-top: 15px;">
@@ -579,7 +597,7 @@
     
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
-        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.5.6</span></p>
+        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.6.0</span></p>
         <p>Accurate ballistic calculations for US M252 81mm and Soviet 2B14 82mm | Grid coordinate support</p>
         <p>
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
@@ -588,17 +606,24 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.5.6"></script>
+    <script src="MortarCalculator.js?v=1.6.0"></script>
     <script>
         let ballisticDataLoaded = false;
         
         // Input field ID constants
         const INPUT_IDS = {
             MORTAR_FIELDS: ['mortarGridX', 'mortarGridY', 'mortarX', 'mortarY', 'mortarZ'],
-            TARGET_FIELDS: ['targetGridX', 'targetGridY', 'targetX', 'targetY'],
-            ALL_COORD_FIELDS: ['mortarGridX', 'mortarGridY', 'mortarX', 'mortarY', 'mortarZ',
-                              'targetGridX', 'targetGridY', 'targetX', 'targetY', 'targetZ', 'missionLabel']
+            TARGET_FIELDS: ['targetGridX', 'targetGridY', 'targetX', 'targetY', 'targetZ'],
+            OBSERVER_FIELDS: ['observerGridX', 'observerGridY', 'observerX', 'observerY']  // Height not needed for OT bearing
         };
+        
+        // Compose ALL_COORD_FIELDS from existing constants (DRY principle)
+        // Observer fields excluded - they persist independently with FO mode state
+        INPUT_IDS.ALL_COORD_FIELDS = [
+            ...INPUT_IDS.MORTAR_FIELDS,
+            ...INPUT_IDS.TARGET_FIELDS,
+            'missionLabel'
+        ];
         
         // Color constants
         const COLORS = {
@@ -680,6 +705,19 @@
                 const isCircular = data.ffePattern === 'circular';
                 setDisplay(document.getElementById('ffeSpacingGroup'), !isCircular);
                 setDisplay(document.getElementById('ffeRadiusGroup'), isCircular);
+            }
+        }
+        
+        // Toggle FO controls visibility
+        function toggleFOControls(checkbox) {
+            console.log('toggleFOControls called, checked:', checkbox.checked);
+            const foControls = document.getElementById('foControls');
+            console.log('foControls element:', foControls);
+            if (foControls) {
+                foControls.style.display = checkbox.checked ? 'block' : 'none';
+                console.log('Set display to:', foControls.style.display);
+            } else {
+                console.error('foControls element not found!');
             }
         }
         
@@ -873,7 +911,8 @@
                 gridX: document.getElementById('targetGridX'),
                 gridY: document.getElementById('targetGridY'),
                 x: document.getElementById('targetX'),
-                y: document.getElementById('targetY')
+                y: document.getElementById('targetY'),
+                z: document.getElementById('targetZ')
             };
         }
         
@@ -1003,8 +1042,8 @@
         
         // Toggle between grid and meters coordinate input
         function setCoordMode(mode) {
-            const gridModes = document.querySelectorAll('#mortarGridMode, #targetGridMode');
-            const meterModes = document.querySelectorAll('#mortarMetersMode, #targetMetersMode');
+            const gridModes = document.querySelectorAll('#mortarGridMode, #targetGridMode, #observerGridMode');
+            const meterModes = document.querySelectorAll('#mortarMetersMode, #targetMetersMode, #observerMetersMode');
             const toggleGrid = document.getElementById('toggleGrid');
             const toggleMeters = document.getElementById('toggleMeters');
             
@@ -1043,6 +1082,11 @@
             const correctionPreview = document.getElementById('correctionPreview');
             const correctionText = document.getElementById('correctionText');
             
+            // Early return if elements don't exist
+            if (!correctionLRInput || !correctionADInput || !correctionPreview || !correctionText) {
+                return;
+            }
+            
             const lr = parseFloat(correctionLRInput.value) || 0;
             const ad = parseFloat(correctionADInput.value) || 0;
             
@@ -1069,16 +1113,28 @@
         
         // Parse position from UI inputs (grid or meters mode)
         function parsePositionFromUI(prefix, allowNull = false) {
-            const gridX = document.getElementById(`${prefix}GridX`).value.trim();
-            const gridY = document.getElementById(`${prefix}GridY`).value.trim();
-            const z = parseFloat(document.getElementById(`${prefix}Z`).value) || 0;
+            const gridXEl = document.getElementById(`${prefix}GridX`);
+            const gridYEl = document.getElementById(`${prefix}GridY`);
+            const zEl = document.getElementById(`${prefix}Z`);
+            const xEl = document.getElementById(`${prefix}X`);
+            const yEl = document.getElementById(`${prefix}Y`);
+            
+            // Return null if elements don't exist (Z is optional for observer)
+            if (!gridXEl || !gridYEl || !xEl || !yEl) {
+                if (allowNull) return null;
+                throw new Error(`Position input elements for ${prefix} not found`);
+            }
+            
+            const gridX = gridXEl.value.trim();
+            const gridY = gridYEl.value.trim();
+            const z = zEl ? (parseFloat(zEl.value) || 0) : 0;  // Default to 0 if no Z field
             
             if (gridX && gridY) {
                 const grid = gridX + '/' + gridY;
                 return MortarCalculator.parsePosition({ grid, z });
             } else {
-                const x = parseFloat(document.getElementById(`${prefix}X`).value);
-                const y = parseFloat(document.getElementById(`${prefix}Y`).value);
+                const x = parseFloat(xEl.value);
+                const y = parseFloat(yEl.value);
                 if (!isNaN(x) && !isNaN(y)) {
                     return { x, y, z };
                 } else if (!allowNull) {
@@ -1224,8 +1280,10 @@
                 document.getElementById('mortarGridX'),
                 document.getElementById('mortarGridY'),
                 document.getElementById('targetGridX'),
-                document.getElementById('targetGridY')
-            ];
+                document.getElementById('targetGridY'),
+                document.getElementById('observerGridX'),
+                document.getElementById('observerGridY')
+            ].filter(el => el !== null);  // Filter out null elements (observer may not exist)
             
             let hasFormatError = false;
             gridInputs.forEach(input => {
@@ -1280,7 +1338,11 @@
                     rangeIndicator = document.createElement('div');
                     rangeIndicator.id = 'rangeIndicator';
                     rangeIndicator.style.cssText = 'margin-top: 10px; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; transition: all 0.3s;';
-                    document.querySelector('#targetZ').parentElement.insertAdjacentElement('afterend', rangeIndicator);
+                    // Insert after targetZ field's parent form-group
+                    const targetZField = document.getElementById('targetZ');
+                    if (targetZField && targetZField.parentElement) {
+                        targetZField.parentElement.insertAdjacentElement('afterend', rangeIndicator);
+                    }
                 }
                 
                 if (inRange) {
@@ -1326,6 +1388,44 @@
         }
         
         // Apply fire correction to target position
+        
+        // Update OT/GT bearing display when in FO mode
+        function updateOTBearingDisplay() {
+            const foEnabled = document.getElementById('foEnabled');
+            const otBearingDisplay = document.getElementById('otBearingDisplay');
+            
+            if (!foEnabled || !foEnabled.checked || !otBearingDisplay) {
+                if (otBearingDisplay) setDisplay(otBearingDisplay, false);
+                return;
+            }
+            
+            try {
+                const mortarPos = parsePositionFromUI('mortar', true);
+                const observerPos = parsePositionFromUI('observer', true);
+                const targetPos = parsePositionFromUI('target', true);
+                
+                if (!mortarPos || !observerPos || !targetPos) {
+                    setDisplay(otBearingDisplay, false);
+                    return;
+                }
+                
+                const otBearing = MortarCalculator.calculateBearing(observerPos, targetPos);
+                const gtBearing = MortarCalculator.calculateBearing(mortarPos, targetPos);
+                
+                let angleDiff = gtBearing - otBearing;
+                if (angleDiff > 180) angleDiff -= 360;
+                if (angleDiff < -180) angleDiff += 360;
+                
+                document.getElementById('otBearingValue').textContent = otBearing.toFixed(1);
+                document.getElementById('gtBearingValue').textContent = gtBearing.toFixed(1);
+                document.getElementById('angleDiffValue').textContent = angleDiff.toFixed(1);
+                
+                setDisplay(otBearingDisplay, true);
+            } catch (error) {
+                setDisplay(otBearingDisplay, false);
+            }
+        }
+        
         function applyFireCorrectionUI() {
             const correctionLR = parseFloat(document.getElementById('correctionLR').value) || 0;
             const correctionAD = parseFloat(document.getElementById('correctionAD').value) || 0;
@@ -1347,14 +1447,53 @@
                     window.originalTargetPos = {...targetPos};
                 }
                 
-                // Apply fire correction
-                const corrected = MortarCalculator.applyFireCorrection(mortarPos, targetPos, correctionLR, correctionAD);
+                // Check if FO mode is enabled
+                const foEnabled = document.getElementById('foEnabled').checked;
+                let corrected;
+                
+                // Store FO mode state and observer position for restoration after recalculation
+                if (foEnabled) {
+                    window.foModeEnabled = true;
+                    const observerPos = parsePositionFromUI('observer', true);
+                    if (observerPos) {
+                        // Store only X,Y - height not used in OT bearing calculation
+                        window.lastObserverPos = {x: observerPos.x, y: observerPos.y};
+                    }
+                } else {
+                    window.foModeEnabled = false;
+                }
+                
+                if (foEnabled) {
+                    // FO mode: Apply corrections from observer's perspective
+                    const observerPos = parsePositionFromUI('observer', true);
+                    if (!observerPos) {
+                        console.error('FO mode enabled but observer coordinates not entered');
+                        return;
+                    }
+                    const result = MortarCalculator.applyFireCorrectionFromObserver(
+                        mortarPos, observerPos, targetPos, correctionLR, correctionAD
+                    );
+                    corrected = result.correctedTarget;
+                    
+                    // Update bearing display
+                    document.getElementById('otBearingValue').textContent = result.otBearing;
+                    document.getElementById('gtBearingValue').textContent = result.gtBearing;
+                    document.getElementById('angleDiffValue').textContent = result.angleDiff;
+                    setDisplay(document.getElementById('otBearingDisplay'), true);
+                } else {
+                    // Standard mode: Apply corrections from gun's perspective
+                    corrected = MortarCalculator.applyFireCorrection(mortarPos, targetPos, correctionLR, correctionAD);
+                }
                 
                 // Update target fields with corrected position and highlight in red
                 const inputs = getTargetInputs();
                 
                 inputs.x.value = corrected.x.toFixed(1);
                 inputs.y.value = corrected.y.toFixed(1);
+                // Only update Z if it was originally filled in (preserve empty state)
+                if (inputs.z.value.trim() !== '') {
+                    inputs.z.value = corrected.z.toFixed(1);
+                }
                 setTargetHighlight(COLORS.errorText);
                 
                 // Convert to grid if in grid mode
@@ -1371,6 +1510,9 @@
                 
                 // Mark that correction was applied (for highlighting output)
                 window.correctionApplied = true;
+                
+                // Update range validation display to match corrected coordinates
+                validateCoordinateRange();
                 
                 // Automatically recalculate firing mission with SELECTED CHARGE
                 calculateSolution();
@@ -1551,18 +1693,43 @@
                 });
             });
             
-            // Add range validation to all coordinate inputs
-            INPUT_IDS.MORTAR_FIELDS.forEach(id => {
-                const input = document.getElementById(id);
-                input.addEventListener('input', function() {
-                    clearFieldErrorStyling(this);
-                    debouncedValidateCoordinateRange();
+            // Helper function to attach input event listeners to field groups
+            function attachInputListeners(fieldIds, callback, requireExists = false) {
+                fieldIds.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (!requireExists || input) {
+                        input?.addEventListener('input', callback);
+                    }
                 });
+            }
+            
+            // Add range validation to mortar coordinate inputs
+            attachInputListeners(INPUT_IDS.MORTAR_FIELDS, function() {
+                clearFieldErrorStyling(this);
+                debouncedValidateCoordinateRange();
             });
+            
+            // Observer fields only need error styling cleared (no range validation needed)
+            attachInputListeners(INPUT_IDS.OBSERVER_FIELDS, function() {
+                clearFieldErrorStyling(this);
+            }, true);
             
             // Trigger validation when mortar type or shell type changes
             document.getElementById('mortarType').addEventListener('change', validateCoordinateRange);
             document.getElementById('shellType').addEventListener('change', validateCoordinateRange);
+            
+            // Enforce numeric-only input for all grid coordinate fields (including dynamically created ones)
+            // Use event delegation since observer fields are created dynamically
+            const gridFieldIds = [
+                ...INPUT_IDS.MORTAR_FIELDS.filter(id => id.includes('Grid')),
+                ...INPUT_IDS.TARGET_FIELDS.filter(id => id.includes('Grid')),
+                ...INPUT_IDS.OBSERVER_FIELDS.filter(id => id.includes('Grid'))
+            ];
+            document.addEventListener('input', function(e) {
+                if (e.target.id && gridFieldIds.includes(e.target.id)) {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                }
+            });
             
             // Allow Enter key to trigger calculation
             document.querySelectorAll('input').forEach(input => {
@@ -1575,6 +1742,10 @@
             document.addEventListener('input', function(e) {
                 if (e.target.id === 'correctionLR' || e.target.id === 'correctionAD') {
                     updateCorrectionPreview();
+                }
+                // Handle observer field inputs (dynamically created in fire correction widget)
+                if (INPUT_IDS.OBSERVER_FIELDS.includes(e.target.id)) {
+                    updateOTBearingDisplay();
                 }
             });
         });
@@ -2010,6 +2181,53 @@
                                 <div style="color: #95a585; font-size: 12px; margin-bottom: 12px;">
                                     Observer corrections: Left/Right shifts azimuth. Add/Drop changes range.
                                 </div>
+                                
+                                <!-- FO Mode Toggle -->
+                                <div style="margin-bottom: 12px;">
+                                    <div style="display: flex; align-items: center; color: #a8b898; font-size: 13px; cursor: pointer;">
+                                        <input type="checkbox" id="foEnabled" ${window.foModeEnabled ? 'checked' : ''} onchange="toggleFOControls(this);" style="margin-right: 8px; width: auto; height: auto;">
+                                        <span onclick="const cb = document.getElementById('foEnabled'); cb.checked = !cb.checked; toggleFOControls(cb);">🔭 <strong>FO Mode:</strong> Apply corrections from Observer's perspective</span>
+                                    </div>
+                                    <small style="color: #7a8a7a; display: block; margin-top: 3px; margin-left: 24px; font-size: 11px;">Use Observer-Target (OT) line instead of Gun-Target (GT) line</small>
+                                </div>
+                                
+                                <!-- Observer Position Inputs (Hidden by default) -->
+                                <div id="foControls" style="display: ${window.foModeEnabled ? 'block' : 'none'}; margin-bottom: 12px; padding: 10px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; border: 1px solid #4a5a52;">
+                                    <!-- Grid Mode -->
+                                    <div id="observerGridMode" class="coord-mode ${document.getElementById('targetGridMode')?.classList.contains('active') ? 'active' : ''}">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                                            <div>
+                                                <label class="observer-label">FO Grid X</label>
+                                                <input type="text" id="observerGridX" placeholder="060" maxlength="4" inputmode="numeric" pattern="[0-9]*" class="observer-input observer-input-grid">
+                                            </div>
+                                            <div>
+                                                <label class="observer-label">FO Grid Y</label>
+                                                <input type="text" id="observerGridY" placeholder="080" maxlength="4" inputmode="numeric" pattern="[0-9]*" class="observer-input observer-input-grid">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Meters Mode -->
+                                    <div id="observerMetersMode" class="coord-mode ${document.getElementById('targetMetersMode')?.classList.contains('active') ? 'active' : ''}">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                                            <div>
+                                                <label class="observer-label">FO X (meters)</label>
+                                                <input type="number" id="observerX" placeholder="6000" step="0.1" min="0" max="99999.9" class="observer-input">
+                                            </div>
+                                            <div>
+                                                <label class="observer-label">FO Y (meters)</label>
+                                                <input type="number" id="observerY" placeholder="8000" step="0.1" min="0" max="99999.9" class="observer-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="otBearingDisplay" style="margin-top: 8px; padding: 6px; background: rgba(107, 142, 35, 0.15); border-radius: 3px; display: none;">
+                                        <div style="color: #8fbc1e; font-size: 11px;">
+                                            🧭 <strong>OT:</strong> <span id="otBearingValue">-</span>° | <strong>GT:</strong> <span id="gtBearingValue">-</span>° | <strong>Δ:</strong> <span id="angleDiffValue">-</span>°
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                                     <div>
                                         <label style="display: block; color: #a8b898; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Left/Right (meters)</label>
@@ -2050,6 +2268,24 @@
                     // Auto-select optimal mission to show correction widget immediately
                     setTimeout(() => {
                         selectMission(solutions[0].charge);
+                        
+                        // Restore observer position if FO mode was enabled
+                        if (window.foModeEnabled && window.lastObserverPos) {
+                            const isGridMode = document.getElementById('observerGridMode')?.classList.contains('active');
+                            
+                            if (isGridMode) {
+                                const gridCoords = MortarCalculator.metersToGrid(window.lastObserverPos.x, window.lastObserverPos.y).split('/');
+                                const gridXEl = document.getElementById('observerGridX');
+                                const gridYEl = document.getElementById('observerGridY');
+                                if (gridXEl) gridXEl.value = gridCoords[0];
+                                if (gridYEl) gridYEl.value = gridCoords[1];
+                            } else {
+                                const xEl = document.getElementById('observerX');
+                                const yEl = document.getElementById('observerY');
+                                if (xEl) xEl.value = window.lastObserverPos.x.toFixed(1);
+                                if (yEl) yEl.value = window.lastObserverPos.y.toFixed(1);
+                            }
+                        }
                     }, 50);
                 } else {
                     const solution = solutions[0];

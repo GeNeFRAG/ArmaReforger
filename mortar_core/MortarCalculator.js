@@ -1,7 +1,7 @@
 /**
  * Arma Reforger Mortar Ballistic Calculator
  * Framework-agnostic calculation engine
- * Version: 1.5.2
+ * Version: 1.6.0
  * 
  * Features:
  * - Precision ballistic calculations for mortar fire missions
@@ -11,7 +11,9 @@
  *   - Lateral sheaf (perpendicular): Width coverage for area targets
  *   - Linear sheaf (along-bearing): Depth penetration for linear targets
  *   - Circular pattern: 360° area saturation
- * - Fire correction support (observer adjustments)
+ * - Fire correction support:
+ *   - Gun-Target line corrections (standard mode)
+ *   - Observer-Target line corrections (FO mode - eliminates guesswork)
  * - Works with corrected target coordinates
  * 
  * @module MortarCalculator
@@ -194,7 +196,35 @@ function parsePosition(position) {
 }
 
 /**
- * Apply fire correction to a target position based on observer corrections
+ * Apply corrections to a target position based on a reference bearing
+ * Core correction logic used by both gun-based and observer-based corrections
+ * 
+ * @private
+ * @param {Position3D} targetPos - Original target position
+ * @param {number} bearing - Reference bearing in degrees (GT or OT line)
+ * @param {number} leftRight - Left/Right correction in meters (+ = Right, - = Left)
+ * @param {number} addDrop - Add/Drop correction in meters (- = Add/farther, + = Drop/closer)
+ * @returns {Position3D} Corrected target position
+ */
+function applyCorrectionAlongBearing(targetPos, bearing, leftRight, addDrop) {
+    const bearingRad = (bearing * Math.PI) / 180;
+    
+    // Apply corrections in swapped coordinate system
+    // Bearing vector in X,Y coords is: (sin(bearing), cos(bearing))
+    // Add/Drop along bearing: negative = away (Add/farther), positive = towards (Drop/closer)
+    // Left/Right perpendicular: negative = left, positive = right
+    const correctedX = targetPos.x + addDrop * Math.sin(bearingRad) + leftRight * Math.cos(bearingRad);
+    const correctedY = targetPos.y + addDrop * Math.cos(bearingRad) - leftRight * Math.sin(bearingRad);
+    
+    return {
+        x: correctedX,
+        y: correctedY,
+        z: targetPos.z
+    };
+}
+
+/**
+ * Apply fire correction to a target position based on Gun-Target line
  * Uses military standard terminology:
  * - Left/Right: Deflection correction perpendicular to line of fire
  * - Add/Drop: Range correction along line of fire
@@ -211,22 +241,50 @@ function parsePosition(position) {
  * const corrected = applyFireCorrection(mortar, target, -10, -20); // Left 10m, Add 20m (raise elevation)
  */
 function applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) {
-    // Calculate bearing from mortar to target
     const bearing = calculateBearing(mortarPos, targetPos);
-    const bearingRad = (bearing * Math.PI) / 180;
+    return applyCorrectionAlongBearing(targetPos, bearing, leftRight, addDrop);
+}
+
+/**
+ * Apply fire correction from Forward Observer perspective (Observer-Target line)
+ * Eliminates guesswork by applying corrections from FO's actual line of sight
+ * 
+ * Military use case:
+ * - FO observes from their position, not the gun position
+ * - FO corrections are relative to their OT line, not GT line
+ * - More accurate than estimating GT corrections from OT perspective
+ * 
+ * @param {Position3D} mortarPos - Mortar position (for final targeting)
+ * @param {Position3D} observerPos - Forward Observer position
+ * @param {Position3D} targetPos - Original target position
+ * @param {number} leftRight - Left/Right correction in meters (+ = Right, - = Left from FO perspective)
+ * @param {number} addDrop - Add/Drop correction in meters (- = Add/farther, + = Drop/closer from FO perspective)
+ * @returns {Object} {correctedTarget: Position3D, otBearing: number, gtBearing: number, angleDiff: number}
+ * 
+ * @example
+ * const mortar = {x: 475, y: 695, z: 10};
+ * const observer = {x: 600, y: 800, z: 15};
+ * const target = {x: 855, y: 1055, z: 25};
+ * const result = applyFireCorrectionFromObserver(mortar, observer, target, 10, -20);
+ * // result.correctedTarget = new position
+ * // result.otBearing = FO's bearing to target
+ * // result.gtBearing = Gun's bearing to corrected target
+ * // result.angleDiff = Angle between OT and GT lines
+ */
+function applyFireCorrectionFromObserver(mortarPos, observerPos, targetPos, leftRight, addDrop) {
+    const otBearing = calculateBearing(observerPos, targetPos);
+    const correctedTarget = applyCorrectionAlongBearing(targetPos, otBearing, leftRight, addDrop);
+    const gtBearing = calculateBearing(mortarPos, correctedTarget);
     
-    // Apply corrections in swapped coordinate system
-    // Bearing uses: dy = pos2.x - pos1.x, dx = pos2.y - pos1.y
-    // So bearing vector in X,Y coords is: (sin(bearing), cos(bearing))
-    // Add/Drop along bearing: negative = towards mortar (Drop/closer), positive = away (Add/farther)
-    // Left/Right perpendicular: negative = left, positive = right
-    const correctedX = targetPos.x + addDrop * Math.sin(bearingRad) + leftRight * Math.cos(bearingRad);
-    const correctedY = targetPos.y + addDrop * Math.cos(bearingRad) - leftRight * Math.sin(bearingRad);
+    let angleDiff = gtBearing - otBearing;
+    if (angleDiff > 180) angleDiff -= 360;
+    if (angleDiff < -180) angleDiff += 360;
     
     return {
-        x: correctedX,
-        y: correctedY,
-        z: targetPos.z
+        correctedTarget,
+        otBearing: parseFloat(otBearing.toFixed(1)),
+        gtBearing: parseFloat(gtBearing.toFixed(1)),
+        angleDiff: parseFloat(angleDiff.toFixed(1))
     };
 }
 
@@ -903,9 +961,6 @@ function calculate(input) {
         maxRange: charge.maxRange
     };
     
-    console.log('=== FiringSolution Object ===');
-    console.log(JSON.stringify(solution, null, 2));
-    
     return solution;
 }
 
@@ -1006,6 +1061,7 @@ if (typeof module !== 'undefined' && module.exports) {
         metersToGrid,
         parsePosition,
         applyFireCorrection,
+        applyFireCorrectionFromObserver,
         generateFireForEffectPattern,
         generateCircularPattern,
         sortFFESolutionsByAzimuth
@@ -1038,6 +1094,7 @@ if (typeof window !== 'undefined') {
         metersToGrid,
         parsePosition,
         applyFireCorrection,
+        applyFireCorrectionFromObserver,
         generateFireForEffectPattern,
         generateCircularPattern,
         sortFFESolutionsByAzimuth

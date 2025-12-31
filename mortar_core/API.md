@@ -11,8 +11,9 @@
 - ✅ Coordinate-system independent - uses simple 3D positions
 - ✅ **Grid coordinate support** - 3-digit (100m) and 4-digit (10m) precision
 - ✅ **Separate X/Y inputs** - Individual grid coordinate fields (v1.4.0 UI)
-- ✅ **Real-time validation** - Format and range checking while typing (v1.4.0 UI)
-- ✅ **Fire correction system** - Observer-based adjustments (Left/Right, Add/Drop)
+- ✅ **Real-time validation** - Format and range checking while typing (v1.4.0+ UI)
+- ✅ **Forward Observer mode** - Corrections along Observer-Target line (v1.6.0)
+- ✅ **Fire correction system** - Gun-Target or Observer-Target line adjustments
 - ✅ **Fire for Effect patterns** - Lateral/Linear sheaf, Circular saturation
 - ✅ **FFE sorting** - Sort FFE solutions by azimuth for optimal gun traverse
 - ✅ Comprehensive JSDoc type definitions
@@ -21,7 +22,7 @@
 - ✅ **Dynamic weapon data loading** - all ballistics from JSON
 - ✅ **Extensible** - add new weapons without code changes
 - ✅ **Multiple mil systems** - Warsaw Pact (6000) and NATO (6400)
-- ✅ **DRY architecture** - Helper functions, constants, ~300 lines eliminated (v1.4.0)
+- ✅ **DRY architecture** - Helper functions, constants, CSS classes (v1.4.0+)
 
 ## Installation
 
@@ -311,24 +312,16 @@ trajectoryData.series.forEach(traj => {
 
 #### `applyFireCorrection(mortarPos, targetPos, leftRight, addDrop)`
 
-Apply observer fire corrections to target position. Adjusts target coordinates based on observed impacts using military fire correction terminology.
+Apply fire corrections along Gun-Target line (standard mode).
 
 **Parameters:**
 - `mortarPos` (Position3D) - Mortar position `{ x, y, z }`
 - `targetPos` (Position3D) - Original target position `{ x, y, z }`
 - `leftRight` (number) - Lateral correction in meters (positive = right, negative = left)
-- `addDrop` (number) - Range correction in meters (positive = add range, negative = drop/reduce range)
+- `addDrop` (number) - Range correction in meters (negative = add/farther, positive = drop/closer)
 
 **Returns:**
 - `Position3D` - Corrected target position `{ x, y, z }`
-
-**Fire Correction Mechanics:**
-- **Left/Right:** Perpendicular adjustment to line of fire (bearing + 90°)
-  - Positive value moves impact point to the RIGHT
-  - Negative value moves impact point to the LEFT
-- **Add/Drop:** Along the line of fire (bearing direction)
-  - Positive value ADDS range (target moves further from mortar)
-  - Negative value DROPS range (target moves closer to mortar)
 
 **Example:**
 ```javascript
@@ -340,41 +333,95 @@ const correctedTarget = MortarCalculator.applyFireCorrection(
     mortarPos,
     targetPos,
     10,    // Right 10 meters
-    -20    // Drop 20 meters (reduce range)
+    20     // Drop 20 meters (closer)
+);
+```
+
+---
+
+#### `applyFireCorrectionFromObserver(mortarPos, observerPos, targetPos, leftRight, addDrop)`
+
+**NEW in v1.6.0** - Apply fire corrections from Forward Observer perspective (Observer-Target line).
+
+Eliminates guesswork by applying corrections from the FO's actual line of sight instead of estimating Gun-Target corrections.
+
+**When to use FO mode:**
+- Observer position differs significantly from gun position
+- Large angle between Observer-Target and Gun-Target lines
+- More accurate than estimating GT corrections from OT perspective
+- FO corrections are relative to their line of sight, not the gun's
+
+**Parameters:**
+- `mortarPos` (Position3D) - Mortar position (for final targeting)
+- `observerPos` (Position3D) - Forward Observer position
+- `targetPos` (Position3D) - Original target position
+- `leftRight` (number) - Correction in meters from FO perspective (positive = right, negative = left)
+- `addDrop` (number) - Range correction from FO perspective (negative = add/farther, positive = drop/closer)
+
+**Returns:**
+- `Object` - Result with corrected target and bearing information:
+  ```javascript
+  {
+      correctedTarget: Position3D,  // New target position
+      otBearing: number,            // Observer-Target bearing in degrees
+      gtBearing: number,            // Gun-Target bearing in degrees  
+      angleDiff: number             // Angle difference (GT - OT)
+  }
+  ```
+
+**Example:**
+```javascript
+const mortarPos = { x: 475, y: 695, z: 10 };
+const observerPos = { x: 600, y: 800, z: 15 };
+const targetPos = { x: 855, y: 1055, z: 25 };
+
+// FO reports: "Right 10, Add 20"
+const result = MortarCalculator.applyFireCorrectionFromObserver(
+    mortarPos,
+    observerPos,
+    targetPos,
+    10,    // Right 10m (from FO's perspective)
+    -20    // Add 20m (farther from FO)
 );
 
-// Use corrected position for new fire mission
+console.log(`OT Bearing: ${result.otBearing}°`);
+console.log(`GT Bearing: ${result.gtBearing}°`);
+console.log(`Angle Diff: ${result.angleDiff}°`);
+
+// Use corrected target for fire mission
 const input = MortarCalculator.prepareInput(
     mortarPos,
-    correctedTarget,
+    result.correctedTarget,
     "US",
     "HE"
 );
-
 const solution = MortarCalculator.calculate(input);
 ```
 
-**Typical Fire Correction Workflow:**
+**Why angle difference matters:**
+- Small angle (<10°): Both methods produce similar results
+- Medium angle (10-30°): FO mode recommended for better accuracy
+- Large angle (>30°): FO mode essential - can differ by 40+ meters
+
+**Typical FO Workflow:**
 ```javascript
 // 1. Initial fire mission
-let targetPos = { x: 8550, y: 10500, z: 25 };
-const mortarPos = { x: 4750, y: 6950, z: 15 };
+const result1 = MortarCalculator.applyFireCorrectionFromObserver(
+    mortarPos, observerPos, targetPos, 0, 0
+);
+let solution = MortarCalculator.calculate(
+    MortarCalculator.prepareInput(mortarPos, result1.correctedTarget, "US", "HE")
+);
 
-let input = MortarCalculator.prepareInput(mortarPos, targetPos, "US", "HE");
-let solution = MortarCalculator.calculate(input);
-console.log(`Initial: Elevation ${solution.elevation} mils, Azimuth ${solution.azimuth}°`);
+// 2. FO reports: "Left 15, Add 30"
+const result2 = MortarCalculator.applyFireCorrectionFromObserver(
+    mortarPos, observerPos, result1.correctedTarget, -15, -30
+);
+solution = MortarCalculator.calculate(
+    MortarCalculator.prepareInput(mortarPos, result2.correctedTarget, "US", "HE")
+);
 
-// 2. Observer reports: "Left 15, Add 30"
-targetPos = MortarCalculator.applyFireCorrection(mortarPos, targetPos, -15, 30);
-
-// 3. Recalculate with corrected position
-input = MortarCalculator.prepareInput(mortarPos, targetPos, "US", "HE");
-solution = MortarCalculator.calculate(input);
-console.log(`Corrected: Elevation ${solution.elevation} mils, Azimuth ${solution.azimuth}°`);
-
-// 4. Continue iterative corrections as needed
-targetPos = MortarCalculator.applyFireCorrection(mortarPos, targetPos, 5, -10);
-// ...
+// 3. Continue iterative corrections from FO's perspective
 ```
 
 ---

@@ -13,15 +13,21 @@ Part of the [ArmaReforger](../README.md) project.
 Visit **[armamortars.org](https://armamortars.org)** for the online calculator, or open [index.html](index.html) locally.
 
 **Features:**
+- 👁️ **Forward Observer (FO) Mode** - Apply corrections from observer's line of sight (v1.6.0)
+  - Eliminates guesswork when FO and gun angles differ
+  - Observer position inputs with auto mode synchronization
+  - Visual OT/GT bearing comparison
+  - State persistence across corrections
 - 🎯 **Separate X/Y grid inputs** - Individual fields for grid X and Y coordinates (v1.4.0)
-- ⚡ **Real-time validation** - Instant feedback while typing coordinates (v1.4.0)
+- ⚡ **Real-time validation** - Instant feedback while typing coordinates (v1.4.0+)
   - Format validation for grid inputs (3-4 digits)
-  - Range validation with visual indicators (green/red borders)
+  - Range validation with visual indicators
   - Distance display showing valid range
+  - Observer fields optimized (no height field, no validation triggers)
 - 🎯 Grid coordinate support (3-digit 100m & 4-digit 10m precision)
 - 📏 Traditional meter coordinates
 - 🔄 Toggle between input modes (auto-clears on switch)
-- 🎯 Fire correction system (Left/Right, Add/Drop adjustments)
+- 🎯 Fire correction system (Gun-Target or Observer-Target line)
 - 💥 Fire for Effect patterns (Lateral/Linear sheaf, Circular saturation)
 - 📊 Trajectory visualization with comparison charts
 - 🎨 Multiple firing solutions with charge options
@@ -31,7 +37,7 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 - 📐 Sorted FFE rounds by azimuth for easier gun traverse
 - 🎯 Unified fire mission display format
 - 🔄 Reset button to clear all inputs and outputs
-- 🧹 **Clean codebase** - DRY principles with reusable helper functions (v1.4.0)
+- 🧹 **Clean architecture** - DRY principles, helper functions, CSS classes (v1.4.0+)
 
 ### Node.js
 
@@ -83,19 +89,21 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 
 - ✅ **Pure JavaScript** - No external dependencies
 - ✅ **Framework-agnostic** - Works in Node.js and browsers
+- ✅ **Forward Observer Mode** - Corrections along Observer-Target line (v1.6.0)
 - ✅ **Separate coordinate inputs** - Individual X/Y fields for grid coordinates (v1.4.0)
-- ✅ **Real-time validation** - Instant format and range checking while typing (v1.4.0)
+- ✅ **Real-time validation** - Instant format and range checking while typing (v1.4.0+)
 - ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision
 - ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
 - ✅ **Height correction** - Automatic elevation adjustment with correction factors displayed
 - ✅ **Transparent calculations** - Shows dElev and TOF per 100m correction factors
-- ✅ **Fire correction** - Observer-based adjustments (Left/Right, Add/Drop in meters)
+- ✅ **Fire correction** - Gun-Target or Observer-Target line adjustments
 - ✅ **Fire for Effect** - Multiple pattern types (Lateral/Linear sheaf, Circular saturation)
 - ✅ **Automatic charge selection** - Or force specific charge
 - ✅ **Trajectory visualization** - Generate trajectory points for SVG/Canvas rendering
 - ✅ **Military terminology** - NATO/US Army standard nomenclature (Azimuth, Range, Height)
 - ✅ **Visual feedback** - Red highlighting for corrected fire solutions, colored borders for validation
-- ✅ **Clean architecture** - DRY principles, helper functions, ~300 lines of code eliminated (v1.4.0)
+- ✅ **State persistence** - FO mode and observer position saved across corrections (v1.6.0)
+- ✅ **Clean architecture** - DRY principles, helper functions, CSS classes (v1.4.0+)
 - ✅ **SEO optimized** - Fully discoverable on search engines
 
 ## 🔧 API Overview
@@ -115,8 +123,11 @@ calculateAllTrajectories(input) → Array<FiringSolution>
 // Generate trajectory points for visualization
 generateTrajectoryPoints(solutions, distance, mortarType) → TrajectoryData
 
-// Apply fire correction (observer adjustments)
+// Apply fire correction (Gun-Target line)
 applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) → Position3D
+
+// Apply fire correction from Forward Observer (Observer-Target line)
+applyFireCorrectionFromObserver(mortarPos, observerPos, targetPos, leftRight, addDrop) → {correctedTarget, otBearing, gtBearing, angleDiff}
 
 // Generate Fire for Effect patterns
 generateFireForEffectPattern(mortarPos, targetPos, patternType, numRounds, spacing) → Array<Position3D>
@@ -169,17 +180,28 @@ calculateBearing(pos1, pos2)
 sortFFESolutionsByAzimuth(solutions)
 ```
 
-### Fire Correction Example
+### Fire Correction Examples
 
 ```javascript
-// Apply observer corrections to target position
+// Standard mode: Corrections along Gun-Target line
 const correctedTarget = MortarCalculator.applyFireCorrection(
     mortarPos,          // {x: 4750, y: 6950, z: 15}
     targetPos,          // {x: 8550, y: 10500, z: 25}
     10,                 // Left/Right: +10 = Right 10m, -10 = Left 10m
-    -20                 // Add/Drop: +20 = Add 20m, -20 = Drop 20m
+    -20                 // Add/Drop: -20 = Add 20m (farther), +20 = Drop 20m (closer)
 );
 // Returns corrected position perpendicular (L/R) and along bearing (A/D)
+
+// Forward Observer mode: Corrections along Observer-Target line
+const result = MortarCalculator.applyFireCorrectionFromObserver(
+    mortarPos,          // {x: 4750, y: 6950, z: 15}
+    observerPos,        // {x: 6000, y: 8000, z: 20}
+    targetPos,          // {x: 8550, y: 10500, z: 25}
+    10,                 // Right 10m (from observer's perspective)
+    -20                 // Add 20m (farther from observer)
+);
+// Returns: {correctedTarget: {x, y, z}, otBearing: 45.0, gtBearing: 52.3, angleDiff: 7.3}
+// FO mode eliminates guesswork when observer angle differs from gun angle
 ```
 
 ### Fire for Effect Example
