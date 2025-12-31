@@ -597,7 +597,7 @@
     
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
-        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.6.0</span></p>
+        <p>© 2025 ArmaMortars.org | Free Arma Reforger Mortar Calculator <span style="color: #6b7a65;">v1.6.1</span></p>
         <p>Accurate ballistic calculations for US M252 81mm and Soviet 2B14 82mm | Grid coordinate support</p>
         <p>
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
@@ -606,7 +606,7 @@
         </p>
     </footer>
     
-    <script src="MortarCalculator.js?v=1.6.0"></script>
+    <script src="MortarCalculator.js?v=1.6.1"></script>
     <script>
         let ballisticDataLoaded = false;
         
@@ -618,10 +618,10 @@
         };
         
         // Compose ALL_COORD_FIELDS from existing constants (DRY principle)
-        // Observer fields excluded - they persist independently with FO mode state
         INPUT_IDS.ALL_COORD_FIELDS = [
             ...INPUT_IDS.MORTAR_FIELDS,
             ...INPUT_IDS.TARGET_FIELDS,
+            ...INPUT_IDS.OBSERVER_FIELDS,
             'missionLabel'
         ];
         
@@ -675,6 +675,20 @@
         }
         
         function captureCurrentInputs() {
+            const foEnabledEl = document.getElementById('foEnabled');
+            // Prefer window state over checkbox (checkbox may not exist yet on first calculation)
+            const foEnabled = window.foModeEnabled || (foEnabledEl ? foEnabledEl.checked : false);
+            
+            // Capture observer position if FO mode is enabled
+            let observerPos = null;
+            if (foEnabled) {
+                try {
+                    observerPos = parsePositionFromUI('observer', true);
+                } catch (e) {
+                    // Observer fields may not exist yet
+                }
+            }
+            
             return {
                 mortarType: document.getElementById('mortarType').value,
                 shellType: document.getElementById('shellType').value,
@@ -683,7 +697,9 @@
                 ffeRounds: parseInt(document.getElementById('ffeRounds').value),
                 ffeSpacing: parseFloat(document.getElementById('ffeSpacing').value),
                 ffeRadius: parseFloat(document.getElementById('ffeRadius').value),
-                missionLabel: document.getElementById('missionLabel').value.trim()
+                missionLabel: document.getElementById('missionLabel').value.trim(),
+                foModeEnabled: foEnabled,
+                observerPos: observerPos
             };
         }
         
@@ -706,16 +722,58 @@
                 setDisplay(document.getElementById('ffeSpacingGroup'), !isCircular);
                 setDisplay(document.getElementById('ffeRadiusGroup'), isCircular);
             }
+            
+            // Restore FO mode state (always reset window state, even if foEnabledEl doesn't exist yet)
+            const foModeValue = data.foModeEnabled || false;  // Default to false if undefined
+            
+            // Always update window state properties (must happen before checkbox to avoid state mismatch)
+            window.foModeEnabled = foModeValue;
+            
+            const foEnabledEl = document.getElementById('foEnabled');
+            if (foEnabledEl) {
+                foEnabledEl.checked = foModeValue;
+                // Don't call toggleFOControls here - calculateSolution will regenerate output with correct state
+            }
+            
+            if (foEnabledEl) {
+                // Restore observer position if saved, otherwise clear observer fields and window state
+                if (data.observerPos) {
+                    window.lastObserverPos = { ...data.observerPos };
+                    
+                    const isGridMode = document.getElementById('targetGridMode').classList.contains('active');
+                    
+                    if (isGridMode) {
+                        const observerGrid = MortarCalculator.metersToGrid(data.observerPos.x, data.observerPos.y).split('/');
+                        const obsGridX = document.getElementById('observerGridX');
+                        const obsGridY = document.getElementById('observerGridY');
+                        if (obsGridX && obsGridY) {
+                            obsGridX.value = observerGrid[0];
+                            obsGridY.value = observerGrid[1];
+                        }
+                    } else {
+                        const obsX = document.getElementById('observerX');
+                        const obsY = document.getElementById('observerY');
+                        if (obsX && obsY) {
+                            obsX.value = data.observerPos.x.toFixed(1);
+                            obsY.value = data.observerPos.y.toFixed(1);
+                        }
+                    }
+                } else {
+                    // Clear observer fields and window state if no observer position saved
+                    window.lastObserverPos = null;
+                    INPUT_IDS.OBSERVER_FIELDS.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = '';
+                    });
+                }
+            }
         }
         
         // Toggle FO controls visibility
         function toggleFOControls(checkbox) {
-            console.log('toggleFOControls called, checked:', checkbox.checked);
             const foControls = document.getElementById('foControls');
-            console.log('foControls element:', foControls);
             if (foControls) {
                 foControls.style.display = checkbox.checked ? 'block' : 'none';
-                console.log('Set display to:', foControls.style.display);
             } else {
                 console.error('foControls element not found!');
             }
@@ -762,24 +820,47 @@
                 correctionAD = window.lastCorrectionAD || (corrADEl ? parseFloat(corrADEl.value) || 0 : 0);
             }
             
+            // Deep copy position objects to prevent mutation of history entries
+            const capturedInputs = captureCurrentInputs();
+            
             const entry = {
                 id: Date.now(),
                 timestamp: new Date(),
-                ...captureCurrentInputs(),
-                mortarPos,
-                targetPos,
+                ...capturedInputs,
+                mortarPos: { ...mortarPos },
+                targetPos: { ...targetPos },
+                observerPos: capturedInputs.observerPos ? { ...capturedInputs.observerPos } : null,
                 distance,
                 inputMode: isGridMode ? 'grid' : 'meters',
                 correctionApplied: window.correctionApplied || false,
-                originalTargetPos: window.originalTargetPos || null,
+                originalTargetPos: window.originalTargetPos ? { ...window.originalTargetPos } : null,
                 correctionLR: correctionLR,
-                correctionAD: correctionAD
+                correctionAD: correctionAD,
+                selectedCharge: window.selectedCharge || (solutions && solutions.length > 0 ? solutions[0].charge : null)
             };
             
-            missionHistory.unshift(entry);
-            if (missionHistory.length > 20) missionHistory.pop();
+            // Check if this is a correction (force new entry creation to preserve original)
+            const isCorrection = window.correctionApplied && 
+                                 (window.lastCorrectionLR !== 0 || window.lastCorrectionAD !== 0);
             
-            currentHistoryIndex = 0;
+            if (isCorrection) {
+                // Always create new entry for corrections (preserves original mission data)
+                missionHistory.unshift(entry);
+                if (missionHistory.length > 20) missionHistory.pop();
+                currentHistoryIndex = 0;
+            } else if (currentHistoryIndex >= 0 && currentHistoryIndex < missionHistory.length) {
+                // Update existing entry (charge changes, FFE adjustments, etc.)
+                const originalEntry = missionHistory[currentHistoryIndex];
+                entry.id = originalEntry.id;
+                entry.timestamp = originalEntry.timestamp;
+                missionHistory[currentHistoryIndex] = entry;
+            } else {
+                // Create new entry (fresh calculation)
+                missionHistory.unshift(entry);
+                if (missionHistory.length > 20) missionHistory.pop();
+                currentHistoryIndex = 0;
+            }
+            
             updateHistoryDisplay();
         }
         
@@ -791,14 +872,52 @@
             
             isLoadingFromHistory = true;
             
-            // Switch to the correct coordinate input mode
+            // Switch to the correct coordinate input mode (only if different to avoid clearing inputs)
             const targetMode = entry.inputMode || 'grid';
-            setCoordMode(targetMode);
+            const currentMode = document.getElementById('targetGridMode').classList.contains('active') ? 'grid' : 'meters';
+            if (currentMode !== targetMode) {
+                setCoordMode(targetMode);
+            }
             
             setInputsFromData(entry);
             setPositionInputs(entry.mortarPos, entry.targetPos);
             
+            // Restore correction state if correction was applied
+            if (entry.correctionApplied) {
+                window.correctionApplied = true;
+                window.originalTargetPos = entry.originalTargetPos ? { ...entry.originalTargetPos } : null;
+                window.lastCorrectionLR = entry.correctionLR || 0;
+                window.lastCorrectionAD = entry.correctionAD || 0;
+                
+                // Apply red highlighting to target fields
+                setTargetHighlight(COLORS.errorText);
+            } else {
+                window.correctionApplied = false;
+                window.originalTargetPos = null;
+                window.lastCorrectionLR = null;
+                window.lastCorrectionAD = null;
+                setTargetHighlight();
+            }
+            
             calculateSolution();
+            
+            // Restore selected charge and correction inputs after calculation completes
+            setTimeout(() => {
+                if (entry.selectedCharge !== undefined && entry.selectedCharge !== null) {
+                    selectMission(entry.selectedCharge);
+                }
+                
+                // Restore correction input field values if correction was applied
+                if (entry.correctionApplied) {
+                    const corrLREl = document.getElementById('correctionLR');
+                    const corrADEl = document.getElementById('correctionAD');
+                    if (corrLREl && corrADEl) {
+                        corrLREl.value = entry.correctionLR || 0;
+                        corrADEl.value = entry.correctionAD || 0;
+                    }
+                }
+            }, 60);
+            
             updateHistoryDisplay();
             
             setTimeout(() => {
@@ -825,6 +944,8 @@
                 
                 const mortarName = getAllMortarTypes().find(m => m.id === entry.mortarType)?.name || entry.mortarType;
                 const ffeInfo = entry.ffeEnabled ? ` | FFE: ${entry.ffeRounds} rds` : '';
+                const foInfo = entry.foModeEnabled ? ` | 👁️ FO` : '';
+                const modeInfo = entry.inputMode === 'grid' ? ' | 🎯 Grid' : ' | 📏 Meters';
                 const labelDisplay = entry.missionLabel ? `<strong style="color: #8fbc1e;">${entry.missionLabel}</strong> - ` : '';
                 const correctionInfo = entry.correctionApplied 
                     ? `<span style="color: ${COLORS.errorText}; font-weight: 600;"> | 🔴 CORRECTED (L/R: ${entry.correctionLR > 0 ? '+' : ''}${entry.correctionLR}m, A/D: ${entry.correctionAD > 0 ? '+' : ''}${entry.correctionAD}m)</span>` 
@@ -840,7 +961,7 @@
                             <button class="history-delete" onclick="deleteFromHistory(${index}, event)" title="Delete mission">🗑️</button>
                         </div>
                         <div class="history-details">
-                            📍 ${mortarDisplay} → 🎯 ${targetDisplay} | ${entry.distance.toFixed(0)}m${ffeInfo}${correctionInfo}
+                            📍 ${mortarDisplay} → 🎯 ${targetDisplay} | ${entry.distance.toFixed(0)}m${modeInfo}${ffeInfo}${foInfo}${correctionInfo}
                         </div>
                     </div>
                 `;
@@ -1079,36 +1200,31 @@
         function updateCorrectionPreview() {
             const correctionLRInput = document.getElementById('correctionLR');
             const correctionADInput = document.getElementById('correctionAD');
-            const correctionPreview = document.getElementById('correctionPreview');
-            const correctionText = document.getElementById('correctionText');
+            const applyBtn = document.getElementById('applyCorrection');
             
-            // Early return if elements don't exist
-            if (!correctionLRInput || !correctionADInput || !correctionPreview || !correctionText) {
+            // Early return if correction inputs don't exist
+            if (!correctionLRInput || !correctionADInput) {
                 return;
             }
             
             const lr = parseFloat(correctionLRInput.value) || 0;
             const ad = parseFloat(correctionADInput.value) || 0;
+            const hasCorrection = lr !== 0 || ad !== 0;
             
-            if (lr === 0 && ad === 0) {
-                setDisplay(correctionPreview, false);
-                return;
+            // Update button state
+            if (applyBtn) {
+                if (hasCorrection) {
+                    applyBtn.disabled = false;
+                    applyBtn.style.background = 'linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%)';
+                    applyBtn.style.cursor = 'pointer';
+                    applyBtn.style.opacity = '1';
+                } else {
+                    applyBtn.disabled = true;
+                    applyBtn.style.background = 'linear-gradient(180deg, #555 0%, #444 100%)';
+                    applyBtn.style.cursor = 'not-allowed';
+                    applyBtn.style.opacity = '0.5';
+                }
             }
-            
-            const lrText = lr === 0 ? '' : (lr > 0 ? `Right ${Math.abs(lr)}` : `Left ${Math.abs(lr)}`);
-            const adText = ad === 0 ? '' : (ad > 0 ? `Add ${Math.abs(ad)}` : `Drop ${Math.abs(ad)}`);
-            
-            let resultText = '';
-            if (lrText && adText) {
-                resultText = `${lrText}, ${adText}`;
-            } else if (lrText) {
-                resultText = lrText;
-            } else if (adText) {
-                resultText = adText;
-            }
-            
-            correctionText.textContent = resultText;
-            correctionPreview.style.display = 'block';
         }
         
         // Parse position from UI inputs (grid or meters mode)
@@ -1273,7 +1389,7 @@
         
         // Real-time range validation
         function validateCoordinateRange() {
-            if (!ballisticDataLoaded) return;
+            if (!ballisticDataLoaded || isLoadingFromHistory) return;
             
             // First validate grid format if using grid coordinates
             const gridInputs = [
@@ -1384,6 +1500,45 @@
             const rangeIndicator = document.getElementById('rangeIndicator');
             if (rangeIndicator) {
                 rangeIndicator.remove();
+            }
+        }
+        
+        // Undo fire correction and restore original target position
+        function undoCorrection() {
+            if (!window.originalTargetPos) {
+                console.error('No original target position stored');
+                return;
+            }
+            
+            try {
+                const mortarPos = parsePositionFromUI('mortar');
+                
+                // Restore original target position to input fields
+                setPositionInputs(mortarPos, window.originalTargetPos);
+                
+                // Clear all correction state
+                window.correctionApplied = false;
+                window.originalTargetPos = null;
+                window.lastCorrectionLR = null;
+                window.lastCorrectionAD = null;
+                
+                // Clear red highlighting from target fields
+                setTargetHighlight();
+                
+                // Reset correction input fields
+                const corrLREl = document.getElementById('correctionLR');
+                const corrADEl = document.getElementById('correctionAD');
+                if (corrLREl) corrLREl.value = '0';
+                if (corrADEl) corrADEl.value = '0';
+                
+                // Reset history index (reverting should create new entry, not update corrected entry)
+                currentHistoryIndex = -1;
+                
+                // Recalculate with original target
+                calculateSolution();
+            } catch (error) {
+                console.error('Undo correction error:', error);
+                showOutputError('Undo Error', error.message);
             }
         }
         
@@ -1611,8 +1766,6 @@
                 // Initialize mortar types and shell types after data is loaded
                 updateMortarTypes();
                 updateShellTypes();
-                
-                console.log('✅ Ballistic data loaded successfully');
             } catch (error) {
                 loading.innerHTML = `
                     <div style="color: red;">
@@ -1632,7 +1785,11 @@
             // Update shell types when mortar type changes
             mortarTypeSelect.addEventListener('change', updateShellTypes);
             
-            calculateBtn.addEventListener('click', calculateSolution);
+            calculateBtn.addEventListener('click', () => {
+                // Reset history index for fresh calculation (not updating existing entry)
+                currentHistoryIndex = -1;
+                calculateSolution();
+            });
             
             // Fire for Effect toggle
             const ffe = getFFEControls();
@@ -1656,8 +1813,17 @@
             // Reset button
             const resetBtn = document.getElementById('reset');
             resetBtn.addEventListener('click', function() {
-                // Clear all input fields
+                // Clear all input fields (including observer fields)
                 clearAllInputs();
+                
+                // Reset FO mode checkbox
+                const foEnabledCheckbox = document.getElementById('foEnabled');
+                if (foEnabledCheckbox) {
+                    foEnabledCheckbox.checked = false;
+                    toggleFOControls(foEnabledCheckbox);
+                }
+                window.foModeEnabled = false;
+                window.lastObserverPos = null;
                 
                 // Clear red highlighting from corrected fields
                 setTargetHighlight();
@@ -1748,6 +1914,13 @@
                     updateOTBearingDisplay();
                 }
             });
+            
+            // Also listen for change events (for better compatibility)
+            document.addEventListener('change', function(e) {
+                if (e.target.id === 'correctionLR' || e.target.id === 'correctionAD') {
+                    updateCorrectionPreview();
+                }
+            });
         });
         
         // Toggle visibility of alternative fire missions
@@ -1770,6 +1943,11 @@
         // Select a specific fire mission for correction
         function selectMission(charge) {
             window.selectedCharge = charge;
+            
+            // Update current history entry with selected charge
+            if (!isLoadingFromHistory && currentHistoryIndex >= 0 && currentHistoryIndex < missionHistory.length) {
+                missionHistory[currentHistoryIndex].selectedCharge = charge;
+            }
             
             // Store the original optimal charge if not already stored
             if (window.originalOptimalCharge === undefined && window.lastSolutions && window.lastSolutions.length > 0) {
@@ -1928,11 +2106,6 @@
                     const mortarParsed = MortarCalculator.parsePosition(mortarPos);
                     const targetParsed = MortarCalculator.parsePosition(targetPos);
                     
-                    console.log('🎯 FFE Using Coordinates:');
-                    console.log('  Target Position (input):', targetPos);
-                    console.log('  Target Position (parsed):', targetParsed);
-                    console.log('  Correction Applied:', window.correctionApplied ? 'YES (red coordinates)' : 'NO (original coordinates)');
-                    
                     // Generate pattern positions based on pattern type
                     let targetPositions;
                     let patternParam;
@@ -2052,17 +2225,6 @@
                 // Use prepareInput to calculate range, azimuth, and height difference
                 const input = MortarCalculator.prepareInput(mortarPos, targetPos, mortarId, shellType);
                 
-                console.log('Mortar Position:', mortarPos);
-                console.log('Target Position:', targetPos);
-                console.log('Calculated Parameters:', {
-                    distance: input.distance.toFixed(1) + 'm',
-                    bearing: input.bearing.toFixed(1) + '°',
-                    bearingMils: MortarCalculator.degreesToMils(input.bearing) + ' mils',
-                    heightDifference: input.heightDifference.toFixed(1) + 'm'
-                });
-                
-                console.log('Input:', input);
-                
                 // Calculate all trajectory options
                 let solutions = MortarCalculator.calculateAllTrajectories(input);
                 
@@ -2086,8 +2248,6 @@
                     // Add to mission history
                     addToHistory(mortarPos, targetPos, input.distance, solutions);
                 }
-                
-                console.log('Solutions:', solutions);
                 
                 // Generate trajectory data using MortarCalculator
                 const trajectoryData = MortarCalculator.generateTrajectoryPoints(solutions, input.distance, input.mortarType);
@@ -2185,14 +2345,14 @@
                                 <!-- FO Mode Toggle -->
                                 <div style="margin-bottom: 12px;">
                                     <div style="display: flex; align-items: center; color: #a8b898; font-size: 13px; cursor: pointer;">
-                                        <input type="checkbox" id="foEnabled" ${window.foModeEnabled ? 'checked' : ''} onchange="toggleFOControls(this);" style="margin-right: 8px; width: auto; height: auto;">
+                                        <input type="checkbox" id="foEnabled" onchange="toggleFOControls(this);" style="margin-right: 8px; width: auto; height: auto;" ${window.foModeEnabled ? 'checked' : ''}>
                                         <span onclick="const cb = document.getElementById('foEnabled'); cb.checked = !cb.checked; toggleFOControls(cb);">🔭 <strong>FO Mode:</strong> Apply corrections from Observer's perspective</span>
                                     </div>
                                     <small style="color: #7a8a7a; display: block; margin-top: 3px; margin-left: 24px; font-size: 11px;">Use Observer-Target (OT) line instead of Gun-Target (GT) line</small>
                                 </div>
                                 
                                 <!-- Observer Position Inputs (Hidden by default) -->
-                                <div id="foControls" style="display: ${window.foModeEnabled ? 'block' : 'none'}; margin-bottom: 12px; padding: 10px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; border: 1px solid #4a5a52;">
+                                <div id="foControls" style="display: ${window.foModeEnabled ? 'block' : 'none !important'}; margin-bottom: 12px; padding: 10px; background: rgba(20, 25, 22, 0.6); border-radius: 3px; border: 1px solid #4a5a52;">
                                     <!-- Grid Mode -->
                                     <div id="observerGridMode" class="coord-mode ${document.getElementById('targetGridMode')?.classList.contains('active') ? 'active' : ''}">
                                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
@@ -2240,9 +2400,14 @@
                                         <small style="color: #7a8a7a; display: block; margin-top: 3px; font-size: 11px;">Add: +, Drop: −</small>
                                     </div>
                                 </div>
-                                <button id="applyCorrection" onclick="const btn = this; btn.style.background = 'linear-gradient(180deg, #8fbc1e 0%, #7aaa18 100%)'; btn.style.transform = 'scale(0.95)'; btn.style.boxShadow = '0 0 20px rgba(143, 188, 30, 0.8)'; btn.textContent = '⏳ Applying...'; btn.disabled = true; setTimeout(() => { applyFireCorrectionUI(); }, 150);" style="width: 100%; padding: 10px; margin-top: 5px; background: linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%); border: 1px solid #8fbc1e; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.15s ease;">
+                                <button id="applyCorrection" onclick="if (this.disabled) return; const btn = this; btn.style.background = 'linear-gradient(180deg, #8fbc1e 0%, #7aaa18 100%)'; btn.style.transform = 'scale(0.95)'; btn.style.boxShadow = '0 0 20px rgba(143, 188, 30, 0.8)'; btn.textContent = '⏳ Applying...'; btn.disabled = true; setTimeout(() => { applyFireCorrectionUI(); setTimeout(() => { updateCorrectionPreview(); }, 200); }, 150);" disabled style="width: 100%; padding: 10px; margin-top: 5px; background: linear-gradient(180deg, #555 0%, #444 100%); border: 1px solid #8fbc1e; border-radius: 4px; color: white; font-weight: 600; cursor: not-allowed; font-size: 13px; transition: all 0.15s ease; opacity: 0.5;">
                                     Apply Fire Correction
                                 </button>
+                                ${window.correctionApplied ? `
+                                <button id="undoCorrection" onclick="undoCorrection();" class="btn-press" style="width: 100%; padding: 10px; margin-top: 10px; background: linear-gradient(180deg, #a85050 0%, #984040 100%); border: 1px solid #c85050; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                                    ↶ Undo Correction - Restore Original Target
+                                </button>
+                                ` : ''}
                             </div>
                         </div>
                         
@@ -2255,9 +2420,12 @@
                         ${alternativeMissionsHTML}
                     `;
                     
-                    // Clear previous charge and correction state after output is complete
+                    // Clear previous charge after output is complete
                     window.previousCharge = null;
-                    window.originalTargetPos = null;
+                    // Only clear originalTargetPos if no correction is applied (preserve for undo)
+                    if (!window.correctionApplied) {
+                        window.originalTargetPos = null;
+                    }
                     
                     // Store original optimal charge for marking
                     window.originalOptimalCharge = solutions[0].charge;
