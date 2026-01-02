@@ -34,9 +34,9 @@ export function init(deps) {
  * Set up event listeners for dynamically created correction and observer inputs
  */
 export function setupDynamicListeners() {
-    // Correction inputs - trigger preview updates
-    const correctionLR = getElement('correctionLR', false, true);
-    const correctionAD = getElement('correctionAD', false, true);
+    // Correction inputs (static elements) - trigger preview updates
+    const correctionLR = getElement('correctionLR', false);
+    const correctionAD = getElement('correctionAD', false);
     
     if (correctionLR && correctionAD) {
         if (correctionLR._listenersAttached) {
@@ -54,13 +54,13 @@ export function setupDynamicListeners() {
         correctionAD._listenersAttached = true;
     }
     
-    // Observer inputs - trigger bearing display updates
+    // Observer inputs (static elements) - trigger bearing display updates
     const observerFields = ['observerGridX', 'observerGridY', 'observerX', 'observerY'];
     
     const handleObserverInput = () => updateOTBearingDisplay();
     
     observerFields.forEach(id => {
-        const el = getElement(id, false, true);
+        const el = getElement(id, false);
         if (el && !el._listenersAttached) {
             ['input', 'change'].forEach(eventType => {
                 el.addEventListener(eventType, handleObserverInput);
@@ -70,9 +70,9 @@ export function setupDynamicListeners() {
     });
     
     // Trigger initial preview update WITHOUT recalculating
-    const correctionLRInput = getElement('correctionLR', false, true);
-    const correctionADInput = getElement('correctionAD', false, true);
-    const applyBtn = getElement('applyCorrection', false, true);
+    const correctionLRInput = getElement('correctionLR', false);
+    const correctionADInput = getElement('correctionAD', false);
+    const applyBtn = getElement('applyCorrection', false);
     
     if (correctionLRInput && correctionADInput && applyBtn) {
         const lr = parseFloat(correctionLRInput.value) || 0;
@@ -97,9 +97,9 @@ export function setupDynamicListeners() {
  * Update OT/GT bearing display when in FO mode
  */
 export function updateOTBearingDisplay() {
-    const foEnabled = getElement('foEnabled', false, true);
-    const otBearingDisplay = getElement('otBearingDisplay', false, true);
-    const observerWarning = getElement('observerWarning', false, true);
+    const foEnabled = getElement('foEnabled', false);
+    const otBearingDisplay = getElement('otBearingDisplay', false);  // Dynamic
+    const observerWarning = getElement('observerWarning', false);    // Dynamic
     
     if (!foEnabled || !foEnabled.checked || !otBearingDisplay) {
         if (otBearingDisplay) setDisplay(otBearingDisplay, false);
@@ -145,9 +145,9 @@ export function updateOTBearingDisplay() {
  * Update correction preview (enable/disable apply button)
  */
 export async function updateCorrectionPreview() {
-    const correctionLRInput = getElement('correctionLR', false, true);
-    const correctionADInput = getElement('correctionAD', false, true);
-    const applyBtn = getElement('applyCorrection', false, true);
+    const correctionLRInput = getElement('correctionLR', false);
+    const correctionADInput = getElement('correctionAD', false);
+    const applyBtn = getElement('applyCorrection', false);
     
     if (!correctionLRInput || !correctionADInput) {
         return;
@@ -202,8 +202,8 @@ export async function applyFireCorrectionUI() {
             State.setOriginalTargetPos({...targetPos});
         }
         
-        // Use forceRefresh to find dynamically created checkbox
-        const foCheckbox = getElement('foEnabled', false, true);
+        // Static checkbox element
+        const foCheckbox = getElement('foEnabled', false);
         const foEnabled = foCheckbox ? foCheckbox.checked : State.isFOModeEnabled();
         
         let corrected;
@@ -221,12 +221,12 @@ export async function applyFireCorrectionUI() {
         if (foEnabled) {
             const observerPos = dependencies.parsePositionFromUI('observer', true);
             if (!observerPos) {
-                const warning = getElement('observerWarning', false, true);
+                const warning = getElement('observerWarning', false);  // Dynamic
                 if (warning) setDisplay(warning, true);
                 console.error('FO mode enabled but observer coordinates not entered');
                 return;
             } else {
-                const warning = getElement('observerWarning', false, true);
+                const warning = getElement('observerWarning', false);  // Dynamic
                 if (warning) setDisplay(warning, false);
             }
             const result = MortarCalculator.applyFireCorrectionFromObserver(
@@ -237,7 +237,7 @@ export async function applyFireCorrectionUI() {
             setValue('otBearingValue', result.otBearing);
             setValue('gtBearingValue', result.gtBearing);
             setValue('angleDiffValue', result.angleDiff);
-            setDisplay(getElement('otBearingDisplay', true, true), true);
+            setDisplay(getElement('otBearingDisplay', false), true);  // Dynamic
         } else {
             corrected = MortarCalculator.applyFireCorrection(mortarPos, targetPos, correctionLR, correctionAD);
         }
@@ -313,12 +313,40 @@ export async function undoCorrection() {
 }
 
 /**
- * Expose functions to window for onclick compatibility
+ * Setup event listeners for correction controls
  */
-export function exposeToWindow() {
-    window.applyFireCorrectionUI = applyFireCorrectionUI;
-    window.undoCorrection = undoCorrection;
-    window.updateCorrectionPreview = updateCorrectionPreview;
-    window.updateOTBearingDisplay = updateOTBearingDisplay;
-    window.setupDynamicListeners = setupDynamicListeners;
+export function setupCorrectionListeners() {
+    const applyBtn = getElement('applyCorrection', false);
+    const undoBtn = getElement('undoCorrection', false);
+    
+    if (applyBtn) {
+        applyBtn.addEventListener('click', async function() {
+            if (this.disabled) return;
+            
+            const btn = this;
+            btn.style.background = 'linear-gradient(180deg, #8fbc1e 0%, #7aaa18 100%)';
+            btn.style.transform = 'scale(0.95)';
+            btn.textContent = '⏳ Applying...';
+            btn.disabled = true;
+            
+            try {
+                await applyFireCorrectionUI();
+            } finally {
+                setTimeout(() => {
+                    btn.textContent = 'Apply Fire Correction';
+                    btn.style.transform = 'scale(1)';
+                    updateCorrectionPreview();
+                }, 100);
+            }
+        });
+    }
+    
+    if (undoBtn) {
+        undoBtn.addEventListener('click', undoCorrection);
+    }
 }
+
+/**
+ * Removed: exposeToWindow() - Functions now use event listeners
+ */
+

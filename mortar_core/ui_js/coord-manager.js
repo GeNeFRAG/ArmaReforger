@@ -8,6 +8,7 @@
  */
 
 import { getElement, getValue, setValue } from './dom-cache.js';
+import { highlightMissingFields } from './ui.js';
 
 /**
  * Coordinate input mode: 'grid' or 'meters'
@@ -120,9 +121,7 @@ function parseGridPosition(prefix, allowUndefined) {
         if (allowUndefined) return null;
         
         // Highlight missing fields before throwing error
-        if (window.highlightMissingFields) {
-            window.highlightMissingFields(prefix);
-        }
+        highlightMissingFields(prefix);
         throw new Error(`Enter grid coordinates for ${prefix}`);
     }
     
@@ -156,9 +155,7 @@ function parseMetersPosition(prefix, allowUndefined) {
         if (allowUndefined) return null;
         
         // Highlight missing fields before throwing error
-        if (window.highlightMissingFields) {
-            window.highlightMissingFields(prefix);
-        }
+        highlightMissingFields(prefix);
         throw new Error(`Enter X/Y coordinates for ${prefix}`);
     }
     

@@ -405,7 +405,7 @@
         <div id="historyPanel" class="history-panel" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2 style="margin: 0;">📜 Mission History</h2>
-                <button class="clear-history-btn" onclick="clearHistory()">Clear All</button>
+                <button class="clear-history-btn" id="clearHistoryBtn">Clear All</button>
             </div>
             <div id="historyList"></div>
         </div>
@@ -413,10 +413,10 @@
         <div class="toggle-container">
             <span style="font-weight: 500; color: #b8c7a0; text-align: center;">Coordinate Input:</span>
             <div class="toggle-buttons">
-                <div class="toggle-option active" onclick="setCoordMode('grid')" id="toggleGrid">
+                <div class="toggle-option active" id="toggleGrid" data-mode="grid">
                     🎯 Grid (047/069)
                 </div>
-                <div class="toggle-option" onclick="setCoordMode('meters')" id="toggleMeters">
+                <div class="toggle-option" id="toggleMeters" data-mode="meters">
                     📏 Meters (X/Y)
                 </div>
             </div>
@@ -542,7 +542,7 @@
             <!-- FFE Mode Toggle -->
             <div id="ffeToggleContainer" style="margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; cursor: pointer; color: #d4c8e0; font-size: 13px; font-weight: 600;">
-                    <input type="checkbox" id="ffeEnabled" onchange="toggleFFEMode();" style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;">
+                    <input type="checkbox" id="ffeEnabled" style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;">
                     <span>💥 Enable Fire for Effect Pattern</span>
                 </label>
             </div>
@@ -593,11 +593,11 @@
                     <small style="color: #a89fb8; display: block; margin-top: 3px; font-size: 11px;">Distance from center to impact points (20-500m)</small>
                 </div>
                 
-                <button id="generateFFE" onclick="generateFFEPattern();" class="btn-press" style="width: 100%; padding: 10px; margin-top: 5px; background: linear-gradient(180deg, #8f69bc 0%, #7a58a8 100%); border: 1px solid #9f79cc; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                <button id="generateFFE" class="btn-press" style="width: 100%; padding: 10px; margin-top: 5px; background: linear-gradient(180deg, #8f69bc 0%, #7a58a8 100%); border: 1px solid #9f79cc; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
                     Generate FFE Pattern
                 </button>
                 
-                <button id="showBaseSolution" onclick="showBaseSolution();" class="btn-press" style="display: none; width: 100%; padding: 10px; margin-top: 10px; background: linear-gradient(180deg, #666 0%, #555 100%); border: 1px solid #777; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                <button id="showBaseSolution" class="btn-press" style="display: none; width: 100%; padding: 10px; margin-top: 10px; background: linear-gradient(180deg, #666 0%, #555 100%); border: 1px solid #777; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
                     ← Show Base Solution
                 </button>
             </div>
@@ -611,8 +611,8 @@
                 <!-- FO Mode Toggle -->
                 <div style="margin-bottom: 12px;">
                     <div style="display: flex; align-items: center; color: #a8b898; font-size: 13px; cursor: pointer;">
-                        <input type="checkbox" id="foEnabled" onchange="toggleFOControls(this);" style="margin-right: 8px; width: auto; height: auto;">
-                        <span onclick="const cb = window.DOMCache.getElement('foEnabled', false, true); if (cb) { cb.checked = !cb.checked; toggleFOControls(cb); }">🔭 Use Observer-Target (OT) line</span>
+                        <input type="checkbox" id="foEnabled" style="margin-right: 8px; width: auto; height: auto;">
+                        <span id="foToggleLabel">🔭 Use Observer-Target (OT) line</span>
                     </div>
                 </div>
                 
@@ -668,10 +668,10 @@
                         <small style="color: #999; display: block; margin-top: 3px; font-size: 11px;">Add: +, Drop: − (Range: -500 to +500m)</small>
                     </div>
                 </div>
-                <button id="applyCorrection" onclick="if (this.disabled) return; const btn = this; btn.style.background = 'linear-gradient(180deg, #8fbc1e 0%, #7aaa18 100%)'; btn.style.transform = 'scale(0.95)'; btn.textContent = '⏳ Applying...'; btn.disabled = true; applyFireCorrectionUI().then(() => { setTimeout(() => { btn.textContent = 'Apply Fire Correction'; btn.style.transform = 'scale(1)'; updateCorrectionPreview(); }, 100); });" disabled style="width: 100%; padding: 10px; margin-top: 5px; background: linear-gradient(180deg, #555 0%, #444 100%); border: 1px solid #8fbc1e; border-radius: 4px; color: white; font-weight: 600; cursor: not-allowed; font-size: 13px; transition: all 0.15s ease; opacity: 0.5;">
+                <button id="applyCorrection" disabled style="width: 100%; padding: 10px; margin-top: 5px; background: linear-gradient(180deg, #555 0%, #444 100%); border: 1px solid #8fbc1e; border-radius: 4px; color: white; font-weight: 600; cursor: not-allowed; font-size: 13px; transition: all 0.15s ease; opacity: 0.5;">
                     Apply Fire Correction
                 </button>
-                <button id="undoCorrection" onclick="undoCorrection();" class="btn-press" style="display: none; width: 100%; padding: 10px; margin-top: 10px; background: linear-gradient(180deg, #d94a4a 0%, #c93a3a 100%); border: 1px solid #ff6b6b; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                <button id="undoCorrection" class="btn-press" style="display: none; width: 100%; padding: 10px; margin-top: 10px; background: linear-gradient(180deg, #d94a4a 0%, #c93a3a 100%); border: 1px solid #ff6b6b; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
                     ↶ Undo Correction - Restore Original Target
                 </button>
             </div>

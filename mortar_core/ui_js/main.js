@@ -93,6 +93,10 @@ async function init() {
         
         UI.initUI();
         FFE.initFFE();
+        History.setupHistoryListeners();
+        Calculator.setupCalculatorListeners();
+        Corrections.setupCorrectionListeners();
+        Corrections.setupDynamicListeners(); // Setup correction input listeners
         
     } catch (error) {
         loading.innerHTML = `
@@ -134,19 +138,13 @@ function updateMortarTypes() {
 }
 
 /**
- * Expose all necessary functions to window for onclick handlers
+ * Expose utility modules for debugging/console access only
+ * Event handlers now use event delegation (CSP compliant)
  */
-function exposeToWindow() {
-    State.exposeToWindow();
-    UI.exposeToWindow();
-    Calculator.exposeToWindow();
-    History.exposeToWindow();
-    Corrections.exposeToWindow();
-    FFE.exposeToWindow();
-    
-    // Expose utility modules for debugging/console access
+function exposeUtilsForDebugging() {
     window.DOMCache = DOMCache;
     window.CoordManager = CoordManager;
+    window.State = State;
 }
 
 /**
@@ -154,6 +152,6 @@ function exposeToWindow() {
  */
 document.addEventListener('DOMContentLoaded', () => {
     wireDependencies();
-    exposeToWindow();
+    exposeUtilsForDebugging();
     init();
 });

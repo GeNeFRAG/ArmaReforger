@@ -1,10 +1,11 @@
 /**
  * History Management Module
  * Handles mission history storage, retrieval, and display
- * Version: 1.7.0
+ * Version: 2.0.0
  * 
  * CRITICAL: Always deep copy position objects to prevent mutation
  * Architecture: Uses dependency injection to avoid circular dependencies
+ * Security: Event delegation (no inline handlers), HTML sanitization
  */
 
 import { INPUT_IDS, COLORS } from './constants.js';
@@ -12,6 +13,18 @@ import { formatPositionDisplay, setDisplay } from './utils.js';
 import * as State from './state.js';
 import * as CoordManager from './coord-manager.js';
 import { getElement, getValue, setValue, isChecked, setChecked } from './dom-cache.js';
+
+/**
+ * Sanitize HTML to prevent XSS attacks
+ * @param {string} str - Input string that may contain HTML
+ * @returns {string} Sanitized string safe for innerHTML
+ */
+function sanitizeHTML(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
 
 // Mission history storage
 export const missionHistory = [];
@@ -39,10 +52,10 @@ export function init(deps) {
 
 /**
  * Capture current UI state for history entry
- * Prioritizes window state over DOM state per architecture guidelines
+ * Uses State module for FO mode, checkbox is static element (no forceRefresh)
  */
 export async function captureCurrentInputs() {
-    const foCheckbox = getElement('foEnabled', false, true);
+    const foCheckbox = getElement('foEnabled', false);
     const foEnabled = foCheckbox ? foCheckbox.checked : State.isFOModeEnabled();
     
     if (foCheckbox) {
@@ -190,7 +203,8 @@ export async function setInputsFromData(data) {
     
     // Always disable FFE when loading from history (history only stores base solutions)
     setChecked('ffeEnabled', false);
-    setDisplay(getElement('ffeControls'), false);
+    const ffeWidget = getElement('ffeWidget', false);
+    if (ffeWidget) ffeWidget.style.display = 'none';
     
     const foModeValue = data.foModeEnabled || false;
     State.setFOModeEnabled(foModeValue);
@@ -243,19 +257,22 @@ export async function updateHistoryDisplay() {
         const mortarName = mortarTypes.find(m => m.id === entry.mortarType)?.name || entry.mortarType;
         const foInfo = entry.foModeEnabled ? ` | 👁️ FO` : '';
         const modeInfo = entry.inputMode === 'grid' ? ' | 🎯 Grid' : ' | 📏 Meters';
-        const labelDisplay = entry.missionLabel ? `<strong style="color: #8fbc1e;">${entry.missionLabel}</strong> - ` : '';
+        // Sanitize user-provided mission label to prevent XSS
+        const labelDisplay = entry.missionLabel 
+            ? `<strong style="color: #8fbc1e;">${sanitizeHTML(entry.missionLabel)}</strong> - ` 
+            : '';
         const correctionInfo = entry.correctionApplied 
             ? `<span style="color: ${COLORS.errorText}; font-weight: 600;"> | 🔴 CORRECTED (L/R: ${entry.correctionLR > 0 ? '+' : ''}${entry.correctionLR}m, A/D: ${entry.correctionAD > 0 ? '+' : ''}${entry.correctionAD}m)</span>` 
             : '';
         
         return `
-            <div class="history-item ${index === currentHistoryIndex ? 'active' : ''}" onclick="loadFromHistory(${index})">
+            <div class="history-item ${index === currentHistoryIndex ? 'active' : ''}" data-index="${index}">
                 <div class="history-header">
                     <div>
                         <span class="history-time">${time}</span>
                         <span class="history-title">${labelDisplay}${mortarName} ${entry.shellType}</span>
                     </div>
-                    <button class="history-delete" onclick="deleteFromHistory(${index}, event)" title="Delete mission">🗑️</button>
+                    <button class="history-delete" data-index="${index}" title="Delete mission">🗑️</button>
                 </div>
                 <div class="history-details">
                     📍 ${mortarDisplay} → 🎯 ${targetDisplay} | ${entry.distance.toFixed(0)}m${modeInfo}${foInfo}${correctionInfo}
@@ -292,13 +309,36 @@ export async function deleteFromHistory(index, event) {
 }
 
 /**
- * Expose to window for onclick compatibility
+ * Setup event delegation for history list
+ * Replaces inline onclick handlers for CSP compliance
  */
-export function exposeToWindow() {
-    window.loadFromHistory = loadFromHistory;
-    window.clearHistory = clearHistory;
-    window.deleteFromHistory = deleteFromHistory;
-    window.resetHistoryIndex = () => { currentHistoryIndex = -1; };
+export function setupHistoryListeners() {
+    const historyList = getElement('historyList', true);
+    
+    historyList.addEventListener('click', (e) => {
+        const historyItem = e.target.closest('.history-item');
+        const deleteBtn = e.target.closest('.history-delete');
+        
+        if (deleteBtn) {
+            e.stopPropagation();
+            const index = parseInt(deleteBtn.dataset.index);
+            if (!isNaN(index)) {
+                deleteFromHistory(index, e);
+            }
+        } else if (historyItem) {
+            const index = parseInt(historyItem.dataset.index);
+            if (!isNaN(index)) {
+                loadFromHistory(index);
+            }
+        }
+    });
+}
+
+/**
+ * Reset history index (used by calculator)
+ */
+export function resetHistoryIndex() {
+    currentHistoryIndex = -1;
 }
 
 /**

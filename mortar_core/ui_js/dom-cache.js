@@ -1,23 +1,40 @@
 /**
  * DOM Cache Module
  * Centralized DOM element retrieval with caching
- * Version: 1.7.0
+ * Version: 2.0.0
  * 
  * Eliminates 140+ repeated document.getElementById() calls across codebase
  * Performance: O(1) cached retrieval vs O(n) DOM traversal
+ * Auto-detects dynamic elements using DYNAMIC_ELEMENTS registry
  */
 
+import { DYNAMIC_ELEMENTS } from './constants.js';
+
 const elementCache = new Map();
+
+/**
+ * Check if element ID matches dynamic element patterns
+ * @param {string} id - Element ID to check
+ * @returns {boolean} True if element is dynamically created
+ */
+function isDynamicElement(id) {
+    return DYNAMIC_ELEMENTS.some(pattern => 
+        pattern instanceof RegExp ? pattern.test(id) : pattern === id
+    );
+}
 
 /**
  * Get DOM element with caching
  * @param {string} id - Element ID
  * @param {boolean} required - Throw error if not found (default: true)
- * @param {boolean} forceRefresh - Skip cache and re-query DOM (for dynamic elements)
+ * @param {boolean} forceRefresh - Skip cache (auto-detected for dynamic elements if undefined)
  * @returns {HTMLElement|null}
  */
-export function getElement(id, required = true, forceRefresh = false) {
-    if (forceRefresh || !elementCache.has(id)) {
+export function getElement(id, required = true, forceRefresh) {
+    // Auto-detect dynamic elements if forceRefresh not explicitly set
+    const shouldRefresh = forceRefresh !== undefined ? forceRefresh : isDynamicElement(id);
+    
+    if (shouldRefresh || !elementCache.has(id)) {
         const element = document.getElementById(id);
         
         if (required && !element) {

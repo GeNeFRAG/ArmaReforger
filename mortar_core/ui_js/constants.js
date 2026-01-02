@@ -69,3 +69,22 @@ export const MISSION_CARD_STYLES = {
     widgetBackground: 'rgba(40, 55, 45, 0.9)',
     widgetBorder: '2px solid #6b8e23'
 };
+
+/**
+ * Dynamic Elements Registry
+ * Elements created/destroyed by JavaScript (require forceRefresh in getElement)
+ * Static elements exist in index.html at page load (cached without refresh)
+ */
+export const DYNAMIC_ELEMENTS = [
+    'rangeIndicator',        // Created in ui.js updateRangeIndicator()
+    'toggleAltBtn',          // Created in calculator.js displaySolutions()
+    'otBearingDisplay',      // Created in corrections.js
+    'observerWarning',       // Created in corrections.js
+    'ffePreview',           // Created in ffe.js
+    // Pattern-based dynamic elements (RegExp)
+    /^selectBtn_/,          // selectBtn_0, selectBtn_1, etc.
+    /^.*-error$/,           // Field error divs (mortarX-error, etc.)
+    /^otBearingValue$/,     // Observer bearing values
+    /^gtBearingValue$/,
+    /^angleDiffValue$/
+];

@@ -335,17 +335,28 @@ export function cacheBaseSolution(html) {
  */
 export function initFFE() {
     const ffePattern = getElement('ffePattern', false);
+    const ffeEnabled = getElement('ffeEnabled', false);
+    const generateFFEBtn = getElement('generateFFE', false);
+    const showBaseBtn = getElement('showBaseSolution', false);
     
     if (ffePattern) {
         ffePattern.addEventListener('change', handleFFEPatternChange);
     }
+    
+    if (ffeEnabled) {
+        ffeEnabled.addEventListener('change', toggleFFEMode);
+    }
+    
+    if (generateFFEBtn) {
+        generateFFEBtn.addEventListener('click', generateFFEPattern);
+    }
+    
+    if (showBaseBtn) {
+        showBaseBtn.addEventListener('click', showBaseSolution);
+    }
 }
 
-// Export for window object (backward compatibility with onclick handlers)
-export function exposeToWindow() {
-    window.resetFFEWidget = resetFFEWidget;
-    window.generateFFEPattern = generateFFEPattern;
-    window.showBaseSolution = showBaseSolution;
-    window.toggleFFEMode = toggleFFEMode;
-    window.handleFFEPatternChange = handleFFEPatternChange;
-}
+/**
+ * Removed: exposeToWindow() - Functions now use event listeners
+ */
+

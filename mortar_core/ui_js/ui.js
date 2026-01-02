@@ -11,6 +11,9 @@ import { debounce, setDisplay } from './utils.js';
 import * as State from './state.js';
 import * as CoordManager from './coord-manager.js';
 import { getElement, getValue, setValue } from './dom-cache.js';
+import { resetHistoryIndex } from './history.js';
+import { resetFFEWidget } from './ffe.js';
+import { updateOTBearingDisplay } from './corrections.js';
 
 // Injected dependencies (set via init)
 let dependencies = {
@@ -259,11 +262,10 @@ function updateCalculateButtonState() {
 export function highlightField(input, message, color = COLORS.errorText) {
     input.style.border = `2px solid ${color}`;
     input.style.boxShadow = `0 0 8px ${color}`;
-    input.setAttribute('data-error', message);
     
-    // Create or update error message element (use forceRefresh since it's dynamic)
+    // Create or update error message element (auto-detected as dynamic via pattern)
     const errorId = `${input.id}-error`;
-    let errorEl = getElement(errorId, false, true);
+    let errorEl = getElement(errorId, false);
     if (!errorEl) {
         errorEl = document.createElement('div');
         errorEl.id = errorId;
@@ -279,10 +281,9 @@ export function highlightField(input, message, color = COLORS.errorText) {
 export function clearFieldHighlighting(input) {
     input.style.border = '';
     input.style.boxShadow = '';
-    input.removeAttribute('data-error');
     
-    // Remove error message element (use forceRefresh since it's dynamic)
-    const errorEl = getElement(`${input.id}-error`, false, true);
+    // Remove error message element (auto-detected as dynamic via pattern)
+    const errorEl = getElement(`${input.id}-error`, false);
     if (errorEl) {
         errorEl.remove();
     }
@@ -292,7 +293,7 @@ export function clearFieldHighlighting(input) {
  * Update or create range indicator showing distance and in-range status
  */
 function updateRangeIndicator(inRange, distance, solution) {
-    let rangeIndicator = getElement('rangeIndicator', false, true);
+    let rangeIndicator = getElement('rangeIndicator', false);
     
     if (!rangeIndicator) {
         rangeIndicator = document.createElement('div');
@@ -344,7 +345,7 @@ function clearRangeValidation() {
         }
     });
     
-    const rangeIndicator = getElement('rangeIndicator', false, true);
+    const rangeIndicator = getElement('rangeIndicator', false);
     if (rangeIndicator) {
         rangeIndicator.remove();
     }
@@ -444,9 +445,7 @@ export function performReset() {
     State.resetAllState();
     
     // Reset history index to prevent overwriting
-    if (window.resetHistoryIndex) {
-        window.resetHistoryIndex();
-    }
+    resetHistoryIndex();
     
     // Clear range validation
     clearRangeValidation();
@@ -463,9 +462,7 @@ export function performReset() {
     // Hide and reset FFE widget
     const ffeWidget = getElement('ffeWidget', false);
     if (ffeWidget) ffeWidget.style.display = 'none';
-    if (window.resetFFEWidget) {
-        window.resetFFEWidget();
-    }
+    resetFFEWidget();
     
     // Update button state (disable since all fields are now empty)
     updateCalculateButtonState();
@@ -557,9 +554,7 @@ export function toggleFOControls(checkbox) {
                 setValue('observerY', obs.y.toFixed(1));
             }
         }
-        if (window.updateOTBearingDisplay) {
-            setTimeout(() => window.updateOTBearingDisplay(), 50);
-        }
+        setTimeout(() => updateOTBearingDisplay(), 50);
     } else {
         INPUT_IDS.OBSERVER_FIELDS.forEach(id => {
             const el = getElement(id, false, true);
@@ -744,15 +739,55 @@ export function initUI() {
     
     // Initialize calculate button state (disabled by default)
     updateCalculateButtonState();
+    
+    // Setup event listeners for UI controls
+    setupUIListeners();
 }
 
 /**
- * Expose functions to window for onclick compatibility
+ * Setup event delegation for UI controls
  */
-export function exposeToWindow() {
-    window.setCoordMode = setCoordMode;
-    window.toggleFOControls = toggleFOControls;
-    window.toggleAlternativeMissions = toggleAlternativeMissions;
-    window.highlightMissingFields = highlightMissingFields;
-    window.clearPositionHighlighting = clearPositionHighlighting;
+function setupUIListeners() {
+    // Coordinate mode toggle
+    const toggleButtons = document.querySelector('.toggle-buttons');
+    if (toggleButtons) {
+        toggleButtons.addEventListener('click', (e) => {
+            const toggleOption = e.target.closest('.toggle-option');
+            if (toggleOption) {
+                const mode = toggleOption.dataset.mode;
+                if (mode) {
+                    setCoordMode(mode);
+                }
+            }
+        });
+    }
+    
+    // FO mode toggle
+    const foEnabled = getElement('foEnabled', false);
+    const foToggleLabel = getElement('foToggleLabel', false);
+    
+    if (foEnabled) {
+        foEnabled.addEventListener('change', (e) => {
+            toggleFOControls(e.target);
+        });
+    }
+    
+    if (foToggleLabel) {
+        foToggleLabel.addEventListener('click', () => {
+            if (foEnabled) {
+                foEnabled.checked = !foEnabled.checked;
+                toggleFOControls(foEnabled);
+            }
+        });
+    }
+    
+    // Clear history button
+    const clearHistoryBtn = getElement('clearHistoryBtn', false);
+    if (clearHistoryBtn && dependencies.clearHistory) {
+        clearHistoryBtn.addEventListener('click', dependencies.clearHistory);
+    }
 }
+
+/**
+ * Removed: exposeToWindow() - Functions now use event delegation
+ */

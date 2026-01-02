@@ -1,7 +1,7 @@
 /**
  * Calculator Module
  * Main calculation logic, solution generation, and mission management
- * Version: 1.7.0
+ * Version: 2.0.0
  * 
  * Architecture: Uses dependency injection to avoid circular dependencies
  * Dependencies are injected via init() function
@@ -12,6 +12,8 @@ import { createInfoBanner } from './utils.js';
 import * as State from './state.js';
 import { getElement, getValue, isChecked } from './dom-cache.js';
 import * as CoordManager from './coord-manager.js';
+import { setupDynamicListeners } from './corrections.js';
+import { clearPositionHighlighting, toggleAlternativeMissions } from './ui.js';
 
 // Injected dependencies (set via init)
 let dependencies = {
@@ -161,7 +163,7 @@ export function generateMissionCardHTML(solution, index, previousChargeForDispla
                 </span>
             </div>
             ${generateSolutionGridHTML(solution, previousChargeForDisplay)}
-            <button class="btn-press" onclick="selectMission(${solution.charge})" id="selectBtn_${solution.charge}" style="width: 100%; margin-top: 10px; padding: 8px; background: ${index === 0 ? BTN_STYLES.selected : BTN_STYLES.unselected}; border: 1px solid ${index === 0 ? BTN_STYLES.selectedBorder : BTN_STYLES.unselectedBorder}; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+            <button class="btn-press" data-charge="${solution.charge}" id="selectBtn_${solution.charge}" style="width: 100%; margin-top: 10px; padding: 8px; background: ${index === 0 ? BTN_STYLES.selected : BTN_STYLES.unselected}; border: 1px solid ${index === 0 ? BTN_STYLES.selectedBorder : BTN_STYLES.unselectedBorder}; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
                 ${index === 0 ? '✓ Selected Mission' : 'Use This Mission'}
             </button>
         </div>
@@ -209,8 +211,8 @@ export async function selectMission(charge) {
             
             if (!container) return;
             
-            // Store the toggle button
-            const toggleBtn = getElement('toggleAltBtn', false, true); // Dynamic button
+            // Store the toggle button (dynamic element, auto-detected)
+            const toggleBtn = getElement('toggleAltBtn', false);
             
             // Remove ALL existing mission cards, alternatives container, and related elements
             // This clears both initial calculation results and history-loaded content
@@ -261,7 +263,7 @@ export async function selectMission(charge) {
                             </span>
                         </div>
                         ${generateSolutionGridHTML(selectedSolution, previousChargeForDisplay)}
-                        <button class="btn-press" onclick="selectMission(${selectedSolution.charge})" id="selectBtn_${selectedSolution.charge}" style="width: 100%; margin-top: 10px; padding: 8px; background: ${BTN_STYLES.selected}; border: 1px solid ${BTN_STYLES.selectedBorder}; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        <button class="btn-press" data-charge="${selectedSolution.charge}" id="selectBtn_${selectedSolution.charge}" style="width: 100%; margin-top: 10px; padding: 8px; background: ${BTN_STYLES.selected}; border: 1px solid ${BTN_STYLES.selectedBorder}; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
                             ✓ Selected Mission
                         </button>
                     `;
@@ -340,7 +342,7 @@ export async function selectMission(charge) {
                                     </span>
                                 </div>
                                 ${generateSolutionGridHTML(altSolution, null)}
-                                <button class="btn-press" onclick="selectMission(${altSolution.charge})" id="selectBtn_${altSolution.charge}" style="width: 100%; margin-top: 10px; padding: 8px; background: ${BTN_STYLES.unselected}; border: 1px solid ${BTN_STYLES.unselectedBorder}; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                                <button class="btn-press" data-charge="${altSolution.charge}" id="selectBtn_${altSolution.charge}" style="width: 100%; margin-top: 10px; padding: 8px; background: ${BTN_STYLES.unselected}; border: 1px solid ${BTN_STYLES.unselectedBorder}; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
                                     Use This Mission
                                 </button>
                             `;
@@ -364,9 +366,9 @@ export async function selectMission(charge) {
         }
     }
     
-    // Update all buttons - use forceRefresh since we regenerated HTML
+    // Update all buttons (dynamic elements, auto-detected by pattern)
     solutions.forEach(sol => {
-        const btn = getElement(`selectBtn_${sol.charge}`, false, true); // Dynamic button
+        const btn = getElement(`selectBtn_${sol.charge}`, false);
         if (btn) {
             if (sol.charge === charge) {
                 btn.style.background = BTN_STYLES.selected;
@@ -399,10 +401,8 @@ export async function calculateSolution() {
         State.setOriginalOptimalCharge(null);
         
         // Clear previous field highlighting
-        if (window.clearPositionHighlighting) {
-            window.clearPositionHighlighting('mortar');
-            window.clearPositionHighlighting('target');
-        }
+        clearPositionHighlighting('mortar');
+        clearPositionHighlighting('target');
         
         // Clear range indicator (dynamic element, force refresh)
         const rangeIndicator = getElement('rangeIndicator', false, true);
@@ -574,7 +574,7 @@ export async function calculateSolution() {
             const widget = getElement('fireCorrectionWidget', false);
             
             const alternativeSection = solutions.length > 1 ? `
-                <button class="btn-press" onclick="toggleAlternativeMissions()" id="toggleAltBtn" style="width: 100%; padding: 10px; margin-top: 20px; background: ${COLORS.gradientGray}; border: 1px solid ${COLORS.borderGray}; border-radius: 4px; color: ${COLORS.textPrimary}; font-weight: 600; cursor: pointer; font-size: 13px;">
+                <button class="btn-press" id="toggleAltBtn" style="width: 100%; padding: 10px; margin-top: 20px; background: ${COLORS.gradientGray}; border: 1px solid ${COLORS.borderGray}; border-radius: 4px; color: ${COLORS.textPrimary}; font-weight: 600; cursor: pointer; font-size: 13px;">
                     ▼ Show ${solutions.length - 1} Alternative Mission${solutions.length > 2 ? 's' : ''}
                 </button>
                 <div id="alternativeMissions" style="display: none;">
@@ -643,12 +643,10 @@ export async function calculateSolution() {
                 }
             }
             
-            // Set up event listeners for dynamically created correction/observer inputs
-            if (window.setupDynamicListeners) {
-                setTimeout(() => {
-                    window.setupDynamicListeners();
-                }, 50);
-            }
+            // Set up event listeners for correction/observer inputs
+            setTimeout(() => {
+                setupDynamicListeners();
+            }, 50);
         } else {
             const solution = solutions[0];
             output.classList.add('error');
@@ -826,11 +824,27 @@ export function generateFFEDisplayHTML(sortedFFE, ffePattern, patternParam, ffeR
 }
 
 /**
- * Expose functions to window for onclick compatibility
+ * Setup event delegation for calculator buttons
+ * Replaces inline onclick handlers for CSP compliance
  */
-export function exposeToWindow() {
-    window.selectMission = selectMission;
-    window.calculateSolution = calculateSolution;
-    window.updateShellTypes = updateShellTypes;
-    window.getAllMortarTypes = getAllMortarTypes;
+export function setupCalculatorListeners() {
+    const output = getElement('output', true);
+    
+    output.addEventListener('click', (e) => {
+        // Handle mission select buttons
+        const selectBtn = e.target.closest('.btn-press[data-charge]');
+        if (selectBtn) {
+            const charge = parseInt(selectBtn.dataset.charge);
+            if (!isNaN(charge)) {
+                selectMission(charge);
+            }
+            return;
+        }
+        
+        // Handle toggle alternative missions button
+        if (e.target.id === 'toggleAltBtn' || e.target.closest('#toggleAltBtn')) {
+            toggleAlternativeMissions();
+            return;
+        }
+    });
 }
