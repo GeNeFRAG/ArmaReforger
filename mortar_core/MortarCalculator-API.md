@@ -749,6 +749,127 @@ const pos5 = MortarCalculator.parsePosition("0584/0713");
 
 ---
 
+### Angle Conversion Utilities
+
+#### `degreesToMils(degrees, mortarType)`
+
+Convert degrees to mils using the mortar's specific mil system.
+
+**Parameters:**
+- `degrees` (number) - Angle in degrees
+- `mortarType` (string) - Mortar type ID (e.g., "RUS", "US")
+
+**Returns:**
+- `number` - Angle in mils (rounded to integer)
+
+**Example:**
+```javascript
+// Warsaw Pact system (RUS): 6000 mils/circle
+const milsRUS = MortarCalculator.degreesToMils(45, "RUS");
+// Returns: 750 (45° × 16.6667 ≈ 750 mils)
+
+// NATO system (US): 6400 mils/circle
+const milsUS = MortarCalculator.degreesToMils(45, "US");
+// Returns: 800 (45° × 17.7778 ≈ 800 mils)
+```
+
+---
+
+#### `milsToDegrees(mils, mortarType)`
+
+Convert mils to degrees using the mortar's specific mil system.
+
+**Parameters:**
+- `mils` (number) - Angle in mils
+- `mortarType` (string) - Mortar type ID (e.g., "RUS", "US")
+
+**Returns:**
+- `number` - Angle in degrees (2 decimal places)
+
+**Example:**
+```javascript
+// Warsaw Pact system (RUS)
+const degreesRUS = MortarCalculator.milsToDegrees(750, "RUS");
+// Returns: 45.00
+
+// NATO system (US)
+const degreesUS = MortarCalculator.milsToDegrees(800, "US");
+// Returns: 45.00
+```
+
+---
+
+#### `getMilSystemName(mortarType)`
+
+Get the mil system name and configuration for display purposes.
+
+**Parameters:**
+- `mortarType` (string) - Mortar type ID (e.g., "RUS", "US")
+
+**Returns:**
+- `string` - Formatted mil system name with mils per circle
+
+**Example:**
+```javascript
+const rusSystem = MortarCalculator.getMilSystemName("RUS");
+// Returns: "Warsaw Pact (6000 mils)"
+
+const usSystem = MortarCalculator.getMilSystemName("US");
+// Returns: "NATO (6400 mils)"
+```
+
+---
+
+#### `formatForField(solution)`
+
+Format firing solution for field use with all angles in mils (gunner-friendly format).
+
+**Parameters:**
+- `solution` (FiringSolution) - Standard firing solution from `calculate()`
+
+**Returns:**
+- `Object` - Field-formatted solution:
+  ```javascript
+  {
+      inRange: boolean,
+      charge: number,
+      elevation: number,        // In mils (rounded)
+      azimuth: number,          // In mils (rounded)
+      timeOfFlight: number,     // In seconds
+      minRange: number,
+      maxRange: number,
+      elevationDegrees: number, // Reference only
+      azimuthDegrees: number    // Reference only
+  }
+  ```
+
+**Use Case:**
+Gunners work exclusively in mils. This format removes the need to look at multiple angle formats.
+
+**Example:**
+```javascript
+const solution = MortarCalculator.calculate({
+    distance: 800,
+    heightDifference: 0,
+    bearing: 45,
+    mortarId: "US",
+    shellType: "HE"
+});
+
+const fieldFormat = MortarCalculator.formatForField(solution);
+console.log(`Charge ${fieldFormat.charge}`);
+console.log(`Elevation: ${fieldFormat.elevation} mils`);
+console.log(`Azimuth: ${fieldFormat.azimuth} mils`);
+console.log(`TOF: ${fieldFormat.timeOfFlight}s`);
+// Output:
+// Charge 2
+// Elevation: 1245 mils
+// Azimuth: 800 mils
+// TOF: 12.5s
+```
+
+---
+
 ### Advanced Functions
 
 #### `getWeaponConfig(mortarId, shellType)`
