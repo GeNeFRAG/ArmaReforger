@@ -10,9 +10,7 @@
 - ✅ Framework-agnostic - works in Node.js and browsers
 - ✅ Coordinate-system independent - uses simple 3D positions
 - ✅ **Grid coordinate support** - 3-digit (100m) and 4-digit (10m) precision
-- ✅ **Separate X/Y inputs** - Individual grid coordinate fields (v1.4.0 UI)
-- ✅ **Real-time validation** - Format and range checking while typing (v1.4.0+ UI)
-- ✅ **Forward Observer mode** - Corrections along Observer-Target line (v1.6.0)
+- ✅ **Forward Observer mode** - Corrections along Observer-Target line
 - ✅ **Fire correction system** - Gun-Target or Observer-Target line adjustments
 - ✅ **Fire for Effect patterns** - Lateral/Linear sheaf, Circular saturation
 - ✅ **FFE sorting** - Sort FFE solutions by azimuth for optimal gun traverse
@@ -22,7 +20,6 @@
 - ✅ **Dynamic weapon data loading** - all ballistics from JSON
 - ✅ **Extensible** - add new weapons without code changes
 - ✅ **Multiple mil systems** - Warsaw Pact (6000) and NATO (6400)
-- ✅ **DRY architecture** - Helper functions, constants, CSS classes (v1.4.0+)
 
 ## Installation
 
@@ -1018,6 +1015,8 @@ function calculateFromMap(map, mortarMarker, targetMarker) {
 
 ## Error Messages
 
+### Calculation Errors
+
 | Error | Meaning | Solution |
 |-------|---------|----------|
 | `Ballistic data not loaded` | `loadBallisticData()` not called | Call `loadBallisticData()` first |
@@ -1026,4 +1025,15 @@ function calculateFromMap(map, mortarMarker, targetMarker) {
 | `Invalid distance` | Distance < 0 or undefined | Provide valid distance > 0 |
 | `Bearing must be between 0 and 360` | Invalid bearing | Provide bearing 0-360 |
 | `Target distance out of range` | Target too far/close | Check min/max range in solution |
+
+### UI Validation Messages (Web Calculator)
+
+| Field | Validation | Error Message |
+|-------|------------|---------------|
+| Grid X/Y | Format | "3 or 4 digits (e.g., 058, 0584)" |
+| Grid coordinates | Parsing | "Grid coordinates must be 3 or 4 digits each (e.g., 058/071, 0584/0713)" |
+| Meters X/Y | Range | "Value must be between 0 and 99999.9" |
+| Left/Right correction | Range | Valid range: -500 to +500 meters |
+| Add/Drop correction | Range | Valid range: -500 to +500 meters |
+| Distance | Out of range | Shows min/max range for selected weapon |
 

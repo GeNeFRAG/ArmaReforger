@@ -1,0 +1,178 @@
+/**
+ * Global State Management
+ * Centralizes window.* state properties to prevent cross-module bugs
+ * CRITICAL: Always prioritize this state over DOM state
+ * Version: 1.7.0
+ */
+
+// State object - single source of truth
+const state = {
+    ballisticDataLoaded: false,
+    foModeEnabled: false,
+    lastObserverPos: null,
+    correctionApplied: false,
+    lastCorrectionLR: null,
+    lastCorrectionAD: null,
+    originalTargetPos: null,
+    selectedCharge: null,
+    previousCharge: null,
+    originalOptimalCharge: null,
+    lastInput: null,
+    lastSolutions: null,
+    lastSolution: null
+};
+
+// Getters
+export function isBallisticDataLoaded() {
+    return state.ballisticDataLoaded;
+}
+
+export function isFOModeEnabled() {
+    return state.foModeEnabled;
+}
+
+export function getLastObserverPos() {
+    return state.lastObserverPos;
+}
+
+export function isCorrectionApplied() {
+    return state.correctionApplied;
+}
+
+export function getLastCorrectionLR() {
+    return state.lastCorrectionLR;
+}
+
+export function getLastCorrectionAD() {
+    return state.lastCorrectionAD;
+}
+
+export function getOriginalTargetPos() {
+    return state.originalTargetPos;
+}
+
+export function getSelectedCharge() {
+    return state.selectedCharge;
+}
+
+export function getPreviousCharge() {
+    return state.previousCharge;
+}
+
+export function getOriginalOptimalCharge() {
+    return state.originalOptimalCharge;
+}
+
+export function getLastInput() {
+    return state.lastInput;
+}
+
+export function getLastSolutions() {
+    return state.lastSolutions;
+}
+
+export function getLastSolution() {
+    return state.lastSolution;
+}
+
+// Setters
+export function setBallisticDataLoaded(value) {
+    state.ballisticDataLoaded = value;
+}
+
+export function setFOModeEnabled(value) {
+    state.foModeEnabled = value;
+}
+
+export function setLastObserverPos(value) {
+    state.lastObserverPos = value;
+}
+
+export function setCorrectionApplied(value) {
+    state.correctionApplied = value;
+}
+
+export function setLastCorrectionLR(value) {
+    state.lastCorrectionLR = value;
+}
+
+export function setLastCorrectionAD(value) {
+    state.lastCorrectionAD = value;
+}
+
+export function setOriginalTargetPos(value) {
+    state.originalTargetPos = value;
+}
+
+export function setSelectedCharge(value) {
+    state.selectedCharge = value;
+}
+
+export function setPreviousCharge(value) {
+    state.previousCharge = value;
+}
+
+export function setOriginalOptimalCharge(value) {
+    state.originalOptimalCharge = value;
+}
+
+export function setLastInput(value) {
+    state.lastInput = value;
+}
+
+export function setLastSolutions(value) {
+    state.lastSolutions = value;
+}
+
+export function setLastSolution(value) {
+    state.lastSolution = value;
+}
+
+// Backward compatibility - expose state on window object
+export function syncToWindow() {
+    // Don't sync ballisticDataLoaded - it's managed by main.js and should persist
+    // window.ballisticDataLoaded = state.ballisticDataLoaded;
+    window.foModeEnabled = state.foModeEnabled;
+    window.lastObserverPos = state.lastObserverPos;
+    window.correctionApplied = state.correctionApplied;
+    window.lastCorrectionLR = state.lastCorrectionLR;
+    window.lastCorrectionAD = state.lastCorrectionAD;
+    window.originalTargetPos = state.originalTargetPos;
+    window.selectedCharge = state.selectedCharge;
+    window.previousCharge = state.previousCharge;
+    window.originalOptimalCharge = state.originalOptimalCharge;
+    window.lastInput = state.lastInput;
+}
+
+// Reset correction state
+export function resetCorrectionState() {
+    state.correctionApplied = false;
+    state.originalTargetPos = null;
+    state.lastCorrectionLR = null;
+    state.lastCorrectionAD = null;
+    syncToWindow();
+}
+
+// Reset all state
+export function resetAllState() {
+    state.foModeEnabled = false;
+    state.lastObserverPos = null;
+    state.correctionApplied = false;
+    state.lastCorrectionLR = null;
+    state.lastCorrectionAD = null;
+    state.originalTargetPos = null;
+    state.selectedCharge = null;
+    state.previousCharge = null;
+    state.originalOptimalCharge = null;
+    state.lastSolution = null;
+    state.lastSolutions = null;
+    state.lastInput = null;
+    syncToWindow();
+}
+
+/**
+ * Expose to window (no-op for state module)
+ */
+export function exposeToWindow() {
+    // State is already synchronized to window via syncToWindow()
+}

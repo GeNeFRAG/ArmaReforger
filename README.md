@@ -1,8 +1,8 @@
 # Arma Reforger Tools & Resources
 
-**Live Mortar Calculator:** [https://armamortars.org](https://armamortars.org) **v1.4.0**
+**Live Mortar Calculator:** [https://armamortars.org](https://armamortars.org) **v1.6.0**
 
-Comprehensive toolset for Arma Reforger server management, map resources, and artillery calculations with grid coordinate support and real-time validation.
+Comprehensive toolset for Arma Reforger server management, map resources, and artillery calculations with grid coordinate support, real-time validation, and Forward Observer mode.
 
 ## Project Structure
 
@@ -13,8 +13,10 @@ ArmaReforger/
 │   ├── height_data/        # Elevation data (R2-hosted)
 │   └── README.md
 ├── mortar_core/            # Artillery ballistics
+│   ├── MortarCalculator.js # Core calculation engine
 │   ├── ballistic-data.json # Weapon ballistics database
-│   ├── Arma Reforger Mortar Calc.ods
+│   ├── index.html          # Web calculator
+│   ├── ui_js/              # UI modules
 │   └── README.md
 └── server_tools/           # Server management utilities
     ├── mod_manager.py
@@ -48,9 +50,16 @@ if 'height_data' in everon['resources']:
 ```
 
 ### Mortar Core
-Calculate artillery fire solutions with grid coordinates or meters:
+Calculate artillery fire solutions with grid coordinates, Forward Observer mode, and fire corrections:
 
 **Web Calculator:** [armamortars.org](https://armamortars.org)
+
+**Features:**
+- 👁️ Forward Observer (FO) Mode - corrections from observer's perspective
+- 🎯 Separate X/Y grid inputs with real-time validation
+- 🔥 Fire correction system (Gun-Target or Observer-Target line)
+- 💥 Fire for Effect patterns (Lateral/Linear sheaf, Circular saturation)
+- 📐 Input validation with range checking (-500 to +500m corrections)
 
 ```javascript
 const MortarCalculator = require('./MortarCalculator');
@@ -135,5 +144,6 @@ Comprehensive ballistics database with dynamic loading:
 ## Documentation
 
 - [Maps Core](maps_core/README.md) - Map metadata and elevation data
-- [Mortar Core](mortar_core/README.md) - Artillery ballistics and calculators
+- [Mortar Core](mortar_core/README.md) - Artillery ballistics and web calculator
+- [MortarCalculator API](mortar_core/MortarCalculator-API.md) - Complete API reference for developers
 - [Server Tools](server_tools/README.md) - Mod management utilities

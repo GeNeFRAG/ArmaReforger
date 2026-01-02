@@ -20,10 +20,12 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
   - State persistence across corrections
 - 🎯 **Separate X/Y grid inputs** - Individual fields for grid X and Y coordinates (v1.4.0)
 - ⚡ **Real-time validation** - Instant feedback while typing coordinates (v1.4.0+)
-  - Format validation for grid inputs (3-4 digits)
+  - Format validation for grid inputs (3-4 digits with examples)
   - Range validation with visual indicators
   - Distance display showing valid range
   - Observer fields optimized (no height field, no validation triggers)
+  - Fire correction inputs validated (-500 to +500m range)
+  - Improved error messages with examples
 - 🎯 Grid coordinate support (3-digit 100m & 4-digit 10m precision)
 - 📏 Traditional meter coordinates
 - 🔄 Toggle between input modes (auto-clears on switch)
@@ -61,7 +63,7 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 
 ## 📚 Documentation
 
-- **[API.md](API.md)** - Complete API documentation
+- **[MortarCalculator-API.md](MortarCalculator-API.md)** - Complete API documentation
 - **[examples/](examples/)** - Usage examples for Node.js, browser, and map integration
 
 
@@ -245,7 +247,7 @@ lateralTargets.forEach((pos, index) => {
 });
 ```
 
-See **[API.md](API.md)** for complete documentation.
+See **[MortarCalculator-API.md](MortarCalculator-API.md)** for complete documentation.
 
 ## 🎮 Supported Weapons
 
@@ -264,6 +266,35 @@ All weapon data is dynamically loaded from `ballistic-data.json`:
 | `US` | US M252 | 81mm | NATO (6400) | HE, SMOKE, ILLUM |
 
 To add new weapons, update `ballistic-data.json` - no code changes required.
+
+## 🛠️ Development
+
+### Setup
+```bash
+cd mortar_core
+npm install  # Install dev dependencies
+```
+
+### Project Structure
+```
+mortar_core/
+├── index.html              # Web calculator UI
+├── MortarCalculator.js     # Core calculation engine
+├── ballistic-data.json     # Weapon ballistics database
+├── ui_js/                  # UI modules (ES6)
+│   ├── main.js            # Application initialization
+│   ├── calculator.js      # Calculation UI logic
+│   ├── corrections.js     # Fire correction system
+│   ├── coord-manager.js   # Coordinate handling
+│   ├── history.js         # Mission history
+│   ├── ui.js              # UI helpers and validation
+│   ├── state.js           # Application state
+│   ├── dom-cache.js       # DOM element caching
+│   ├── ffe.js             # Fire for Effect patterns
+│   ├── utils.js           # Utility functions
+│   └── constants.js       # UI constants
+└── examples/              # Usage examples
+```
 
 ## 🧪 Testing
 
