@@ -1,7 +1,7 @@
 /**
  * UI Management Module
  * Handles DOM interactions, event listeners, input validation
- * Version: 1.7.0
+ * Version: 2.0.0
  * 
  * Architecture: Uses dependency injection for calculator functions
  */
@@ -9,7 +9,6 @@
 import { INPUT_IDS, COLORS } from './constants.js';
 import { debounce, setDisplay } from './utils.js';
 import * as State from './state.js';
-import { toggleFFEControls } from './ffe.js';
 import * as CoordManager from './coord-manager.js';
 import { getElement, getValue, setValue } from './dom-cache.js';
 
@@ -434,13 +433,6 @@ export function performReset() {
         dependencies.updateShellTypes();
     }
     
-    // Uncheck and reset FFE
-    const ffeCheckbox = getElement('ffeEnabled', false);
-    if (ffeCheckbox) {
-        ffeCheckbox.checked = false;
-        toggleFFEControls(ffeCheckbox);
-    }
-    
     // Uncheck and reset FO mode
     const foEnabledCheckbox = getElement('foEnabled', false);
     if (foEnabledCheckbox) {
@@ -467,6 +459,13 @@ export function performReset() {
     // Hide fire correction widget
     const widget = getElement('fireCorrectionWidget', false);
     if (widget) widget.style.display = 'none';
+    
+    // Hide and reset FFE widget
+    const ffeWidget = getElement('ffeWidget', false);
+    if (ffeWidget) ffeWidget.style.display = 'none';
+    if (window.resetFFEWidget) {
+        window.resetFFEWidget();
+    }
     
     // Update button state (disable since all fields are now empty)
     updateCalculateButtonState();
@@ -535,6 +534,14 @@ export function toggleFOControls(checkbox) {
     
     State.setFOModeEnabled(isChecked);
     setDisplay(foControls, isChecked);
+    
+    // Update header text based on mode
+    const header = getElement('fireCorrectionHeader', false);
+    if (header) {
+        header.textContent = isChecked 
+            ? '🔄 Adjust Fire: Observer-Target (OT) line'
+            : '🔄 Adjust Fire: Gun-Target (GT) line';
+    }
     
     if (isChecked) {
         if (State.getLastObserverPos()) {
@@ -632,7 +639,6 @@ export function toggleAlternativeMissions() {
 export function initUI() {
     const calculateBtn = getElement('calculate', false);
     const resetBtn = getElement('reset', false);
-    const ffeEnabledCheckbox = getElement('ffeEnabled', false);
     const toggleGrid = getElement('toggleGrid', false);
     const toggleMeters = getElement('toggleMeters', false);
     
@@ -652,10 +658,6 @@ export function initUI() {
         resetBtn.addEventListener('click', async () => {
             performReset();
         });
-    }
-    
-    if (ffeEnabledCheckbox) {
-        ffeEnabledCheckbox.addEventListener('change', (e) => toggleFFEControls(e.target));
     }
     
     if (toggleGrid) {

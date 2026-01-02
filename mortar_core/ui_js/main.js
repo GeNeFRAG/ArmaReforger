@@ -65,6 +65,12 @@ function wireDependencies() {
         calculateSolution: Calculator.calculateSolution,
         setCurrentHistoryIndex: History.setCurrentHistoryIndex
     });
+    
+    // FFE dependencies
+    FFE.init({
+        calculateSolution: Calculator.calculateSolution,
+        parsePositionFromUI: UI.parsePositionFromUI
+    });
 }
 
 /**

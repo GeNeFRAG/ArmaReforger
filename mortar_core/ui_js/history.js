@@ -61,11 +61,6 @@ export async function captureCurrentInputs() {
     return {
         mortarType: getValue('mortarType'),
         shellType: getValue('shellType'),
-        ffeEnabled: isChecked('ffeEnabled'),
-        ffePattern: getValue('ffePattern'),
-        ffeRounds: parseInt(getValue('ffeRounds')),
-        ffeSpacing: parseFloat(getValue('ffeSpacing')),
-        ffeRadius: parseFloat(getValue('ffeRadius')),
         missionLabel: getValue('missionLabel').trim(),
         foModeEnabled: foEnabled,
         observerPos: observerPos
@@ -193,19 +188,9 @@ export async function setInputsFromData(data) {
     }
     setValue('missionLabel', data.missionLabel || '');
     
-    setChecked('ffeEnabled', data.ffeEnabled);
-    setDisplay(getElement('ffeControls'), data.ffeEnabled);
-    
-    if (data.ffeEnabled) {
-        setValue('ffePattern', data.ffePattern);
-        setValue('ffeRounds', data.ffeRounds.toString());
-        setValue('ffeSpacing', data.ffeSpacing.toString());
-        setValue('ffeRadius', data.ffeRadius.toString());
-        
-        const isCircular = data.ffePattern === 'circular';
-        setDisplay(getElement('ffeSpacingGroup'), !isCircular);
-        setDisplay(getElement('ffeRadiusGroup'), isCircular);
-    }
+    // Always disable FFE when loading from history (history only stores base solutions)
+    setChecked('ffeEnabled', false);
+    setDisplay(getElement('ffeControls'), false);
     
     const foModeValue = data.foModeEnabled || false;
     State.setFOModeEnabled(foModeValue);
@@ -256,7 +241,6 @@ export async function updateHistoryDisplay() {
         const targetDisplay = formatPositionDisplay(entry.targetPos, entry.inputMode);
         
         const mortarName = mortarTypes.find(m => m.id === entry.mortarType)?.name || entry.mortarType;
-        const ffeInfo = entry.ffeEnabled ? ` | FFE: ${entry.ffeRounds} rds` : '';
         const foInfo = entry.foModeEnabled ? ` | 👁️ FO` : '';
         const modeInfo = entry.inputMode === 'grid' ? ' | 🎯 Grid' : ' | 📏 Meters';
         const labelDisplay = entry.missionLabel ? `<strong style="color: #8fbc1e;">${entry.missionLabel}</strong> - ` : '';
@@ -274,7 +258,7 @@ export async function updateHistoryDisplay() {
                     <button class="history-delete" onclick="deleteFromHistory(${index}, event)" title="Delete mission">🗑️</button>
                 </div>
                 <div class="history-details">
-                    📍 ${mortarDisplay} → 🎯 ${targetDisplay} | ${entry.distance.toFixed(0)}m${modeInfo}${ffeInfo}${foInfo}${correctionInfo}
+                    📍 ${mortarDisplay} → 🎯 ${targetDisplay} | ${entry.distance.toFixed(0)}m${modeInfo}${foInfo}${correctionInfo}
                 </div>
             </div>
         `;

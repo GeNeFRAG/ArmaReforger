@@ -99,9 +99,11 @@ export function setupDynamicListeners() {
 export function updateOTBearingDisplay() {
     const foEnabled = getElement('foEnabled', false, true);
     const otBearingDisplay = getElement('otBearingDisplay', false, true);
+    const observerWarning = getElement('observerWarning', false, true);
     
     if (!foEnabled || !foEnabled.checked || !otBearingDisplay) {
         if (otBearingDisplay) setDisplay(otBearingDisplay, false);
+        if (observerWarning) setDisplay(observerWarning, false);
         return;
     }
     
@@ -112,8 +114,15 @@ export function updateOTBearingDisplay() {
         
         if (!mortarPos || !observerPos || !targetPos) {
             setDisplay(otBearingDisplay, false);
+            // Show warning if FO mode is on but observer coordinates are missing
+            if (observerWarning && (!observerPos && targetPos && mortarPos)) {
+                setDisplay(observerWarning, true);
+            }
             return;
         }
+        
+        // Hide warning when observer coordinates are entered
+        if (observerWarning) setDisplay(observerWarning, false);
         
         const otBearing = MortarCalculator.calculateBearing(observerPos, targetPos);
         const gtBearing = MortarCalculator.calculateBearing(mortarPos, targetPos);
@@ -212,8 +221,13 @@ export async function applyFireCorrectionUI() {
         if (foEnabled) {
             const observerPos = dependencies.parsePositionFromUI('observer', true);
             if (!observerPos) {
+                const warning = getElement('observerWarning', false, true);
+                if (warning) setDisplay(warning, true);
                 console.error('FO mode enabled but observer coordinates not entered');
                 return;
+            } else {
+                const warning = getElement('observerWarning', false, true);
+                if (warning) setDisplay(warning, false);
             }
             const result = MortarCalculator.applyFireCorrectionFromObserver(
                 mortarPos, observerPos, targetPos, correctionLR, correctionAD

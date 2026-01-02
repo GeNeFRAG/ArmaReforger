@@ -523,66 +523,6 @@
                     <input type="number" id="targetZ" placeholder="64" step="0.1" min="-1000" max="9999" inputmode="decimal">
                 </div>
                 
-                <div class="info" style="margin-top: 15px;">
-                    📍 Range, Azimuth, and Height Difference will be computed automatically from coordinates
-                </div>
-            
-            <h2>3️⃣ Fire for Effect (Optional)</h2>
-            
-            <div class="info" style="margin-bottom: 15px;">
-                🎯 Engage area targets with multiple rounds. <strong>Lateral sheaf</strong> for width coverage, <strong>linear sheaf</strong> for depth penetration, <strong>circular pattern</strong> for 360° area saturation. <strong>Uses corrected target coordinates if applied.</strong>
-            </div>
-            
-            <div class="row">
-                <div class="form-group">
-                    <label for="ffeEnabled">
-                        <input type="checkbox" id="ffeEnabled" style="margin-right: 8px; width: auto; height: auto;">
-                        Enable Fire for Effect
-                    </label>
-                </div>
-            </div>
-            
-            <div id="ffeControls" style="display: none;">
-                <div class="row">
-                    <div class="form-group">
-                        <label for="ffePattern">Sheaf Type</label>
-                        <select id="ffePattern">
-                            <option value="perpendicular">Lateral Sheaf (Width Coverage)</option>
-                            <option value="along-bearing">Linear Sheaf (Depth Penetration)</option>
-                            <option value="circular">Circular Pattern (Area Saturation)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="ffeRounds">Rounds per Salvo</label>
-                        <select id="ffeRounds">
-                            <option value="3">3 Rounds</option>
-                            <option value="4">4 Rounds</option>
-                            <option value="5" selected>5 Rounds</option>
-                            <option value="6">6 Rounds</option>
-                            <option value="7">7 Rounds</option>
-                            <option value="8">8 Rounds</option>
-                            <option value="9">9 Rounds</option>
-                            <option value="10">10 Rounds</option>
-                            <option value="11">11 Rounds</option>
-                            <option value="12">12 Rounds</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-group" id="ffeSpacingGroup">
-                    <label for="ffeSpacing">Round Interval (meters)</label>
-                    <input type="number" id="ffeSpacing" placeholder="50" value="50" min="10" max="500" step="10" inputmode="decimal">
-                    <small style="color: #999; display: block; margin-top: 5px;">Spacing between rounds (10-500m)</small>
-                </div>
-                
-                <div class="form-group" id="ffeRadiusGroup" style="display: none;">
-                    <label for="ffeRadius">Circle Radius (meters)</label>
-                    <input type="number" id="ffeRadius" placeholder="100" value="100" min="20" max="500" step="10" inputmode="decimal">
-                    <small style="color: #999; display: block; margin-top: 5px;">Distance from center to impact points (20-500m)</small>
-                </div>
-            </div>
-            
             <div class="form-group">
                 <label for="missionLabel">Mission Label (Optional)</label>
                 <input type="text" id="missionLabel" placeholder="e.g., TRP 1, TGT AA1234, HILL 201" maxlength="20">
@@ -597,21 +537,83 @@
         
         <div id="output" class="result"></div>
         
+        <!-- Fire for Effect Container -->
+        <div id="ffeContainer" style="display: none; background: linear-gradient(135deg, rgba(55, 45, 70, 0.95) 0%, rgba(45, 35, 60, 0.95) 100%); padding: 15px; border-radius: 4px; margin-top: 10px; border: 1px solid rgba(143, 105, 188, 0.3);">
+            <!-- FFE Mode Toggle -->
+            <div id="ffeToggleContainer" style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; cursor: pointer; color: #d4c8e0; font-size: 13px; font-weight: 600;">
+                    <input type="checkbox" id="ffeEnabled" onchange="toggleFFEMode();" style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;">
+                    <span>💥 Enable Fire for Effect Pattern</span>
+                </label>
+            </div>
+            
+            <!-- Fire for Effect Widget (Dynamic) -->
+            <div id="ffeWidget" style="display: none;">
+                <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #d4c8e0;">💥 Fire for Effect Pattern</h3>
+                
+                <div class="info" style="margin-bottom: 12px; background: rgba(60, 50, 80, 0.4); border-color: rgba(143, 105, 188, 0.3);">
+                    🎯 Generate multi-round salvo patterns. <strong>Lateral sheaf</strong> for width coverage, <strong>linear sheaf</strong> for depth penetration, <strong>circular pattern</strong> for 360° saturation.
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label style="display: block; color: #c8b8d8; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Sheaf Type</label>
+                        <select id="ffePattern" style="width: 100%; padding: 8px; background: rgba(20, 15, 25, 0.8); border: 1px solid #5a4a62; border-radius: 3px; color: #d4c8e0; font-size: 13px;">
+                            <option value="perpendicular">Lateral Sheaf (Width)</option>
+                            <option value="along-bearing">Linear Sheaf (Depth)</option>
+                            <option value="circular">Circular Pattern</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; color: #c8b8d8; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Rounds per Salvo</label>
+                        <select id="ffeRounds" style="width: 100%; padding: 8px; background: rgba(20, 15, 25, 0.8); border: 1px solid #5a4a62; border-radius: 3px; color: #d4c8e0; font-size: 13px;">
+                            <option value="3">3 Rounds</option>
+                            <option value="4">4 Rounds</option>
+                            <option value="5" selected>5 Rounds</option>
+                            <option value="6">6 Rounds</option>
+                            <option value="7">7 Rounds</option>
+                            <option value="8">8 Rounds</option>
+                            <option value="9">9 Rounds</option>
+                            <option value="10">10 Rounds</option>
+                            <option value="11">11 Rounds</option>
+                            <option value="12">12 Rounds</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="ffeSpacingGroup" style="margin-bottom: 10px;">
+                    <label style="display: block; color: #c8b8d8; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Round Interval (meters)</label>
+                    <input type="number" id="ffeSpacing" placeholder="50" value="50" min="10" max="500" step="10" style="width: 100%; padding: 8px; background: rgba(20, 15, 25, 0.8); border: 1px solid #5a4a62; border-radius: 3px; color: #d4c8e0; font-size: 13px;">
+                    <small style="color: #a89fb8; display: block; margin-top: 3px; font-size: 11px;">Spacing between impact points (10-500m)</small>
+                </div>
+                
+                <div id="ffeRadiusGroup" style="display: none; margin-bottom: 10px;">
+                    <label style="display: block; color: #c8b8d8; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Circle Radius (meters)</label>
+                    <input type="number" id="ffeRadius" placeholder="100" value="100" min="20" max="500" step="10" style="width: 100%; padding: 8px; background: rgba(20, 15, 25, 0.8); border: 1px solid #5a4a62; border-radius: 3px; color: #d4c8e0; font-size: 13px;">
+                    <small style="color: #a89fb8; display: block; margin-top: 3px; font-size: 11px;">Distance from center to impact points (20-500m)</small>
+                </div>
+                
+                <button id="generateFFE" onclick="generateFFEPattern();" class="btn-press" style="width: 100%; padding: 10px; margin-top: 5px; background: linear-gradient(180deg, #8f69bc 0%, #7a58a8 100%); border: 1px solid #9f79cc; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                    Generate FFE Pattern
+                </button>
+                
+                <button id="showBaseSolution" onclick="showBaseSolution();" class="btn-press" style="display: none; width: 100%; padding: 10px; margin-top: 10px; background: linear-gradient(180deg, #666 0%, #555 100%); border: 1px solid #777; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                    ← Show Base Solution
+                </button>
+            </div>
+        </div>
+        
         <!-- Fire Correction Widget (Static) -->
         <div id="fireCorrectionWidget" style="display: none; background: linear-gradient(135deg, rgba(40, 55, 45, 0.95) 0%, rgba(30, 45, 35, 0.95) 100%); padding: 15px; border-radius: 4px; margin-top: 10px; border: 1px solid rgba(107, 142, 35, 0.3);">
-            <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #c8d4a0;">🔄 Adjust Fire <span id="selectedChargeDisplay" style="color: #8fbc1e;"></span></h3>
+            <h3 id="fireCorrectionHeader" style="margin: 0 0 10px 0; font-size: 16px; color: #c8d4a0;">🔄 Adjust Fire: Gun-Target (GT) line</h3>
             <div>
-                <div style="color: #95a585; font-size: 12px; margin-bottom: 12px;">
-                    Observer corrections: Left/Right shifts azimuth. Add/Drop changes range.
-                </div>
                 
                 <!-- FO Mode Toggle -->
                 <div style="margin-bottom: 12px;">
                     <div style="display: flex; align-items: center; color: #a8b898; font-size: 13px; cursor: pointer;">
                         <input type="checkbox" id="foEnabled" onchange="toggleFOControls(this);" style="margin-right: 8px; width: auto; height: auto;">
-                        <span onclick="const cb = window.DOMCache.getElement('foEnabled', false, true); if (cb) { cb.checked = !cb.checked; toggleFOControls(cb); }">🔭 <strong>FO Mode:</strong> Apply corrections from Observer's perspective</span>
+                        <span onclick="const cb = window.DOMCache.getElement('foEnabled', false, true); if (cb) { cb.checked = !cb.checked; toggleFOControls(cb); }">🔭 Use Observer-Target (OT) line</span>
                     </div>
-                    <small style="color: #999; display: block; margin-top: 3px; margin-left: 24px; font-size: 11px;">Use Observer-Target (OT) line instead of Gun-Target (GT) line</small>
                 </div>
                 
                 <!-- Observer Position Inputs -->
@@ -645,6 +647,11 @@
                     <div id="otBearingDisplay" style="margin-top: 8px; padding: 6px; background: rgba(40, 55, 45, 0.8); border-radius: 3px; display: none;">
                         <div style="color: #8fbc1e; font-size: 11px;">
                             🧭 <strong>OT:</strong> <span id="otBearingValue">-</span>° | <strong>GT:</strong> <span id="gtBearingValue">-</span>° | <strong>Δ:</strong> <span id="angleDiffValue">-</span>°
+                        </div>
+                    </div>
+                    <div id="observerWarning" style="margin-top: 8px; padding: 6px; background: rgba(168, 80, 80, 0.2); border: 1px solid #a85050; border-radius: 3px; display: none;">
+                        <div style="color: #ff6b6b; font-size: 11px;">
+                            ⚠️ Please enter observer coordinates to use OT mode
                         </div>
                     </div>
                 </div>

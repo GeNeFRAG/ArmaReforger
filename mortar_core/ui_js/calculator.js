@@ -89,6 +89,7 @@ export function generateSolutionGridHTML(solution, previousChargeForDisplay) {
     const correctionColor = State.isCorrectionApplied() ? COLORS.errorText : '';
     const normalColor = State.isCorrectionApplied() ? COLORS.errorText : COLORS.textMuted;
     const chargeChanged = typeof previousChargeForDisplay === 'number' && previousChargeForDisplay !== solution.charge;
+    const input = State.getLastInput();
     
     return `
         <div class="solution-grid">
@@ -115,6 +116,10 @@ export function generateSolutionGridHTML(solution, previousChargeForDisplay) {
             </div>
         </div>
         <div style="margin-top: 10px; padding: 8px; background: ${COLORS.bgDark}; border-radius: 3px; font-size: 12px; color: ${COLORS.textSecondary};">
+            <div style="margin-bottom: 8px;">
+                <strong style="${State.isCorrectionApplied() ? 'color: ' + COLORS.errorText + ';' : ''}">📏 Range:</strong> <span style="${State.isCorrectionApplied() ? 'color: ' + COLORS.errorText + ';' : ''}">${input.distance.toFixed(1)}m</span> &nbsp;|&nbsp; 
+                <strong>⛰️ Alt Diff:</strong> ${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m
+            </div>
             <strong>Charge Range:</strong> ${solution.minRange}m - ${solution.maxRange}m
         </div>
     `;
@@ -128,9 +133,7 @@ export function generateMissionCardHTML(solution, index, previousChargeForDispla
     if (index === 0) {
         trajectoryLabel = '🎯 Optimal Fire Mission';
     } else {
-        trajectoryLabel = solution.trajectoryType === 'high' 
-            ? '🔄 Alternative Fire Mission (High Angle)' 
-            : '🔄 Alternative Fire Mission (Low Angle)';
+        trajectoryLabel = `🔄 Alternative Mission ${index}`;
     }
     
     let chargeDesc = '';
@@ -151,7 +154,7 @@ export function generateMissionCardHTML(solution, index, previousChargeForDispla
         <div ${index > 0 ? 'id="altMission_' + index + '" class="alternativeMission"' : ''} style="background: ${index === 0 ? MISSION_CARD_STYLES.optimalBackground : MISSION_CARD_STYLES.alternativeBackground}; padding: 15px; border-radius: 4px; margin-bottom: 10px; border: ${index === 0 ? MISSION_CARD_STYLES.optimalBorder : MISSION_CARD_STYLES.alternativeBorder};">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h3 style="margin: 0; font-size: 16px; color: ${index === 0 ? COLORS.textPrimary : COLORS.textSecondary};">
-                    ${trajectoryLabel} - Charge ${solution.charge}
+                    ${trajectoryLabel}
                 </h3>
                 <span style="font-size: 12px; color: ${COLORS.textMuted}; font-style: italic;">
                     ${chargeDesc}
@@ -242,10 +245,16 @@ export async function selectMission(charge) {
                 const selectedSolution = solutions.find(s => s.charge === charge);
                 if (selectedSolution) {
                     const previousChargeForDisplay = State.getPreviousCharge();
+                    const isOriginalOptimal = charge === State.getOriginalOptimalCharge();
+                    const selectedIndex = solutions.findIndex(s => s.charge === charge);
+                    const titleText = isOriginalOptimal 
+                        ? '🎯 Optimal Fire Mission'
+                        : `🔄 Alternative Mission ${selectedIndex}`;
+                    
                     selectedCardObj.card.innerHTML = `
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                             <h3 style="margin: 0; font-size: 16px; color: ${COLORS.textPrimary};">
-                                🎯 Optimal Fire Mission - Charge ${charge}
+                                ${titleText}
                             </h3>
                             <span style="font-size: 12px; color: ${COLORS.textMuted}; font-style: italic;">
                                 Fastest - ${selectedSolution.timeOfFlight}s flight time
@@ -274,6 +283,12 @@ export async function selectMission(charge) {
                     correctionWidget.style.display = 'block';
                 }
                 await updateFireCorrectionWidget(solutions);
+                
+                // Insert FFE container below correction widget
+                const ffeContainer = getElement('ffeContainer', false);
+                if (ffeContainer) {
+                    container.appendChild(ffeContainer);
+                }
                 
                 // Insert toggle button and create new alternatives container if there are alternatives
                 if (otherCards.length > 0) {
@@ -310,9 +325,10 @@ export async function selectMission(charge) {
                             const elevSign = elevDiff > 0 ? '+' : '';
                             
                             const isOriginalOptimal = item.charge === State.getOriginalOptimalCharge();
+                            const altIndex = solutions.findIndex(s => s.charge === item.charge);
                             const titleText = isOriginalOptimal 
-                                ? `⭐ Alternative Fire Mission - Charge ${item.charge} <span style="color: ${COLORS.textGold}; font-size: 11px;">(Original Optimal)</span>`
-                                : `🔄 Alternative Fire Mission - Charge ${item.charge}`;
+                                ? `⭐ Original Optimal`
+                                : `🔄 Alternative Mission ${altIndex}`;
                             
                             item.card.innerHTML = `
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -386,6 +402,12 @@ export async function calculateSolution() {
         if (window.clearPositionHighlighting) {
             window.clearPositionHighlighting('mortar');
             window.clearPositionHighlighting('target');
+        }
+        
+        // Clear range indicator (dynamic element, force refresh)
+        const rangeIndicator = getElement('rangeIndicator', false, true);
+        if (rangeIndicator) {
+            rangeIndicator.remove();
         }
         
         const mortarPos = dependencies.parsePositionFromUI('mortar');
@@ -561,24 +583,20 @@ export async function calculateSolution() {
                 ` : '';
             
             output.innerHTML = `
-                <h2>✅ Firing Mission${solutions.length > 1 ? 's' : ''} Found</h2>
-                
-                ${createInfoBanner(`
-                    <strong>📐 Mil System:</strong> ${MortarCalculator.getMilSystemName(input.mortarType)} &nbsp;|&nbsp; 
-                    <strong style="${State.isCorrectionApplied() ? 'color: ' + COLORS.errorText + ';' : ''}">📏 Range:</strong> <span style="${State.isCorrectionApplied() ? 'color: ' + COLORS.errorText + ';' : ''}">${input.distance.toFixed(1)}m</span> &nbsp;|&nbsp; 
-                    <strong>⛰️ Alt Diff:</strong> ${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m
-                `)}
-                
-                ${solutions.length > 1 ? createInfoBanner('<strong>💡 Multiple Charge Options Available:</strong><br><small>Lower charges are more accurate but have limited range. Higher charges reach further but are less precise. High angle trajectories can clear obstacles.</small>') : ''}
-                
-                <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Missions (${solutions.length}): <span style="font-size: 16px; color: #ffffff; font-weight: normal;"></span></h3>
+                <h2>✅ ${solutions.length} Firing Mission${solutions.length > 1 ? 's' : ''} Found</h2>
                 
                 ${optimalMissionHTML}
                 
                 <div id="widgetPlaceholder"></div>
                 
+                <div id="ffePlaceholder"></div>
+                
                 ${alternativeSection}
             `;
+            
+            // Cache base solution HTML BEFORE moving widgets (so placeholders remain)
+            const { showFFEWidget, cacheBaseSolution } = await import('./ffe.js');
+            cacheBaseSolution(output.innerHTML);
             
             const placeholder = getElement('widgetPlaceholder', false, true); // Dynamic element
             if (widget && placeholder) {
@@ -586,6 +604,17 @@ export async function calculateSolution() {
                 placeholder.remove();
             }
             await updateFireCorrectionWidget(solutions);
+            
+            // Move FFE container into ffePlaceholder
+            const ffeContainer = getElement('ffeContainer', false);
+            const ffePlaceholder = getElement('ffePlaceholder', false, true); // Dynamic element
+            if (ffeContainer && ffePlaceholder) {
+                ffePlaceholder.parentNode.insertBefore(ffeContainer, ffePlaceholder);
+                ffePlaceholder.remove();
+            }
+            
+            // Show FFE widget after successful calculation
+            showFFEWidget();
             
             State.setPreviousCharge(null);
             if (!State.isCorrectionApplied()) {
@@ -640,10 +669,18 @@ export async function calculateSolution() {
                     <li>Move mortar or target positions closer/further</li>
                 </ul>
             `;
+            
+            // Hide FFE widget on error
+            const { hideFFEWidget } = await import('./ffe.js');
+            hideFFEWidget();
         }
     } catch (error) {
         dependencies.showOutputError('Calculation Error', error.message + '<br>Check your input values and try again.');
         console.error('Calculation error:', error);
+        
+        // Hide FFE widget on error
+        const { hideFFEWidget } = await import('./ffe.js');
+        hideFFEWidget();
     }
 }
 
@@ -730,6 +767,62 @@ async function updateFireCorrectionWidget(solutions) {
     if (undoBtn) {
         undoBtn.style.display = State.isCorrectionApplied() ? 'block' : 'none';
     }
+}
+
+/**
+ * Generate FFE display HTML for widget
+ * @param {Array} sortedFFE - Sorted FFE solutions
+ * @param {string} ffePattern - Pattern type
+ * @param {number} patternParam - Pattern parameter (spacing or radius)
+ * @param {number} ffeRounds - Total rounds requested
+ * @returns {string} HTML string for FFE display
+ */
+export function generateFFEDisplayHTML(sortedFFE, ffePattern, patternParam, ffeRounds) {
+    let patternDesc, patternParamDesc;
+    if (ffePattern === 'perpendicular') {
+        patternDesc = 'Lateral Sheaf (Width Coverage)';
+        patternParamDesc = `Round Interval: ${patternParam}m`;
+    } else if (ffePattern === 'along-bearing') {
+        patternDesc = 'Linear Sheaf (Depth Penetration)';
+        patternParamDesc = `Round Interval: ${patternParam}m`;
+    } else {
+        patternDesc = 'Circular Pattern (Area Saturation)';
+        patternParamDesc = `Circle Radius: ${patternParam}m`;
+    }
+    
+    let ffeHTML = `
+        <h2>💥 Fire for Effect Mission</h2>
+        
+        ${State.isCorrectionApplied() ? createInfoBanner('🔴 <strong>Fire correction applied:</strong> Red values include observer correction', 'error') : ''}
+        
+        ${createInfoBanner(`
+            <strong>📊 Sheaf Type:</strong> ${patternDesc}<br>
+            <strong>🎯 Salvo Size:</strong> ${sortedFFE.length} of ${ffeRounds} rounds (in range)<br>
+            <strong>📏 ${patternParamDesc}</strong>
+        `)}
+        
+        <h3 style="font-size: 16px; margin-bottom: 10px;">Fire Mission Commands</h3>
+    `;
+    
+    const previousChargeForDisplay = State.getPreviousCharge();
+    
+    sortedFFE.forEach(({ roundNumber, targetPos, input, solution }) => {
+        ffeHTML += `
+            <div style="background: linear-gradient(135deg, rgba(55, 45, 70, 0.95) 0%, rgba(45, 35, 60, 0.95) 100%); padding: 15px; border-radius: 4px; margin-bottom: 10px; border: 1px solid rgba(143, 105, 188, 0.3);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin: 0; font-size: 16px; color: #d4c8e0;">
+                        Round ${roundNumber} of ${ffeRounds} - Charge ${solution.charge}
+                    </h3>
+                    <span style="font-size: 12px; color: ${COLORS.textMuted}; font-style: italic;">
+                        Range: ${input.distance.toFixed(1)}m | Alt Diff: ${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m
+                    </span>
+                </div>
+                ${generateSolutionGridHTML(solution, previousChargeForDisplay)}
+            </div>
+        `;
+    });
+    
+    return ffeHTML;
 }
 
 /**
