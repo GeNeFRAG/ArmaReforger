@@ -279,7 +279,7 @@ export async function selectMission(charge) {
                 selectedCardObj.card.style.background = MISSION_CARD_STYLES.optimalBackground;
                 selectedCardObj.card.style.border = MISSION_CARD_STYLES.optimalBorder;
                 
-                // Insert widget below selected mission
+                // Insert widget right after selected mission
                 if (correctionWidget) {
                     container.appendChild(correctionWidget);
                     correctionWidget.style.display = 'block';
@@ -594,14 +594,16 @@ export async function calculateSolution() {
                 ${alternativeSection}
             `;
             
-            // Cache base solution HTML BEFORE moving widgets (so placeholders remain)
+            // Cache base solution HTML BEFORE inserting widget (so placeholder remains)
             const { showFFEWidget, cacheBaseSolution } = await import('./ffe.js');
             cacheBaseSolution(output.innerHTML);
             
-            const placeholder = getElement('widgetPlaceholder', false, true); // Dynamic element
+            // Insert widget into output div at placeholder position (once)
+            const placeholder = getElement('widgetPlaceholder', false, true);
             if (widget && placeholder) {
                 placeholder.parentNode.insertBefore(widget, placeholder);
                 placeholder.remove();
+                widget.style.display = 'block';
             }
             await updateFireCorrectionWidget(solutions);
             

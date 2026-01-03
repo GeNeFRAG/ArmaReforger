@@ -248,7 +248,7 @@ export function showBaseSolution() {
     const output = getElement('output', false);
     if (!output || !cachedBaseSolutionHTML) return;
     
-    // Get widgets BEFORE replacing innerHTML
+    // Get containers before replacing innerHTML
     const ffeContainer = getElement('ffeContainer', false);
     const widget = getElement('fireCorrectionWidget', false);
     
@@ -272,7 +272,7 @@ export function showBaseSolution() {
     if (widget && widgetPlaceholder) {
         widgetPlaceholder.parentNode.insertBefore(widget, widgetPlaceholder);
         widgetPlaceholder.remove();
-        setDisplay(widget, true); // Show widget when back to base
+        widget.style.display = 'block';
     }
     
     if (ffeContainer && ffePlaceholder) {
