@@ -81,12 +81,12 @@ export function setupDynamicListeners() {
         
         if (hasCorrection) {
             applyBtn.disabled = false;
-            applyBtn.style.background = 'linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%)';
+            applyBtn.style.background = BTN_STYLES.selected;
             applyBtn.style.cursor = 'pointer';
             applyBtn.style.opacity = '1';
         } else {
             applyBtn.disabled = true;
-            applyBtn.style.background = 'linear-gradient(180deg, #555 0%, #444 100%)';
+            applyBtn.style.background = BTN_STYLES.unselected;
             applyBtn.style.cursor = 'not-allowed';
             applyBtn.style.opacity = '0.5';
         }
@@ -324,7 +324,7 @@ export function setupCorrectionListeners() {
             if (this.disabled) return;
             
             const btn = this;
-            btn.style.background = 'linear-gradient(180deg, #8fbc1e 0%, #7aaa18 100%)';
+            btn.style.background = COLORS.gradientGreen;
             btn.style.transform = 'scale(0.95)';
             btn.textContent = '⏳ Applying...';
             btn.disabled = true;

@@ -269,7 +269,7 @@ export function highlightField(input, message, color = COLORS.errorText) {
     if (!errorEl) {
         errorEl = document.createElement('div');
         errorEl.id = errorId;
-        errorEl.style.cssText = 'color: #ff4444; font-size: 11px; margin-top: 2px; font-weight: 500;';
+        errorEl.style.cssText = `color: ${COLORS.errorText}; font-size: 11px; margin-top: 2px; font-weight: 500;`;
         input.parentElement.insertBefore(errorEl, input.nextSibling);
     }
     errorEl.textContent = message;
