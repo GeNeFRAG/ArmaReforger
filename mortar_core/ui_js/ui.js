@@ -298,7 +298,7 @@ function updateRangeIndicator(inRange, distance, solution) {
     if (!rangeIndicator) {
         rangeIndicator = document.createElement('div');
         rangeIndicator.id = 'rangeIndicator';
-        rangeIndicator.style.cssText = 'margin-top: 10px; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; transition: all 0.3s;';
+        rangeIndicator.style.cssText = 'margin: 10px 0; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; transition: all 0.3s; text-align: center;';
         
         const targetZField = getElement('targetZ', false);
         if (targetZField && targetZField.parentElement) {
