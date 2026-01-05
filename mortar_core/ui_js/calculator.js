@@ -1,7 +1,7 @@
 /**
  * Calculator Module
  * Main calculation logic, solution generation, and mission management
- * Version: 2.2.0
+ * Version: 2.2.1
  * 
  * Architecture: Uses dependency injection to avoid circular dependencies
  * Dependencies are injected via init() function
@@ -105,7 +105,11 @@ export function generateSolutionGridHTML(solution, previousChargeForDisplay) {
         
         if (originalSolutions.length > 0 && originalSolutions[0].inRange) {
             const origSol = originalSolutions[0];
-            const deltaAzMils = solution.azimuthMils - origSol.azimuthMils;
+            let deltaAzMils = solution.azimuthMils - origSol.azimuthMils;
+            // Normalize azimuth delta to shortest angular distance (-3200 to +3200 mils)
+            if (deltaAzMils > 3200) deltaAzMils -= 6400;
+            if (deltaAzMils < -3200) deltaAzMils += 6400;
+            
             const deltaElMils = solution.elevation - origSol.elevation;
             const targetPos = dependencies.parsePositionFromUI('target');
             const deltaX = targetPos.x - State.getOriginalTargetPos().x;
