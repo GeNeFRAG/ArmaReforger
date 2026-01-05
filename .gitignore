@@ -8,5 +8,6 @@ comparison_results/
 __pycache__/    
 *_tiles_*/ 
 *.webp
+!mortar_core/FIST_Discord.webp
 maps_core/height_data/
 /helper_scripts
