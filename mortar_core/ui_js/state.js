@@ -2,14 +2,13 @@
  * Global State Management
  * Centralizes window.* state properties to prevent cross-module bugs
  * CRITICAL: Always prioritize this state over DOM state
- * Version: 2.2.0
+ * Version: 2.3.0
  */
 
 // State object - single source of truth
 const state = {
     ballisticDataLoaded: false,
     foModeEnabled: false,
-    lastObserverPos: null,
     correctionApplied: false,
     lastCorrectionLR: null,
     lastCorrectionAD: null,
@@ -30,10 +29,6 @@ export function isBallisticDataLoaded() {
 
 export function isFOModeEnabled() {
     return state.foModeEnabled;
-}
-
-export function getLastObserverPos() {
-    return state.lastObserverPos;
 }
 
 export function isCorrectionApplied() {
@@ -91,10 +86,6 @@ export function setFOModeEnabled(value) {
     state.foModeEnabled = value;
 }
 
-export function setLastObserverPos(value) {
-    state.lastObserverPos = value;
-}
-
 export function setCorrectionApplied(value) {
     state.correctionApplied = value;
 }
@@ -144,7 +135,6 @@ export function syncToWindow() {
     // Don't sync ballisticDataLoaded - it's managed by main.js and should persist
     // window.ballisticDataLoaded = state.ballisticDataLoaded;
     window.foModeEnabled = state.foModeEnabled;
-    window.lastObserverPos = state.lastObserverPos;
     window.correctionApplied = state.correctionApplied;
     window.lastCorrectionLR = state.lastCorrectionLR;
     window.lastCorrectionAD = state.lastCorrectionAD;
@@ -167,7 +157,6 @@ export function resetCorrectionState() {
 // Reset all state
 export function resetAllState() {
     state.foModeEnabled = false;
-    state.lastObserverPos = null;
     state.correctionApplied = false;
     state.lastCorrectionLR = null;
     state.lastCorrectionAD = null;

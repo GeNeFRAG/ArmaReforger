@@ -1,7 +1,7 @@
 /**
  * Corrections Module
  * Fire correction logic (Add/Drop, Left/Right, FO mode)
- * Version: 2.2.0
+ * Version: 2.3.0
  * 
  * Architecture: Uses dependency injection to avoid circular dependencies
  */
@@ -210,10 +210,6 @@ export async function applyFireCorrectionUI() {
         
         if (foEnabled) {
             State.setFOModeEnabled(true);
-            const observerPos = dependencies.parsePositionFromUI('observer', true);
-            if (observerPos) {
-                State.setLastObserverPos({x: observerPos.x, y: observerPos.y});
-            }
         } else {
             State.setFOModeEnabled(false);
         }

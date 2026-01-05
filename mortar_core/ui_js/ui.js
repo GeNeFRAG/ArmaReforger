@@ -1,7 +1,7 @@
 /**
  * UI Management Module
  * Handles DOM interactions, event listeners, input validation
- * Version: 2.2.0
+ * Version: 2.3.0
  * 
  * Architecture: Uses dependency injection for calculator functions
  */
@@ -551,7 +551,6 @@ export function toggleFOControls(checkbox) {
             const el = getElement(id, false, true);
             if (el) el.value = '';
         });
-        State.setLastObserverPos(null);
         const otBearingDisplay = getElement('otBearingDisplay', false, true);
         if (otBearingDisplay) {
             setDisplay(otBearingDisplay, false);

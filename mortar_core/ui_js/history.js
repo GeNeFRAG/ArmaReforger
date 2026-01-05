@@ -1,7 +1,7 @@
 /**
  * History Management Module
  * Handles mission history storage, retrieval, and display
- * Version: 2.2.0
+ * Version: 2.3.0
  * 
  * CRITICAL: Always deep copy position objects to prevent mutation
  * Architecture: Uses dependency injection to avoid circular dependencies
@@ -272,8 +272,6 @@ export async function setInputsFromData(data) {
     setChecked('foEnabled', foModeValue);
     
     if (data.observerPos) {
-        State.setLastObserverPos({ ...data.observerPos });
-        
         const isGridMode = CoordManager.getMode() === 'grid';
         
         if (isGridMode) {
@@ -292,7 +290,6 @@ export async function setInputsFromData(data) {
             setValue('observerY', data.observerPos.y.toFixed(1));
         }
     } else {
-        State.setLastObserverPos(null);
         INPUT_IDS.OBSERVER_FIELDS.forEach(id => {
             setValue(id, '');
         });
