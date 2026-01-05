@@ -117,7 +117,7 @@ function calculateBearing(pos1, pos2) {
 
 /**
  * Parse grid coordinate string to meters
- * Supports both 3-digit (10m precision) and 4-digit (1m precision) formats
+ * Supports both 3-digit (100m precision) and 4-digit (10m precision) formats
  * @param {string} gridString - Grid coordinate (e.g., "058/071", "058,071", "0584/0713", or "0584,0713")
  * @returns {Object} Object with x and y in meters
  * @throws {Error} If format is invalid
@@ -161,7 +161,7 @@ function parseGridToMeters(gridString) {
  * Convert meters to grid coordinate string
  * @param {number} x - X coordinate in meters
  * @param {number} y - Y coordinate in meters
- * @param {boolean} highPrecision - Use 4-digit format (1m) instead of 3-digit (10m)
+ * @param {boolean} highPrecision - Use 4-digit format (10m) instead of 3-digit (100m)
  * @returns {string} Grid coordinate string
  */
 function metersToGrid(x, y, highPrecision = false) {
