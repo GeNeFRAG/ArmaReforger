@@ -13,11 +13,12 @@ Part of the [ArmaReforger](../README.md) project.
 Visit **[armamortars.org](https://armamortars.org)** for the online calculator, or open [index.html](index.html) locally.
 
 **Features:**
-- 👁️ **Forward Observer (FO) Mode** - Apply corrections from observer's line of sight (v1.6.0)
+- 👁️ **Forward Observer (FO) Mode** - Apply corrections from observer's line of sight (v1.6.0, v2.3.2)
   - Eliminates guesswork when FO and gun angles differ
   - Observer position inputs with auto mode synchronization
   - Visual OT/GT bearing comparison
-  - State persistence across corrections
+  - DOM-based state (checkbox as single source of truth)
+  - Corrected azimuth/elevation display
 - 🎯 **Separate X/Y grid inputs** - Individual fields for grid X and Y coordinates (v1.4.0)
 - ⚡ **Real-time validation** - Instant feedback while typing coordinates (v1.4.0+)
   - Format validation for grid inputs (3-4 digits with examples)
@@ -40,6 +41,7 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 - 🎯 Unified fire mission display format
 - 🔄 Reset button to clear all inputs and outputs
 - 🧹 **Clean architecture** - DRY principles, helper functions, CSS classes (v1.4.0+)
+- 🏗️ **Modular state management** - Single source of truth pattern, precision preservation (v2.3.x)
 
 ### Node.js
 
@@ -91,9 +93,10 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 
 - ✅ **Pure JavaScript** - No external dependencies
 - ✅ **Framework-agnostic** - Works in Node.js and browsers
-- ✅ **Forward Observer Mode** - Corrections along Observer-Target line (v1.6.0)
+- ✅ **Forward Observer Mode** - Corrections along Observer-Target line with corrected Az/El display (v1.6.0, v2.3.2)
 - ✅ **Separate coordinate inputs** - Individual X/Y fields for grid coordinates (v1.4.0)
 - ✅ **Real-time validation** - Instant format and range checking while typing (v1.4.0+)
+- ✅ **Grid precision preservation** - Maintains 3-digit vs 4-digit format on correction undo (v2.3.1)
 - ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision
 - ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
 - ✅ **Height correction** - Automatic elevation adjustment with correction factors displayed
@@ -104,8 +107,8 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 - ✅ **Trajectory visualization** - Generate trajectory points for SVG/Canvas rendering
 - ✅ **Military terminology** - NATO/US Army standard nomenclature (Azimuth, Range, Height)
 - ✅ **Visual feedback** - Red highlighting for corrected fire solutions, colored borders for validation
-- ✅ **State persistence** - FO mode and observer position saved across corrections (v1.6.0)
-- ✅ **Clean architecture** - DRY principles, helper functions, CSS classes (v1.4.0+)
+- ✅ **Single source of truth** - DOM inputs as authoritative state, State module for calculations only (v2.3.x)
+- ✅ **Clean architecture** - DRY principles, modular ES6 design, precision preservation (v1.4.0+, v2.3.x)
 - ✅ **SEO optimized** - Fully discoverable on search engines
 
 ## 🔧 API Overview
@@ -288,7 +291,7 @@ mortar_core/
 │   ├── coord-manager.js   # Coordinate handling
 │   ├── history.js         # Mission history
 │   ├── ui.js              # UI helpers and validation
-│   ├── state.js           # Application state
+│   ├── state.js           # Calculation state (v2.3.2: corrections, charges only)
 │   ├── dom-cache.js       # DOM element caching
 │   ├── ffe.js             # Fire for Effect patterns
 │   ├── utils.js           # Utility functions
@@ -312,3 +315,53 @@ npx mocha tests/MortarCalculator.test.js
 
 - **Browser:** Chrome, Firefox, Safari 12+, Edge
 - **Node.js:** 12+
+
+## 🎮 Community
+
+Join the **F.I.S.T** (Forward Infantry Support Team) Discord community:
+
+🔗 **[F.I.S.T Discord Server](http://discord.gg/Gb8Nt92J3m)**
+
+Connect with other Arma Reforger artillery enthusiasts, share tactics, and get help with the calculator.
+
+## 📝 Changelog
+
+### v2.3.2 - Architectural Cleanup (January 2026)
+
+**Phase 3: Remove State.foModeEnabled**
+- Removed cached FO mode state - checkbox is single source of truth
+- Eliminated circular sync between checkbox and State module
+- Simplified state management across all modules
+
+**Phase 2: Fix Grid Coordinate Precision**
+- Enhanced `State.originalTargetPos` structure to preserve raw grid values
+- Now stores: `{meters: {x,y,z}, mode: 'grid'|'meters', gridX: '060', gridY: '123'}`
+- Fixes 3-digit vs 4-digit precision loss (060 stays 060 on correction undo)
+
+**Phase 1: Remove State.lastObserverPos**
+- Removed redundant observer position caching
+- Observer coordinates now only in DOM and history snapshots
+- Cleaner single-source-of-truth architecture
+
+**UI Enhancements:**
+- Added "Corrected Az/El" display to correction impact panel
+- Shows before/after azimuth and elevation in mils and degrees
+
+**Architecture Benefits:**
+- ✅ DOM inputs: Source of truth for all user state
+- ✅ State module: Only for calculation-specific state (corrections, charges)
+- ✅ Grid precision: 3-digit and 4-digit formats preserved exactly
+- ✅ No circular sync bugs between DOM and State
+- ✅ Simplified mental model - read DOM when needed, don't cache
+- ✅ Backward compatible with old history entries
+
+### v1.6.0 - Forward Observer Mode (2024)
+- Added FO mode with observer position inputs
+- Corrections along Observer-Target line instead of Gun-Target line
+- Visual OT/GT bearing comparison display
+
+### v1.4.0 - Separate Grid Inputs & Validation (2024)
+- Separate X/Y input fields for grid coordinates
+- Real-time format and range validation
+- Improved error messages with examples
+- Clean DRY architecture with constants and helpers
