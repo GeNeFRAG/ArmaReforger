@@ -654,12 +654,12 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                     <div>
                         <label style="display: block; color: #a8b898; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Left/Right (meters)</label>
-                        <input type="number" id="correctionLR" min="-500" max="500" step="1" onkeydown="if(event.key === 'Enter') event.preventDefault();" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
+                        <input type="text" inputmode="numeric" id="correctionLR" data-min="-500" data-max="500" onkeydown="if(event.key === 'Enter') event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9\-+]/g, '').replace(/(?!^)[\-+]/g, '');" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
                         <small style="color: #999; display: block; margin-top: 3px; font-size: 11px;">Right: +, Left: − (Range: -500 to +500m)</small>
                     </div>
                     <div>
                         <label style="display: block; color: #a8b898; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Add/Drop (meters)</label>
-                        <input type="number" id="correctionAD" min="-500" max="500" step="1" onkeydown="if(event.key === 'Enter') event.preventDefault();" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
+                        <input type="text" inputmode="numeric" id="correctionAD" data-min="-500" data-max="500" onkeydown="if(event.key === 'Enter') event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9\-+]/g, '').replace(/(?!^)[\-+]/g, '');" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
                         <small style="color: #999; display: block; margin-top: 3px; font-size: 11px;">Add: +, Drop: − (Range: -500 to +500m)</small>
                     </div>
                 </div>
@@ -676,7 +676,7 @@
     
     <!-- Footer -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
-        <p>© 2025 ArmaMortars.org | OpenSource Arma Reforger Ballistic Calculator v2.1.5</p>
+        <p>© 2025 ArmaMortars.org | OpenSource Arma Reforger Ballistic Calculator v2.2.0</p>
         <p>
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
             | 

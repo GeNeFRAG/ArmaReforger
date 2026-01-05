@@ -2,7 +2,7 @@
  * Global State Management
  * Centralizes window.* state properties to prevent cross-module bugs
  * CRITICAL: Always prioritize this state over DOM state
- * Version: 1.7.0
+ * Version: 2.2.0
  */
 
 // State object - single source of truth
@@ -19,7 +19,8 @@ const state = {
     originalOptimalCharge: null,
     lastInput: null,
     lastSolutions: null,
-    lastSolution: null
+    lastSolution: null,
+    isClearingCorrectionFields: false
 };
 
 // Getters
@@ -75,6 +76,12 @@ export function getLastSolution() {
     return state.lastSolution;
 }
 
+export function isClearingCorrectionFields() {
+    return state.isClearingCorrectionFields;
+}
+
+// Setters
+
 // Setters
 export function setBallisticDataLoaded(value) {
     state.ballisticDataLoaded = value;
@@ -128,6 +135,10 @@ export function setLastSolution(value) {
     state.lastSolution = value;
 }
 
+export function setIsClearingCorrectionFields(value) {
+    state.isClearingCorrectionFields = value;
+}
+
 // Backward compatibility - expose state on window object
 export function syncToWindow() {
     // Don't sync ballisticDataLoaded - it's managed by main.js and should persist
@@ -167,6 +178,7 @@ export function resetAllState() {
     state.lastSolution = null;
     state.lastSolutions = null;
     state.lastInput = null;
+    state.isClearingCorrectionFields = false;
     syncToWindow();
 }
 

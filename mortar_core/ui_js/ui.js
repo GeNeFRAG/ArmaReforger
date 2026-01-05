@@ -1,7 +1,7 @@
 /**
  * UI Management Module
  * Handles DOM interactions, event listeners, input validation
- * Version: 2.0.0
+ * Version: 2.2.0
  * 
  * Architecture: Uses dependency injection for calculator functions
  */
@@ -499,17 +499,19 @@ export function setCoordMode(mode) {
 export function setTargetHighlight(color) {
     const gridX = getElement('targetGridX', false);
     const gridY = getElement('targetGridY', false);
+    const gridZ = getElement('targetGridZ', false);
     const meterX = getElement('targetX', false);
     const meterY = getElement('targetY', false);
+    const meterZ = getElement('targetZ', false);
     
-    [gridX, gridY, meterX, meterY].forEach(el => {
+    [gridX, gridY, gridZ, meterX, meterY, meterZ].forEach(el => {
         if (el) {
             if (color) {
-                el.style.border = `2px solid ${color}`;
-                el.style.boxShadow = `0 0 8px ${color}`;
+                el.style.color = color;
+                el.style.fontWeight = '600';
             } else {
-                el.style.border = '';
-                el.style.boxShadow = '';
+                el.style.color = '';
+                el.style.fontWeight = '';
             }
         }
     });
@@ -541,19 +543,8 @@ export function toggleFOControls(checkbox) {
     }
     
     if (isChecked) {
-        if (State.getLastObserverPos()) {
-            const obs = State.getLastObserverPos();
-            const isGridMode = CoordManager.getMode() === 'grid';
-            
-            if (isGridMode) {
-                const gridCoords = MortarCalculator.metersToGrid(obs.x, obs.y).split('/');
-                setValue('observerGridX', gridCoords[0]);
-                setValue('observerGridY', gridCoords[1]);
-            } else {
-                setValue('observerX', obs.x.toFixed(1));
-                setValue('observerY', obs.y.toFixed(1));
-            }
-        }
+        // Don't restore observer coordinates - preserve user input
+        // Only trigger bearing display update
         setTimeout(() => updateOTBearingDisplay(), 50);
     } else {
         INPUT_IDS.OBSERVER_FIELDS.forEach(id => {

@@ -1,7 +1,7 @@
 /**
  * History Management Module
  * Handles mission history storage, retrieval, and display
- * Version: 2.0.0
+ * Version: 2.2.0
  * 
  * CRITICAL: Always deep copy position objects to prevent mutation
  * Architecture: Uses dependency injection to avoid circular dependencies
@@ -63,9 +63,18 @@ export async function captureCurrentInputs() {
     }
     
     let observerPos = null;
+    let observerGridValues = null;
     if (foEnabled && dependencies.parsePositionFromUI) {
         try {
             observerPos = dependencies.parsePositionFromUI('observer', true);
+            // Capture raw grid values if in grid mode
+            if (CoordManager.getMode() === 'grid') {
+                const observerGridX = getValue('observerGridX');
+                const observerGridY = getValue('observerGridY');
+                if (observerGridX && observerGridY) {
+                    observerGridValues = { x: observerGridX, y: observerGridY };
+                }
+            }
         } catch (e) {
             // Observer position parsing failed
         }
@@ -76,7 +85,8 @@ export async function captureCurrentInputs() {
         shellType: getValue('shellType'),
         missionLabel: getValue('missionLabel').trim(),
         foModeEnabled: foEnabled,
-        observerPos: observerPos
+        observerPos: observerPos,
+        observerGridValues: observerGridValues
     };
 }
 
@@ -85,7 +95,13 @@ export async function captureCurrentInputs() {
  * Deep copies all position objects to prevent cross-contamination
  */
 export async function addToHistory(mortarPos, targetPos, distance, solutions) {
-    if (isLoadingFromHistory) return;
+    if (isLoadingFromHistory) {
+        return;
+    }
+    
+    if (State.isClearingCorrectionFields()) {
+        return;
+    }
     
     const isGridMode = CoordManager.getMode() === 'grid';
     
@@ -98,6 +114,32 @@ export async function addToHistory(mortarPos, targetPos, distance, solutions) {
     
     const capturedInputs = await captureCurrentInputs();
     
+    // Capture raw grid coordinate values to preserve 3-4 digit format
+    let mortarGridValues = null;
+    let targetGridValues = null;
+    let originalTargetGridValues = null;
+    
+    if (isGridMode) {
+        const mortarGridX = getValue('mortarGridX');
+        const mortarGridY = getValue('mortarGridY');
+        const targetGridX = getValue('targetGridX');
+        const targetGridY = getValue('targetGridY');
+        
+        if (mortarGridX && mortarGridY) {
+            mortarGridValues = { x: mortarGridX, y: mortarGridY };
+        }
+        if (targetGridX && targetGridY) {
+            targetGridValues = { x: targetGridX, y: targetGridY };
+        }
+        
+        // Capture original target grid values if correction was applied
+        if (State.isCorrectionApplied() && State.getOriginalTargetPos()) {
+            const origPos = State.getOriginalTargetPos();
+            const origGrid = MortarCalculator.metersToGrid(origPos.x, origPos.y, true).split('/');
+            originalTargetGridValues = { x: origGrid[0], y: origGrid[1] };
+        }
+    }
+    
     const entry = {
         id: Date.now(),
         timestamp: new Date(),
@@ -107,11 +149,16 @@ export async function addToHistory(mortarPos, targetPos, distance, solutions) {
         observerPos: capturedInputs.observerPos ? { ...capturedInputs.observerPos } : null,
         distance,
         inputMode: isGridMode ? 'grid' : 'meters',
+        mortarGridValues: mortarGridValues,
+        targetGridValues: targetGridValues,
+        originalTargetGridValues: originalTargetGridValues,
         correctionApplied: State.isCorrectionApplied() || false,
         originalTargetPos: State.getOriginalTargetPos() ? { ...State.getOriginalTargetPos() } : null,
         correctionLR: correctionLR,
         correctionAD: correctionAD,
-        selectedCharge: State.getSelectedCharge() || (solutions && solutions.length > 0 ? solutions[0].charge : null)
+        selectedCharge: State.getSelectedCharge() || (solutions && solutions.length > 0 ? solutions[0].charge : null),
+        azimuth: solutions && solutions.length > 0 ? solutions[0].azimuth : null,
+        elevation: solutions && solutions.length > 0 ? solutions[0].elevation : null
     };
     
     const isCorrection = State.isCorrectionApplied() && 
@@ -152,7 +199,20 @@ export async function loadFromHistory(index) {
     }
     
     await setInputsFromData(entry);
-    dependencies.setPositionInputs(entry.mortarPos, entry.targetPos);
+    
+    // Restore positions with raw grid values if available
+    if (targetMode === 'grid' && entry.mortarGridValues && entry.targetGridValues) {
+        // Use stored grid values (preserves 3-4 digit format)
+        setValue('mortarGridX', entry.mortarGridValues.x);
+        setValue('mortarGridY', entry.mortarGridValues.y);
+        setValue('mortarZ', entry.mortarPos.z.toFixed(1));
+        setValue('targetGridX', entry.targetGridValues.x);
+        setValue('targetGridY', entry.targetGridValues.y);
+        setValue('targetZ', entry.targetPos.z.toFixed(1));
+    } else {
+        // Fallback or meters mode
+        dependencies.setPositionInputs(entry.mortarPos, entry.targetPos);
+    }
     
     if (entry.correctionApplied) {
         State.setCorrectionApplied(true);
@@ -217,9 +277,16 @@ export async function setInputsFromData(data) {
         const isGridMode = CoordManager.getMode() === 'grid';
         
         if (isGridMode) {
-            const observerGrid = MortarCalculator.metersToGrid(data.observerPos.x, data.observerPos.y).split('/');
-            setValue('observerGridX', observerGrid[0]);
-            setValue('observerGridY', observerGrid[1]);
+            // Use stored grid values if available (preserves 3-4 digit format)
+            if (data.observerGridValues) {
+                setValue('observerGridX', data.observerGridValues.x);
+                setValue('observerGridY', data.observerGridValues.y);
+            } else {
+                // Fallback: convert from meters (legacy entries)
+                const observerGrid = MortarCalculator.metersToGrid(data.observerPos.x, data.observerPos.y, true).split('/');
+                setValue('observerGridX', observerGrid[0]);
+                setValue('observerGridY', observerGrid[1]);
+            }
         } else {
             setValue('observerX', data.observerPos.x.toFixed(1));
             setValue('observerY', data.observerPos.y.toFixed(1));
@@ -265,6 +332,58 @@ export async function updateHistoryDisplay() {
             ? `<span style="color: ${COLORS.errorText}; font-weight: 600;"> | 🔴 CORRECTED (L/R: ${entry.correctionLR > 0 ? '+' : ''}${entry.correctionLR}m, A/D: ${entry.correctionAD > 0 ? '+' : ''}${entry.correctionAD}m)</span>` 
             : '';
         
+        // Show original target and difference if correction was applied
+        let correctionDetails = '';
+        if (entry.correctionApplied && entry.originalTargetPos) {
+            const originalDisplay = formatPositionDisplay(entry.originalTargetPos, entry.inputMode);
+            
+            // Calculate differences
+            const deltaX = entry.targetPos.x - entry.originalTargetPos.x;
+            const deltaY = entry.targetPos.y - entry.originalTargetPos.y;
+            const deltaZ = entry.targetPos.z - entry.originalTargetPos.z;
+            
+            // Calculate original azimuth/elevation if we have solution data
+            let originalSolutionInfo = '';
+            if (entry.azimuth !== null && entry.elevation !== null) {
+                // Need to recalculate original solution
+                const mortarId = entry.mortarType;
+                const shellType = entry.shellType;
+                const originalInput = MortarCalculator.prepareInput(entry.mortarPos, entry.originalTargetPos, mortarId, shellType);
+                originalInput.chargeLevel = entry.selectedCharge;
+                const originalSolutions = MortarCalculator.calculateAllTrajectories(originalInput);
+                
+                if (originalSolutions.length > 0 && originalSolutions[0].inRange) {
+                    const origSol = originalSolutions[0];
+                    const deltaAz = entry.azimuth - origSol.azimuth;
+                    const deltaEl = entry.elevation - origSol.elevation;
+                    
+                    originalSolutionInfo = `
+                        <div style="margin-top: 2px; font-size: 0.85em;">
+                            <span style="color: #666;">Original Az/El:</span> ${origSol.azimuth.toFixed(1)}° / ${origSol.elevation.toFixed(1)}°
+                            <span style="color: #666; margin-left: 8px;">Δ:</span> <span style="color: ${COLORS.errorText};">Az: ${deltaAz > 0 ? '+' : ''}${deltaAz.toFixed(1)}°, El: ${deltaEl > 0 ? '+' : ''}${deltaEl.toFixed(1)}°</span>
+                        </div>`;
+                }
+            }
+            
+            correctionDetails = `
+                <div style="margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.9em; color: #999;">
+                    <div><span style="color: #666;">Original Target:</span> 🎯 ${originalDisplay}</div>
+                    <div style="margin-top: 2px;">
+                        <span style="color: #666;">Δ Position:</span> <span style="color: ${COLORS.errorText};">X: ${deltaX > 0 ? '+' : ''}${deltaX.toFixed(1)}m, Y: ${deltaY > 0 ? '+' : ''}${deltaY.toFixed(1)}m${deltaZ !== 0 ? `, Z: ${deltaZ > 0 ? '+' : ''}${deltaZ.toFixed(1)}m` : ''}</span>
+                    </div>
+                    ${originalSolutionInfo}
+                </div>`;
+        }
+        
+        // Add current azimuth/elevation for corrected entries
+        let currentSolutionInfo = '';
+        if (entry.correctionApplied && entry.azimuth !== null && entry.elevation !== null) {
+            currentSolutionInfo = `
+                <div style="margin-top: 2px; font-size: 0.85em; color: ${COLORS.errorText}; font-weight: 600;">
+                    Corrected Az/El: ${entry.azimuth.toFixed(1)}° / ${entry.elevation.toFixed(1)}°
+                </div>`;
+        }
+        
         return `
             <div class="history-item ${index === currentHistoryIndex ? 'active' : ''}" data-index="${index}">
                 <div class="history-header">
@@ -276,6 +395,8 @@ export async function updateHistoryDisplay() {
                 </div>
                 <div class="history-details">
                     📍 ${mortarDisplay} → 🎯 ${targetDisplay} | ${entry.distance.toFixed(0)}m${modeInfo}${foInfo}${correctionInfo}
+                    ${currentSolutionInfo}
+                    ${correctionDetails}
                 </div>
             </div>
         `;

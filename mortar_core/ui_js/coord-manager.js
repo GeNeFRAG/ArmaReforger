@@ -1,7 +1,7 @@
 /**
  * Coordinate Manager Module
  * Consolidated position parsing, validation, and coordinate mode management
- * Version: 1.7.0
+ * Version: 2.2.0
  * 
  * Eliminates 120+ lines of duplicated position parsing logic
  * Single source of truth for grid/meters conversions
@@ -175,10 +175,40 @@ export function setPosition(prefix, position) {
     const mode = getMode();
     
     if (mode === 'grid') {
-        const grid = MortarCalculator.metersToGrid(position.x, position.y).split('/');
+        // For observer, preserve existing input - don't overwrite
+        if (prefix === 'observer') {
+            const gridXEl = getElement(`${prefix}GridX`, false, true);
+            const gridYEl = getElement(`${prefix}GridY`, false, true);
+            // Only set if fields are empty
+            if (gridXEl && gridYEl && !gridXEl.value.trim() && !gridYEl.value.trim()) {
+                const grid = MortarCalculator.metersToGrid(position.x, position.y, true).split('/');
+                setValue(`${prefix}GridX`, grid[0]);
+                setValue(`${prefix}GridY`, grid[1]);
+            }
+            return;
+        }
+        
+        // Determine precision based on current input length (preserve 3-4 digit format)
+        const gridXEl = getElement(`${prefix}GridX`, false);
+        const currentValue = gridXEl ? gridXEl.value.trim() : '';
+        const useHighPrecision = currentValue.length === 4;
+        
+        const grid = MortarCalculator.metersToGrid(position.x, position.y, useHighPrecision).split('/');
         setValue(`${prefix}GridX`, grid[0]);
         setValue(`${prefix}GridY`, grid[1]);
     } else {
+        // For observer in meters mode, preserve existing input - don't overwrite
+        if (prefix === 'observer') {
+            const xEl = getElement(`${prefix}X`, false, true);
+            const yEl = getElement(`${prefix}Y`, false, true);
+            // Only set if fields are empty
+            if (xEl && yEl && !xEl.value.trim() && !yEl.value.trim()) {
+                setValue(`${prefix}X`, position.x.toFixed(1));
+                setValue(`${prefix}Y`, position.y.toFixed(1));
+            }
+            return;
+        }
+        
         setValue(`${prefix}X`, position.x.toFixed(1));
         setValue(`${prefix}Y`, position.y.toFixed(1));
     }

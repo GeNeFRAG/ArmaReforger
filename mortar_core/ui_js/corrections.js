@@ -1,7 +1,7 @@
 /**
  * Corrections Module
  * Fire correction logic (Add/Drop, Left/Right, FO mode)
- * Version: 1.7.0
+ * Version: 2.2.0
  * 
  * Architecture: Uses dependency injection to avoid circular dependencies
  */
@@ -245,7 +245,12 @@ export async function applyFireCorrectionUI() {
         const isGridMode = CoordManager.getMode() === 'grid';
         
         if (isGridMode) {
-            const gridCoords = MortarCalculator.metersToGrid(corrected.x, corrected.y, true);
+            // Determine precision based on current input length (preserve 3-4 digit format)
+            const targetGridXEl = getElement('targetGridX', false);
+            const currentValue = targetGridXEl ? targetGridXEl.value.trim() : '';
+            const useHighPrecision = currentValue.length === 4;
+            
+            const gridCoords = MortarCalculator.metersToGrid(corrected.x, corrected.y, useHighPrecision);
             const gridParts = gridCoords.split('/');
             setValue('targetGridX', gridParts[0]);
             setValue('targetGridY', gridParts[1]);
@@ -270,6 +275,13 @@ export async function applyFireCorrectionUI() {
         if (dependencies.calculateSolution) {
             await dependencies.calculateSolution();
         }
+        
+        // Clear correction inputs and state for next correction
+        setValue('correctionLR', '0');
+        setValue('correctionAD', '0');
+        State.setLastCorrectionLR(0);
+        State.setLastCorrectionAD(0);
+        State.setCorrectionApplied(false);  // Reset flag to allow new corrections
         
     } catch (error) {
         console.error('Correction error:', error);
