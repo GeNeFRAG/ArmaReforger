@@ -1,7 +1,7 @@
 /**
  * Corrections Module
  * Fire correction logic (Add/Drop, Left/Right, FO mode)
- * Version: 2.3.0
+ * Version: 2.3.2
  * 
  * Architecture: Uses dependency injection to avoid circular dependencies
  */
@@ -199,20 +199,27 @@ export async function applyFireCorrectionUI() {
         const targetPos = dependencies.parsePositionFromUI('target');
         
         if (!State.getOriginalTargetPos()) {
-            State.setOriginalTargetPos({...targetPos});
+            const isGridMode = CoordManager.getMode() === 'grid';
+            
+            const original = {
+                meters: {...targetPos},
+                mode: isGridMode ? 'grid' : 'meters'
+            };
+            
+            // Store raw grid values if in grid mode (preserves 3-4 digit format)
+            if (isGridMode) {
+                original.gridX = getValue('targetGridX');
+                original.gridY = getValue('targetGridY');
+            }
+            
+            State.setOriginalTargetPos(original);
         }
         
         // Static checkbox element
         const foCheckbox = getElement('foEnabled', false);
-        const foEnabled = foCheckbox ? foCheckbox.checked : State.isFOModeEnabled();
+        const foEnabled = foCheckbox ? foCheckbox.checked : false;
         
         let corrected;
-        
-        if (foEnabled) {
-            State.setFOModeEnabled(true);
-        } else {
-            State.setFOModeEnabled(false);
-        }
         
         if (foEnabled) {
             const observerPos = dependencies.parsePositionFromUI('observer', true);
@@ -296,8 +303,17 @@ export async function undoCorrection() {
     
     try {
         const mortarPos = dependencies.parsePositionFromUI('mortar');
+        const original = State.getOriginalTargetPos();
         
-        dependencies.setPositionInputs(mortarPos, State.getOriginalTargetPos());
+        if (original.mode === 'grid' && original.gridX && original.gridY) {
+            // Restore exact grid values (preserves 3-4 digit format)
+            setValue('targetGridX', original.gridX);
+            setValue('targetGridY', original.gridY);
+            setValue('targetZ', original.meters.z.toFixed(1));
+        } else {
+            // Fallback or meters mode
+            dependencies.setPositionInputs(mortarPos, original.meters);
+        }
         
         State.resetCorrectionState();
         

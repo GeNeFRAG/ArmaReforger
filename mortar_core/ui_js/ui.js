@@ -1,7 +1,7 @@
 /**
  * UI Management Module
  * Handles DOM interactions, event listeners, input validation
- * Version: 2.3.0
+ * Version: 2.3.2
  * 
  * Architecture: Uses dependency injection for calculator functions
  */
@@ -531,7 +531,6 @@ export function toggleFOControls(checkbox) {
     const foControls = getElement('foControls', false, true);
     const isChecked = checkbox.checked;
     
-    State.setFOModeEnabled(isChecked);
     setDisplay(foControls, isChecked);
     
     // Update header text based on mode

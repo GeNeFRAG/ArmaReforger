@@ -1,7 +1,7 @@
 /**
  * Calculator Module
  * Main calculation logic, solution generation, and mission management
- * Version: 2.2.1
+ * Version: 2.3.2
  * 
  * Architecture: Uses dependency injection to avoid circular dependencies
  * Dependencies are injected via init() function
@@ -99,7 +99,9 @@ export function generateSolutionGridHTML(solution, previousChargeForDisplay) {
         const mortarId = getValue('mortarType');
         const shellType = getValue('shellType');
         const mortarPos = dependencies.parsePositionFromUI('mortar');
-        const originalInput = MortarCalculator.prepareInput(mortarPos, State.getOriginalTargetPos(), mortarId, shellType);
+        const origPos = State.getOriginalTargetPos();
+        const originalMeters = origPos.meters || origPos;
+        const originalInput = MortarCalculator.prepareInput(mortarPos, originalMeters, mortarId, shellType);
         originalInput.chargeLevel = solution.charge;
         const originalSolutions = MortarCalculator.calculateAllTrajectories(originalInput);
         
@@ -112,14 +114,16 @@ export function generateSolutionGridHTML(solution, previousChargeForDisplay) {
             
             const deltaElMils = solution.elevation - origSol.elevation;
             const targetPos = dependencies.parsePositionFromUI('target');
-            const deltaX = targetPos.x - State.getOriginalTargetPos().x;
-            const deltaY = targetPos.y - State.getOriginalTargetPos().y;
-            const deltaZ = targetPos.z - State.getOriginalTargetPos().z;
+            const deltaX = targetPos.x - originalMeters.x;
+            const deltaY = targetPos.y - originalMeters.y;
+            const deltaZ = targetPos.z - originalMeters.z;
             
             const isGridMode = CoordManager.getMode() === 'grid';
-            const originalDisplay = isGridMode 
-                ? MortarCalculator.metersToGrid(State.getOriginalTargetPos().x, State.getOriginalTargetPos().y, true)
-                : `${State.getOriginalTargetPos().x.toFixed(1)}, ${State.getOriginalTargetPos().y.toFixed(1)}`;
+            const originalDisplay = (origPos.mode === 'grid' && origPos.gridX && origPos.gridY)
+                ? `${origPos.gridX}/${origPos.gridY}`
+                : isGridMode
+                    ? MortarCalculator.metersToGrid(originalMeters.x, originalMeters.y, true)
+                    : `${originalMeters.x.toFixed(1)}, ${originalMeters.y.toFixed(1)}`;
             
             const correctedDisplay = isGridMode
                 ? MortarCalculator.metersToGrid(targetPos.x, targetPos.y, true)
@@ -133,6 +137,7 @@ export function generateSolutionGridHTML(solution, previousChargeForDisplay) {
                         <div><span style="color: #666;">Corrected Target:</span> <span style="color: ${COLORS.errorText}; font-weight: 600;">🎯 ${correctedDisplay}</span></div>
                         <div><span style="color: #666;">Δ Position:</span> <span style="color: ${COLORS.errorText};">X: ${deltaX > 0 ? '+' : ''}${deltaX.toFixed(1)}m, Y: ${deltaY > 0 ? '+' : ''}${deltaY.toFixed(1)}m${deltaZ !== 0 ? `, Z: ${deltaZ > 0 ? '+' : ''}${deltaZ.toFixed(1)}m` : ''}</span></div>
                         <div style="margin-top: 4px;"><span style="color: #666;">Original Az/El:</span> ${origSol.azimuthMils} mils / ${origSol.elevation} mils <span style="color: #555;">(${origSol.azimuth.toFixed(1)}° / ${origSol.elevationDegrees.toFixed(1)}°)</span></div>
+                        <div><span style="color: #666;">Corrected Az/El:</span> <span style="color: ${COLORS.errorText}; font-weight: 600;">${solution.azimuthMils} mils / ${solution.elevation} mils</span> <span style="color: #555;">(${solution.azimuth.toFixed(1)}° / ${solution.elevationDegrees.toFixed(1)}°)</span></div>
                         <div><span style="color: #666;">Δ Firing Data:</span> <span style="color: ${COLORS.errorText};">Az: ${deltaAzMils > 0 ? '+' : ''}${deltaAzMils} mils, El: ${deltaElMils > 0 ? '+' : ''}${deltaElMils} mils</span></div>
                     </div>
                 </div>`;
@@ -734,13 +739,13 @@ async function updateFireCorrectionWidget(solutions) {
     const chargeDisplay = getElement('selectedChargeDisplay', false, true);
     if (chargeDisplay) chargeDisplay.textContent = `(Charge ${solutions[0].charge})`;
     
-    // Update FO mode checkbox
+    // FO mode checkbox is source of truth - no sync needed
     const foCheckbox = DOMCache.getElement('foEnabled', false, true);
-    if (foCheckbox) foCheckbox.checked = State.isFOModeEnabled();
+    const foEnabled = foCheckbox ? foCheckbox.checked : false;
     
     // Update FO controls visibility
     const foControls = getElement('foControls', false, true);
-    if (foControls) foControls.style.display = State.isFOModeEnabled() ? 'block' : 'none';
+    if (foControls) foControls.style.display = foEnabled ? 'block' : 'none';
     
     // Update observer position inputs based on mode
     const gridModeActive = CoordManager.getMode() === 'grid';
@@ -762,7 +767,7 @@ async function updateFireCorrectionWidget(solutions) {
     // Update bearing display visibility
     const bearingDisplay = getElement('otBearingDisplay', false, true);
     if (bearingDisplay) {
-        bearingDisplay.style.display = State.isFOModeEnabled() ? 'block' : 'none';
+        bearingDisplay.style.display = foEnabled ? 'block' : 'none';
     }
     
     // Update correction input values

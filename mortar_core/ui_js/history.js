@@ -1,7 +1,7 @@
 /**
  * History Management Module
  * Handles mission history storage, retrieval, and display
- * Version: 2.3.0
+ * Version: 2.3.2
  * 
  * CRITICAL: Always deep copy position objects to prevent mutation
  * Architecture: Uses dependency injection to avoid circular dependencies
@@ -56,11 +56,7 @@ export function init(deps) {
  */
 export async function captureCurrentInputs() {
     const foCheckbox = getElement('foEnabled', false);
-    const foEnabled = foCheckbox ? foCheckbox.checked : State.isFOModeEnabled();
-    
-    if (foCheckbox) {
-        State.setFOModeEnabled(foCheckbox.checked);
-    }
+    const foEnabled = foCheckbox ? foCheckbox.checked : false;
     
     let observerPos = null;
     let observerGridValues = null;
@@ -135,8 +131,15 @@ export async function addToHistory(mortarPos, targetPos, distance, solutions) {
         // Capture original target grid values if correction was applied
         if (State.isCorrectionApplied() && State.getOriginalTargetPos()) {
             const origPos = State.getOriginalTargetPos();
-            const origGrid = MortarCalculator.metersToGrid(origPos.x, origPos.y, true).split('/');
-            originalTargetGridValues = { x: origGrid[0], y: origGrid[1] };
+            const originalMeters = origPos.meters || origPos;
+            // Use raw grid values if available (preserves 3-4 digit format)
+            if (origPos.mode === 'grid' && origPos.gridX && origPos.gridY) {
+                originalTargetGridValues = { x: origPos.gridX, y: origPos.gridY };
+            } else {
+                // Fallback: convert from meters (legacy or meters mode)
+                const origGrid = MortarCalculator.metersToGrid(originalMeters.x, originalMeters.y, true).split('/');
+                originalTargetGridValues = { x: origGrid[0], y: origGrid[1] };
+            }
         }
     }
     
@@ -267,7 +270,6 @@ export async function setInputsFromData(data) {
     if (ffeWidget) ffeWidget.style.display = 'none';
     
     const foModeValue = data.foModeEnabled || false;
-    State.setFOModeEnabled(foModeValue);
     
     setChecked('foEnabled', foModeValue);
     
@@ -332,12 +334,21 @@ export async function updateHistoryDisplay() {
         // Show original target and difference if correction was applied
         let correctionDetails = '';
         if (entry.correctionApplied && entry.originalTargetPos) {
-            const originalDisplay = formatPositionDisplay(entry.originalTargetPos, entry.inputMode);
+            const origPos = entry.originalTargetPos;
+            const originalMeters = origPos.meters || origPos;
+            
+            // Use raw grid values if available, otherwise convert from meters
+            let originalDisplay;
+            if (entry.inputMode === 'grid' && entry.originalTargetGridValues) {
+                originalDisplay = `${entry.originalTargetGridValues.x}/${entry.originalTargetGridValues.y}`;
+            } else {
+                originalDisplay = formatPositionDisplay(originalMeters, entry.inputMode);
+            }
             
             // Calculate differences
-            const deltaX = entry.targetPos.x - entry.originalTargetPos.x;
-            const deltaY = entry.targetPos.y - entry.originalTargetPos.y;
-            const deltaZ = entry.targetPos.z - entry.originalTargetPos.z;
+            const deltaX = entry.targetPos.x - originalMeters.x;
+            const deltaY = entry.targetPos.y - originalMeters.y;
+            const deltaZ = entry.targetPos.z - originalMeters.z;
             
             // Calculate original azimuth/elevation if we have solution data
             let originalSolutionInfo = '';
@@ -345,7 +356,9 @@ export async function updateHistoryDisplay() {
                 // Need to recalculate original solution
                 const mortarId = entry.mortarType;
                 const shellType = entry.shellType;
-                const originalInput = MortarCalculator.prepareInput(entry.mortarPos, entry.originalTargetPos, mortarId, shellType);
+                const origPos = entry.originalTargetPos;
+                const originalMeters = origPos.meters || origPos;
+                const originalInput = MortarCalculator.prepareInput(entry.mortarPos, originalMeters, mortarId, shellType);
                 originalInput.chargeLevel = entry.selectedCharge;
                 const originalSolutions = MortarCalculator.calculateAllTrajectories(originalInput);
                 

@@ -2,13 +2,12 @@
  * Global State Management
  * Centralizes window.* state properties to prevent cross-module bugs
  * CRITICAL: Always prioritize this state over DOM state
- * Version: 2.3.0
+ * Version: 2.3.2
  */
 
 // State object - single source of truth
 const state = {
     ballisticDataLoaded: false,
-    foModeEnabled: false,
     correctionApplied: false,
     lastCorrectionLR: null,
     lastCorrectionAD: null,
@@ -25,10 +24,6 @@ const state = {
 // Getters
 export function isBallisticDataLoaded() {
     return state.ballisticDataLoaded;
-}
-
-export function isFOModeEnabled() {
-    return state.foModeEnabled;
 }
 
 export function isCorrectionApplied() {
@@ -82,10 +77,6 @@ export function setBallisticDataLoaded(value) {
     state.ballisticDataLoaded = value;
 }
 
-export function setFOModeEnabled(value) {
-    state.foModeEnabled = value;
-}
-
 export function setCorrectionApplied(value) {
     state.correctionApplied = value;
 }
@@ -134,7 +125,6 @@ export function setIsClearingCorrectionFields(value) {
 export function syncToWindow() {
     // Don't sync ballisticDataLoaded - it's managed by main.js and should persist
     // window.ballisticDataLoaded = state.ballisticDataLoaded;
-    window.foModeEnabled = state.foModeEnabled;
     window.correctionApplied = state.correctionApplied;
     window.lastCorrectionLR = state.lastCorrectionLR;
     window.lastCorrectionAD = state.lastCorrectionAD;
@@ -156,7 +146,10 @@ export function resetCorrectionState() {
 
 // Reset all state
 export function resetAllState() {
-    state.foModeEnabled = false;
+    // Reset FO mode checkbox directly (DOM is source of truth)
+    const foCheckbox = document.getElementById('foEnabled');
+    if (foCheckbox) foCheckbox.checked = false;
+    
     state.correctionApplied = false;
     state.lastCorrectionLR = null;
     state.lastCorrectionAD = null;
