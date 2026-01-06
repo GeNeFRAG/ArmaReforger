@@ -28,8 +28,6 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 - ✅ **Fire correction** - Gun-Target or Observer-Target line adjustments
 - ✅ **Fire for Effect** - Multiple pattern types (Lateral/Linear sheaf, Circular saturation)
 - ✅ **Automatic charge selection** - Or force specific charge
-- ✅ **Military terminology** - NATO/US Army standard nomenclature (Azimuth, Range, Height)
-- ✅ **SEO optimized** - Fully discoverable on search engines
 
 ## 📸 Screenshots
 ### Entering Grid coordinates in 10m precision:
