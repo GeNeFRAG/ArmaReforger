@@ -13,61 +13,42 @@ Mortar ballistics calculation engine for Arma Reforger mortar weapon systems.
 | Add range | `+20` | Increase range 20m (farther) |
 | Drop range | `-20` | Decrease range 20m (closer) |
 
-### Web Calculator
+## Web Calculator
 
 Visit **[armamortars.org](https://armamortars.org)** for the online calculator, or open [index.html](index.html) locally.
 
-**Features:**
-- 👁️ **Forward Observer (FO) Mode** - Apply corrections from observer's line of sight (v1.6.0, v2.3.2)
-  - Eliminates guesswork when FO and gun angles differ
-  - Observer position inputs with auto mode synchronization
-  - Visual OT/GT bearing comparison
-  - DOM-based state (checkbox as single source of truth)
-  - Corrected azimuth/elevation display
-- 🎯 **Separate X/Y grid inputs** - Individual fields for grid X and Y coordinates (v1.4.0)
-- ⚡ **Real-time validation** - Instant feedback while typing coordinates (v1.4.0+)
-  - Format validation for grid inputs (3-4 digits with examples)
-  - Range validation with visual indicators
-  - Distance display showing valid range
-  - Observer fields optimized (no height field, no validation triggers)
-  - Fire correction inputs validated (-500 to +500m range)
-  - Improved error messages with examples
-- 🎯 Grid coordinate support (3-digit 100m & 4-digit 10m precision)
-- 📏 Traditional meter coordinates
-- 🔄 Toggle between input modes (auto-clears on switch)
-- 🎯 Fire correction system (Gun-Target or Observer-Target line)
-- 💥 Fire for Effect patterns (Lateral/Linear sheaf, Circular saturation)
-- 📊 Trajectory visualization with comparison charts
-- 🎨 Multiple firing solutions with charge options
-- 📐 Height correction factors displayed (dElev, TOF per 100m)
-- 🔴 Visual feedback for corrected values (red highlighting)
-- 🔄 Auto-recalculation when toggling FFE on/off
-- 📐 Sorted FFE rounds by azimuth for easier gun traverse
-- 🎯 Unified fire mission display format
-- 🔄 Reset button to clear all inputs and outputs
-- 🧹 **Clean architecture** - DRY principles, helper functions, CSS classes (v1.4.0+)
-- 🏗️ **Modular state management** - Single source of truth pattern, precision preservation (v2.3.x)
+## 🚀 Features
+- ✅ **Pure JavaScript** - No external dependencies
+- ✅ **Framework-agnostic** - Works in Node.js and browsers
+- ✅ **Real-time validation** - Instant format and range checking while typing
+- ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision
+- ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
+- ✅ **Height correction** - Automatic elevation adjustment with correction factors displayed
+- ✅ **Transparent calculations** - Shows dElev and TOF per 100m correction factors
+- ✅ **Fire correction** - Gun-Target or Observer-Target line adjustments
+- ✅ **Fire for Effect** - Multiple pattern types (Lateral/Linear sheaf, Circular saturation)
+- ✅ **Automatic charge selection** - Or force specific charge
+- ✅ **Military terminology** - NATO/US Army standard nomenclature (Azimuth, Range, Height)
+- ✅ **SEO optimized** - Fully discoverable on search engines
 
+## 📸 Screenshots
+### Entering Grid coordinates in 10m precision:
+<img width="926" height="938" alt="image" src="https://github.com/user-attachments/assets/86e1daf1-492c-4faf-8605-6fed7b0afed6" />
 
-### Node.js
+### Mission Cards with the calculated fire missions:
+<img width="911" height="876" alt="image" src="https://github.com/user-attachments/assets/ca09b9a0-b413-4a29-bb7c-0e1ea7f79335" />
 
-```javascript
-const MortarCalculator = require('./MortarCalculator');
+### Entering Fire Corrections:
+<img width="844" height="345" alt="image" src="https://github.com/user-attachments/assets/c76ab49b-cbba-4bbf-a72c-7910961ada90" />
 
-// Load ballistic data
-await MortarCalculator.loadBallisticData('./ballistic-data.json');
+### New Mission Card after correction:
+<img width="899" height="626" alt="image" src="https://github.com/user-attachments/assets/ac0b0dc0-8c12-4304-9368-502649b29578" />
 
-// Calculate firing solution
-const solution = MortarCalculator.calculate({
-    distance: 1250,
-    heightDifference: -45,
-    bearing: 67.5,
-    mortarId: "RUS",
-    shellType: "HE"
-});
+### Select Fire for effect pattern for the corrected coordinates:
+<img width="841" height="394" alt="image" src="https://github.com/user-attachments/assets/c04cf6c3-8ea1-418f-825b-46ff2ca62cab" />
 
-console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`);
-```
+### Fire for Effect sorted mission cards:
+<img width="907" height="890" alt="image" src="https://github.com/user-attachments/assets/d3175d83-b81c-42df-9559-dd08c4263b94" />
 
 ## 📚 Documentation
 
@@ -94,21 +75,6 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 - **[examples/node-example.js](examples/node-example.js)** - Node.js usage
 - **[examples/trajectory-visualization.js](examples/trajectory-visualization.js)** - Terminal ASCII trajectory visualization
 - **[examples/integration-with-engine.js](examples/integration-with-engine.js)** - Map engine integration
-
-## 🚀 Features
-
-- ✅ **Pure JavaScript** - No external dependencies
-- ✅ **Framework-agnostic** - Works in Node.js and browsers
-- ✅ **Real-time validation** - Instant format and range checking while typing
-- ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision
-- ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
-- ✅ **Height correction** - Automatic elevation adjustment with correction factors displayed
-- ✅ **Transparent calculations** - Shows dElev and TOF per 100m correction factors
-- ✅ **Fire correction** - Gun-Target or Observer-Target line adjustments
-- ✅ **Fire for Effect** - Multiple pattern types (Lateral/Linear sheaf, Circular saturation)
-- ✅ **Automatic charge selection** - Or force specific charge
-- ✅ **Military terminology** - NATO/US Army standard nomenclature (Azimuth, Range, Height)
-- ✅ **SEO optimized** - Fully discoverable on search engines
 
 ## 🔧 API Overview
 
@@ -271,10 +237,39 @@ To add new weapons, update `ballistic-data.json` - no code changes required.
 
 ## 🛠️ Development
 
-### Setup
+### Local Installation
+
 ```bash
-cd mortar_core
-npm install  # Install dev dependencies
+git clone https://github.com/GeNeFRAG/ArmaReforger.git
+cd ArmaReforger/mortar_core
+open index.html  # macOS
+start index.html # Windows
+
+python3 -m http.server 8000  # Python
+# or
+npx http-server .            # Node.js
+
+# Visit http://localhost:8000
+```
+
+### Node.js
+
+```javascript
+const MortarCalculator = require('./MortarCalculator');
+
+// Load ballistic data
+await MortarCalculator.loadBallisticData('./ballistic-data.json');
+
+// Calculate firing solution
+const solution = MortarCalculator.calculate({
+    distance: 1250,
+    heightDifference: -45,
+    bearing: 67.5,
+    mortarId: "RUS",
+    shellType: "HE"
+});
+
+console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`);
 ```
 
 ### Project Structure
