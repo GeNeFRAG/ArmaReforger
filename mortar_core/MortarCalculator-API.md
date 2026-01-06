@@ -949,7 +949,7 @@ Apply height correction to base elevation.
 
 | ID | Name | Caliber | Nationality |
 |----|------|---------|-------------|
-| `RUS` | Russian 82mm | 82mm | Soviet/Russian |
+| `RUS` | Soviet 2B14 | 82mm | Soviet |
 | `US` | US M252 | 81mm | United States |
 
 ### Mil Systems
