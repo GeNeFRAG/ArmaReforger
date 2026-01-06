@@ -254,7 +254,7 @@ All weapon data is dynamically loaded from `ballistic-data.json`:
 
 | Mortar ID | Name | Caliber | Mil System | Shell Types |
 |-----------|------|---------|------------|-------------|
-| `RUS` | Sovjet 2B14 | 82mm | Warsaw Pact (6000) | HE, SMOKE, ILLUM |
+| `RUS` | Soviet 2B14 | 82mm | Warsaw Pact (6000) | HE, SMOKE, ILLUM |
 | `US` | US M252 | 81mm | NATO (6400) | HE, SMOKE, ILLUM |
 
 To add new weapons, update `ballistic-data.json` - no code changes required.
