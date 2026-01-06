@@ -10,8 +10,8 @@ Mortar ballistics calculation engine for Arma Reforger mortar weapon systems.
 | Grid 4-digit | `0475/0695` | Center of 10m square (4755m, 6955m) |
 | Right correction | `+10` | Shift impact 10m right |
 | Left correction | `-10` | Shift impact 10m left |
-| Add range | `-20` | Increase range 20m (farther) |
-| Drop range | `+20` | Decrease range 20m (closer) |
+| Add range | `+20` | Increase range 20m (farther) |
+| Drop range | `-20` | Decrease range 20m (closer) |
 
 ### Web Calculator
 
