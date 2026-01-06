@@ -654,12 +654,12 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                     <div>
                         <label style="display: block; color: #a8b898; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Left/Right (meters)</label>
-                        <input type="text" inputmode="numeric" id="correctionLR" data-min="-500" data-max="500" onkeydown="if(event.key === 'Enter') event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9\-+]/g, '').replace(/(?!^)[\-+]/g, '');" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
+                        <input type="text" inputmode="text" id="correctionLR" data-min="-500" data-max="500" onkeydown="if(event.key === 'Enter') event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9\-+]/g, '').replace(/(?!^)[\-+]/g, '');" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
                         <small style="color: #999; display: block; margin-top: 3px; font-size: 11px;">Right: +, Left: − (Range: -500 to +500m)</small>
                     </div>
                     <div>
                         <label style="display: block; color: #a8b898; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Add/Drop (meters)</label>
-                        <input type="text" inputmode="numeric" id="correctionAD" data-min="-500" data-max="500" onkeydown="if(event.key === 'Enter') event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9\-+]/g, '').replace(/(?!^)[\-+]/g, '');" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
+                        <input type="text" inputmode="text" id="correctionAD" data-min="-500" data-max="500" onkeydown="if(event.key === 'Enter') event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9\-+]/g, '').replace(/(?!^)[\-+]/g, '');" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
                         <small style="color: #999; display: block; margin-top: 3px; font-size: 11px;">Add: +, Drop: − (Range: -500 to +500m)</small>
                     </div>
                 </div>
