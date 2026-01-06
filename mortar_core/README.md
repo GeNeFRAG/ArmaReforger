@@ -1,4 +1,4 @@
-# Mortar Core
+# ARMA REFORGER Ballistic Calculator
 
 Mortar ballistics calculation engine for Arma Reforger mortar weapon systems.
 
