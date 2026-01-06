@@ -2,7 +2,16 @@
 
 Mortar ballistics calculation engine for Arma Reforger mortar weapon systems.
 
-## 🎯 Quick Start
+## 🎯 Quick Reference
+
+| Action | Input | Example |
+|--------|-------|---------|
+| Grid 3-digit | `047/069` | Center of 100m square (4750m, 6950m) |
+| Grid 4-digit | `0475/0695` | Center of 10m square (4755m, 6955m) |
+| Right correction | `+10` | Shift impact 10m right |
+| Left correction | `-10` | Shift impact 10m left |
+| Add range | `-20` | Increase range 20m (farther) |
+| Drop range | `+20` | Decrease range 20m (closer) |
 
 ### Web Calculator
 
@@ -38,6 +47,7 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 - 🔄 Reset button to clear all inputs and outputs
 - 🧹 **Clean architecture** - DRY principles, helper functions, CSS classes (v1.4.0+)
 - 🏗️ **Modular state management** - Single source of truth pattern, precision preservation (v2.3.x)
+
 
 ### Node.js
 
@@ -295,6 +305,15 @@ mortar_core/
 
 ## 📝 Changelog
 
+### v2.3.3 - Mobile Input Hotfix (January 2026)
+
+**Bug Fixes:**
+- Fixed fire correction inputs on mobile devices
+- Issue: iOS/Android numeric keyboards didn't show minus sign
+- Solution: Changed `inputmode="numeric"` to `inputmode="text"`
+- Users can now enter negative values (Left/Drop corrections) on mobile
+- Input validation still enforces numeric-only with optional +/- prefix
+
 ### v2.3.2 - Architectural Cleanup (January 2026)
 
 **Phase 3: Remove State.foModeEnabled**
@@ -334,3 +353,20 @@ mortar_core/
 - Real-time format and range validation
 - Improved error messages with examples
 - Clean DRY architecture with constants and helpers
+
+## 📄 License
+
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Credits
+
+- **Ballistic data** extracted from Arma Reforger game files
+- **F.I.S.T Community** for testing and feedback
+
+## 🔗 Links
+
+- **Live:** [armamortars.org](https://armamortars.org)
+- **Discord:** [F.I.S.T Community](http://discord.gg/Gb8Nt92J3m)
+- **GitHub:** [GeNeFRAG/ArmaReforger](https://github.com/GeNeFRAG/ArmaReforger)
