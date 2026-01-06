@@ -1,10 +1,6 @@
 # Mortar Core
 
-**Live Calculator:** [https://armamortars.org](https://armamortars.org)
-
-Mortar ballistics calculation engine for Arma Reforger artillery systems with grid coordinate support.
-
-Part of the [ArmaReforger](../README.md) project.
+Mortar ballistics calculation engine for Arma Reforger mortar weapon systems.
 
 ## 🎯 Quick Start
 
@@ -81,7 +77,7 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 
 ### Data
 
-- **`ballistic-data.json`** - Ballistics database for all mortars
+- **[ballistic-data.json](ballistic-data.json)** - Ballistics database for all mortars
 
 ### Examples
 
@@ -93,10 +89,7 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 
 - ✅ **Pure JavaScript** - No external dependencies
 - ✅ **Framework-agnostic** - Works in Node.js and browsers
-- ✅ **Forward Observer Mode** - Corrections along Observer-Target line with corrected Az/El display (v1.6.0, v2.3.2)
-- ✅ **Separate coordinate inputs** - Individual X/Y fields for grid coordinates (v1.4.0)
-- ✅ **Real-time validation** - Instant format and range checking while typing (v1.4.0+)
-- ✅ **Grid precision preservation** - Maintains 3-digit vs 4-digit format on correction undo (v2.3.1)
+- ✅ **Real-time validation** - Instant format and range checking while typing
 - ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision
 - ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
 - ✅ **Height correction** - Automatic elevation adjustment with correction factors displayed
@@ -104,11 +97,7 @@ console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`)
 - ✅ **Fire correction** - Gun-Target or Observer-Target line adjustments
 - ✅ **Fire for Effect** - Multiple pattern types (Lateral/Linear sheaf, Circular saturation)
 - ✅ **Automatic charge selection** - Or force specific charge
-- ✅ **Trajectory visualization** - Generate trajectory points for SVG/Canvas rendering
 - ✅ **Military terminology** - NATO/US Army standard nomenclature (Azimuth, Range, Height)
-- ✅ **Visual feedback** - Red highlighting for corrected fire solutions, colored borders for validation
-- ✅ **Single source of truth** - DOM inputs as authoritative state, State module for calculations only (v2.3.x)
-- ✅ **Clean architecture** - DRY principles, modular ES6 design, precision preservation (v1.4.0+, v2.3.x)
 - ✅ **SEO optimized** - Fully discoverable on search engines
 
 ## 🔧 API Overview
@@ -265,7 +254,7 @@ All weapon data is dynamically loaded from `ballistic-data.json`:
 
 | Mortar ID | Name | Caliber | Mil System | Shell Types |
 |-----------|------|---------|------------|-------------|
-| `RUS` | Russian 82mm (2B14) | 82mm | Warsaw Pact (6000) | HE, SMOKE, ILLUM |
+| `RUS` | Sovjet 2B14 | 82mm | Warsaw Pact (6000) | HE, SMOKE, ILLUM |
 | `US` | US M252 | 81mm | NATO (6400) | HE, SMOKE, ILLUM |
 
 To add new weapons, update `ballistic-data.json` - no code changes required.
@@ -299,30 +288,10 @@ mortar_core/
 └── examples/              # Usage examples
 ```
 
-## 🧪 Testing
-
-```bash
-npm install mocha
-npx mocha tests/MortarCalculator.test.js
-```
-
-## 📊 Performance
-
-- **Calculate:** ~0.1ms per calculation
-- **Load Data:** ~10ms
-
 ## 🌐 Compatibility
 
 - **Browser:** Chrome, Firefox, Safari 12+, Edge
 - **Node.js:** 12+
-
-## 🎮 Community
-
-Join the **F.I.S.T** (Forward Infantry Support Team) Discord community:
-
-🔗 **[F.I.S.T Discord Server](http://discord.gg/Gb8Nt92J3m)**
-
-Connect with other Arma Reforger artillery enthusiasts, share tactics, and get help with the calculator.
 
 ## 📝 Changelog
 
