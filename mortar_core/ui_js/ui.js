@@ -887,7 +887,10 @@ function selectOptimalMLRSProjectile(weaponId, distance, preferredType = 'HE') {
  */
 function showRocketSuggestion(optimalRocket) {
     const banner = getElement('rocketSuggestion', false);
-    if (!banner) return;
+    if (!banner) {
+        console.warn('[MLRS] Rocket suggestion banner element not found');
+        return;
+    }
     
     const rangeKm = `${(optimalRocket.minRange / 1000).toFixed(1)}-${(optimalRocket.maxRange / 1000).toFixed(1)}km`;
     const suggestionText = getElement('suggestionText', false);
@@ -898,6 +901,7 @@ function showRocketSuggestion(optimalRocket) {
     
     banner.style.display = 'block';
     banner.dataset.suggestedId = optimalRocket.id;
+    console.log('[MLRS] Showing suggestion:', optimalRocket.name, rangeKm);
 }
 
 /**

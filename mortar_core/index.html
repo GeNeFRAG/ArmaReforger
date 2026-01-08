@@ -392,13 +392,25 @@
             .solution-grid {
                 grid-template-columns: 1fr;
             }
+            #rocketSuggestion {
+                margin-top: 15px !important;
+                margin-bottom: 15px !important;
+                padding: 12px !important;
+            }
             #rocketSuggestion > div {
                 flex-direction: column !important;
-                gap: 10px !important;
+                gap: 12px !important;
+                align-items: stretch !important;
             }
             #rocketSuggestion .suggestion-buttons {
                 width: 100%;
                 flex-direction: row !important;
+                justify-content: stretch !important;
+            }
+            #rocketSuggestion .suggestion-buttons button {
+                flex: 1;
+                padding: 10px 15px !important;
+                font-size: 12px !important;
             }
         }
     </style>
