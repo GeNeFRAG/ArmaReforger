@@ -899,13 +899,22 @@ function showRocketSuggestion(optimalRocket) {
         suggestionText.textContent = `${optimalRocket.name} (${rangeKm}) - Better match for this distance`;
     }
     
-    banner.style.removeProperty('display');
-    banner.style.setProperty('display', 'block', 'important');
     banner.dataset.suggestedId = optimalRocket.id;
     
-    void banner.offsetHeight;
+    // iOS Chrome fix: Remove display property first, then set
+    banner.style.removeProperty('display');
     
-    console.log('[MLRS] Showing suggestion:', optimalRocket.name, rangeKm);
+    // Force iOS/Chrome to acknowledge the change
+    window.requestAnimationFrame(() => {
+        banner.style.display = 'block';
+        banner.style.visibility = 'visible';
+        banner.style.opacity = '1';
+        
+        // Force layout recalculation (critical for iOS/Chrome mobile)
+        void banner.offsetHeight;
+        
+        console.log('[MLRS] Showing suggestion:', optimalRocket.name, rangeKm);
+    });
 }
 
 /**
@@ -914,7 +923,11 @@ function showRocketSuggestion(optimalRocket) {
 function hideRocketSuggestion() {
     const banner = getElement('rocketSuggestion', false);
     if (banner) {
-        banner.style.setProperty('display', 'none', 'important');
+        window.requestAnimationFrame(() => {
+            banner.style.display = 'none';
+            banner.style.visibility = 'hidden';
+            banner.style.opacity = '0';
+        });
         delete banner.dataset.suggestedId;
     }
 }
