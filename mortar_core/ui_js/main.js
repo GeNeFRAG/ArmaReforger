@@ -1,7 +1,7 @@
 /**
  * Main Bootstrap Module
  * Initializes all modules and wires dependencies using Dependency Injection
- * Version: 1.7.0
+ * Version: 1.8.0
  * 
  * Architecture: Mediator Pattern
  * - This module acts as the central coordinator

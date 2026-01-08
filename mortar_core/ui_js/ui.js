@@ -1,7 +1,7 @@
 /**
  * UI Management Module
  * Handles DOM interactions, event listeners, input validation
- * Version: 2.4.0
+ * Version: 2.5.0
  * 
  * Architecture: Uses dependency injection for calculator functions
  */
