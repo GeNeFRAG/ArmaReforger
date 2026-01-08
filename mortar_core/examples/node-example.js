@@ -1,17 +1,17 @@
-const MortarCalculator = require('../MortarCalculator');
+const BallisticCalculator = require('../BallisticCalculator');
 const path = require('path');
 
 async function main() {
     // Load ballistic data
     const dataPath = path.join(__dirname, '../ballistic-data.json');
-    await MortarCalculator.loadBallisticData(dataPath);
+    await BallisticCalculator.loadBallisticData(dataPath);
     
     // Define positions
     const mortarPos = { x: 6400, y: 6400, z: 125 };
     const targetPos = { x: 7650, y: 6350, z: 80 };
     
     // Prepare input
-    const input = MortarCalculator.prepareInput(
+    const input = BallisticCalculator.prepareInput(
         mortarPos, 
         targetPos, 
         "RUS", 
@@ -21,7 +21,7 @@ async function main() {
     console.log('Input:', input);
     
     // Calculate solution
-    const solution = MortarCalculator.calculate(input);
+    const solution = BallisticCalculator.calculate(input);
     
     console.log('\nFiring Solution:');
     console.log('================');

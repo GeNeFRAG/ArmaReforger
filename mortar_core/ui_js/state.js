@@ -2,7 +2,7 @@
  * Global State Management
  * Centralizes window.* state properties to prevent cross-module bugs
  * CRITICAL: Always prioritize this state over DOM state
- * Version: 2.3.2
+ * Version: 2.4.0
  */
 
 // State object - single source of truth

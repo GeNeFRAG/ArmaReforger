@@ -1,7 +1,7 @@
 /**
  * Calculator Module
  * Main calculation logic, solution generation, and mission management
- * Version: 2.3.2
+ * Version: 2.4.0
  * 
  * Architecture: Uses dependency injection to avoid circular dependencies
  * Dependencies are injected via init() function
@@ -34,11 +34,23 @@ export function init(deps) {
 }
 
 /**
- * Get all available mortar types from ballistic data
+ * Get all available weapon systems (mortars + MLRS)
+ */
+export function getAllWeaponSystems() {
+    try {
+        return BallisticCalculator.getAllWeaponSystems();
+    } catch (error) {
+        console.warn('Could not get weapon systems:', error);
+        return [];
+    }
+}
+
+/**
+ * Get all available mortar types (backward compatibility)
  */
 export function getAllMortarTypes() {
     try {
-        return MortarCalculator.getAllMortarTypes();
+        return BallisticCalculator.getAllWeaponSystems('mortar');
     } catch (error) {
         console.warn('Could not get mortar types:', error);
         return [];
@@ -46,19 +58,45 @@ export function getAllMortarTypes() {
 }
 
 /**
- * Get available shell types for a mortar
+ * Get available ammunition types for a weapon (mortar shells or MLRS projectiles)
  */
-export function getShellTypesForMortar(mortarId) {
+export function getShellTypesForMortar(weaponId) {
     try {
-        const config = MortarCalculator.getWeaponConfig(mortarId, 'HE');
-        const mortar = config.mortar;
+        const config = BallisticCalculator.getWeaponConfig(weaponId, 'HE');
+        const weapon = config.weapon;
+        const systemType = config.systemType;
         
-        return mortar.shellTypes.map(shell => ({
+        // MLRS: Use projectileTypes, grouped by rocket model (9M22, 9M43, etc) and sorted by range
+        if (systemType === 'mlrs') {
+            const modelOrder = { '9M22': 1, '9M43': 2, '3M16': 3, '9M28K': 4 };
+            return weapon.projectileTypes
+                .map(projectile => {
+                    const rangeKm = `${(projectile.minRange / 1000).toFixed(1)}-${(projectile.maxRange / 1000).toFixed(1)}km`;
+                    const modelMatch = projectile.name.match(/^(\d\w+)/);
+                    const model = modelMatch ? modelMatch[1] : '';
+                    return {
+                        value: projectile.id,
+                        label: `${projectile.name} (${rangeKm})`,
+                        model: model,
+                        maxRange: projectile.maxRange
+                    };
+                })
+                .sort((a, b) => {
+                    // First sort by rocket model (9M22, 9M43, 3M16, 9M28K)
+                    const modelComparison = (modelOrder[a.model] || 99) - (modelOrder[b.model] || 99);
+                    if (modelComparison !== 0) return modelComparison;
+                    // Within same model, sort by max range (longest first)
+                    return b.maxRange - a.maxRange;
+                });
+        }
+        
+        // Mortar: Use shellTypes
+        return weapon.shellTypes.map(shell => ({
             value: shell.type,
             label: shell.name
         }));
     } catch (error) {
-        console.warn('Could not get shell types:', error);
+        console.warn('Could not get ammunition types:', error);
         return [];
     }
 }
@@ -93,17 +131,27 @@ export function generateSolutionGridHTML(solution, previousChargeForDisplay) {
     const chargeChanged = typeof previousChargeForDisplay === 'number' && previousChargeForDisplay !== solution.charge;
     const input = State.getLastInput();
     
+    // Detect system type from solution (MLRS has charge: 0, mortars have charge >= 0)
+    const weaponId = getValue('mortarType');
+    let systemType = 'mortar';
+    try {
+        const config = BallisticCalculator.getWeaponConfig(weaponId, getValue('shellType'));
+        systemType = config.systemType;
+    } catch (e) {
+        // Fallback to mortar
+    }
+    
     // Generate correction comparison if applied
     let correctionComparisonHTML = '';
     if (State.isCorrectionApplied() && State.getOriginalTargetPos()) {
         const mortarId = getValue('mortarType');
         const shellType = getValue('shellType');
-        const mortarPos = dependencies.parsePositionFromUI('mortar');
+        const weaponPos = dependencies.parsePositionFromUI('mortar');
         const origPos = State.getOriginalTargetPos();
         const originalMeters = origPos.meters || origPos;
-        const originalInput = MortarCalculator.prepareInput(mortarPos, originalMeters, mortarId, shellType);
+        const originalInput = BallisticCalculator.prepareInput(weaponPos, originalMeters, mortarId, shellType);
         originalInput.chargeLevel = solution.charge;
-        const originalSolutions = MortarCalculator.calculateAllTrajectories(originalInput);
+        const originalSolutions = BallisticCalculator.calculateAllTrajectories(originalInput);
         
         if (originalSolutions.length > 0 && originalSolutions[0].inRange) {
             const origSol = originalSolutions[0];
@@ -122,11 +170,11 @@ export function generateSolutionGridHTML(solution, previousChargeForDisplay) {
             const originalDisplay = (origPos.mode === 'grid' && origPos.gridX && origPos.gridY)
                 ? `${origPos.gridX}/${origPos.gridY}`
                 : isGridMode
-                    ? MortarCalculator.metersToGrid(originalMeters.x, originalMeters.y, true)
+                    ? BallisticCalculator.metersToGrid(originalMeters.x, originalMeters.y, true)
                     : `${originalMeters.x.toFixed(1)}, ${originalMeters.y.toFixed(1)}`;
             
             const correctedDisplay = isGridMode
-                ? MortarCalculator.metersToGrid(targetPos.x, targetPos.y, true)
+                ? BallisticCalculator.metersToGrid(targetPos.x, targetPos.y, true)
                 : `${targetPos.x.toFixed(1)}, ${targetPos.y.toFixed(1)}`;
             
             correctionComparisonHTML = `
@@ -146,11 +194,13 @@ export function generateSolutionGridHTML(solution, previousChargeForDisplay) {
     
     return `
         <div class="solution-grid">
+            ${systemType === 'mortar' ? `
             <div class="solution-item">
                 <strong>CHARGE</strong>
                 <div class="value" ${chargeChanged ? `style="color: ${COLORS.errorText}"` : ''}>${solution.charge}</div>
                 ${chargeChanged ? `<div style="color: ${COLORS.errorText}; font-size: 11px; margin-top: 2px;">was: ${previousChargeForDisplay}</div>` : ''}
             </div>
+            ` : ''}
             <div class="solution-item">
                 <strong>AZIMUTH</strong>
                 <div class="value" ${correctionColor ? `style="color: ${correctionColor}"` : ''}>${solution.azimuthMils} mils</div>
@@ -173,7 +223,7 @@ export function generateSolutionGridHTML(solution, previousChargeForDisplay) {
                 <strong style="${State.isCorrectionApplied() ? 'color: ' + COLORS.errorText + ';' : ''}">📏 Range:</strong> <span style="${State.isCorrectionApplied() ? 'color: ' + COLORS.errorText + ';' : ''}">${input.distance.toFixed(1)}m</span> &nbsp;|&nbsp; 
                 <strong>⛰️ Alt Diff:</strong> ${input.heightDifference > 0 ? '+' : ''}${input.heightDifference.toFixed(1)}m
             </div>
-            <strong>Charge Range:</strong> ${solution.minRange}m - ${solution.maxRange}m
+            ${systemType === 'mortar' ? `<strong>Charge Range:</strong> ${solution.minRange}m - ${solution.maxRange}m` : `<strong>Projectile Range:</strong> ${solution.minRange}m - ${solution.maxRange}m`}
         </div>
         ${correctionComparisonHTML}
     `;
@@ -199,7 +249,7 @@ export function generateMissionCardHTML(solution, index, previousChargeForDispla
         const timeDiff = solution.timeOfFlight - solutions[0].timeOfFlight;
         const elevDiff = solution.elevation - solutions[0].elevation;
         const lastInput = State.getLastInput();
-        const elevDegDiff = MortarCalculator.milsToDegrees(solution.elevation, lastInput.mortarType) - MortarCalculator.milsToDegrees(solutions[0].elevation, lastInput.mortarType);
+        const elevDegDiff = BallisticCalculator.milsToDegrees(solution.elevation, lastInput.weaponId) - BallisticCalculator.milsToDegrees(solutions[0].elevation, lastInput.weaponId);
         const elevSign = elevDiff > 0 ? '+' : '';
         chargeDesc = `+${timeDiff.toFixed(1)}s slower, ${elevSign}${elevDiff} mils (${elevSign}${elevDegDiff.toFixed(1)}°) vs charge ${solutions[0].charge}`;
     }
@@ -375,7 +425,7 @@ export async function selectMission(charge) {
                             const timeDiff = altSolution.timeOfFlight - solutions.find(s => s.charge === charge).timeOfFlight;
                             const elevDiff = altSolution.elevation - solutions.find(s => s.charge === charge).elevation;
                             const lastInput = State.getLastInput();
-                            const elevDegDiff = MortarCalculator.milsToDegrees(altSolution.elevation, lastInput.mortarType) - MortarCalculator.milsToDegrees(solutions.find(s => s.charge === charge).elevation, lastInput.mortarType);
+                            const elevDegDiff = BallisticCalculator.milsToDegrees(altSolution.elevation, lastInput.weaponId) - BallisticCalculator.milsToDegrees(solutions.find(s => s.charge === charge).elevation, lastInput.weaponId);
                             const elevSign = elevDiff > 0 ? '+' : '';
                             
                             const isOriginalOptimal = item.charge === State.getOriginalOptimalCharge();
@@ -464,37 +514,46 @@ export async function calculateSolution() {
             rangeIndicator.remove();
         }
         
-        const mortarPos = dependencies.parsePositionFromUI('mortar');
+        const weaponPos = dependencies.parsePositionFromUI('mortar');
         const targetPos = dependencies.parsePositionFromUI('target');
         const mortarId = getValue('mortarType');
         const shellType = getValue('shellType');
         const ffeEnabled = isChecked('ffeEnabled');
         const output = getElement('output');
         
+        // Detect system type (mortar vs MLRS)
+        let systemType = 'mortar';
+        try {
+            const config = BallisticCalculator.getWeaponConfig(mortarId, shellType);
+            systemType = config.systemType;
+        } catch (e) {
+            // Fallback to mortar
+        }
+        
         if (ffeEnabled) {
             // Fire for Effect mode - calculate pattern
             const ffePattern = getValue('ffePattern');
             const ffeRounds = parseInt(getValue('ffeRounds'));
             
-            const mortarParsed = MortarCalculator.parsePosition(mortarPos);
-            const targetParsed = MortarCalculator.parsePosition(targetPos);
+            const weaponParsed = BallisticCalculator.parsePosition(weaponPos);
+            const targetParsed = BallisticCalculator.parsePosition(targetPos);
             
             let targetPositions;
             let patternParam;
             
             if (ffePattern === 'circular') {
                 const ffeRadius = parseFloat(getValue('ffeRadius')) || 100;
-                targetPositions = MortarCalculator.generateCircularPattern(targetParsed, ffeRadius, ffeRounds);
+                targetPositions = BallisticCalculator.generateCircularPattern(targetParsed, ffeRadius, ffeRounds);
                 patternParam = ffeRadius;
             } else {
                 const ffeSpacing = parseFloat(getValue('ffeSpacing')) || 50;
-                targetPositions = MortarCalculator.generateFireForEffectPattern(mortarParsed, targetParsed, ffePattern, ffeRounds, ffeSpacing);
+                targetPositions = BallisticCalculator.generateFireForEffectPattern(weaponParsed, targetParsed, ffePattern, ffeRounds, ffeSpacing);
                 patternParam = ffeSpacing;
             }
             
             const ffeSolutions = [];
-            const centerInput = MortarCalculator.prepareInput(mortarPos, targetParsed, mortarId, shellType);
-            const centerSolutions = MortarCalculator.calculateAllTrajectories(centerInput);
+            const centerInput = BallisticCalculator.prepareInput(weaponPos, targetParsed, mortarId, shellType);
+            const centerSolutions = BallisticCalculator.calculateAllTrajectories(centerInput);
             
             if (centerSolutions.length === 0 || !centerSolutions[0].inRange) {
                 throw new Error('Center target out of range - cannot calculate FFE pattern');
@@ -503,9 +562,9 @@ export async function calculateSolution() {
             const ffeCharge = centerSolutions[0].charge;
             
             targetPositions.forEach((pos, index) => {
-                const input = MortarCalculator.prepareInput(mortarPos, pos, mortarId, shellType);
+                const input = BallisticCalculator.prepareInput(weaponPos, pos, mortarId, shellType);
                 input.chargeLevel = ffeCharge;
-                const solutions = MortarCalculator.calculateAllTrajectories(input);
+                const solutions = BallisticCalculator.calculateAllTrajectories(input);
                 if (solutions.length > 0 && solutions[0].inRange) {
                     ffeSolutions.push({
                         roundNumber: index + 1,
@@ -516,7 +575,7 @@ export async function calculateSolution() {
                 }
             });
             
-            const sortedFFE = MortarCalculator.sortFFESolutionsByAzimuth(ffeSolutions);
+            const sortedFFE = BallisticCalculator.sortFFESolutionsByAzimuth(ffeSolutions);
             
             if (sortedFFE.length > 0) {
                 output.className = 'result active success';
@@ -575,8 +634,8 @@ export async function calculateSolution() {
         }
         
         // Normal calculation mode
-        const input = MortarCalculator.prepareInput(mortarPos, targetPos, mortarId, shellType);
-        let solutions = MortarCalculator.calculateAllTrajectories(input);
+        const input = BallisticCalculator.prepareInput(weaponPos, targetPos, mortarId, shellType);
+        let solutions = BallisticCalculator.calculateAllTrajectories(input);
         
         if (State.isCorrectionApplied() && State.getSelectedCharge() !== undefined && solutions.length > 0) {
             const selectedChargeIdx = solutions.findIndex(s => s.charge === State.getSelectedCharge());
@@ -591,7 +650,7 @@ export async function calculateSolution() {
         
         if (solutions.length > 0 && solutions[0].inRange) {
             State.setLastSolution(solutions[0]);
-            await dependencies.addToHistory(mortarPos, targetPos, input.distance, solutions);
+            await dependencies.addToHistory(weaponPos, targetPos, input.distance, solutions);
         }
         
         output.className = 'result active';
@@ -657,7 +716,8 @@ export async function calculateSolution() {
             if (widget && placeholder) {
                 placeholder.parentNode.insertBefore(widget, placeholder);
                 placeholder.remove();
-                widget.style.display = 'block';
+                // Only show fire correction widget for mortars, not MLRS
+                widget.style.display = systemType === 'mlrs' ? 'none' : 'block';
             }
             await updateFireCorrectionWidget(solutions);
             
@@ -669,8 +729,10 @@ export async function calculateSolution() {
                 ffePlaceholder.remove();
             }
             
-            // Show FFE widget after successful calculation
-            showFFEWidget();
+            // Show FFE widget after successful calculation (only for mortars, not MLRS)
+            if (systemType !== 'mlrs') {
+                showFFEWidget();
+            }
             
             State.setPreviousCharge(null);
             if (!State.isCorrectionApplied()) {

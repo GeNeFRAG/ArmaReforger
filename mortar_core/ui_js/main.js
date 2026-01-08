@@ -81,14 +81,14 @@ async function init() {
     const app = DOMCache.getElement('app');
     
     try {
-        await MortarCalculator.loadBallisticData('ballistic-data.json');
+        await BallisticCalculator.loadBallisticData('ballistic-data.json');
         ballisticDataLoaded = true;
         State.setBallisticDataLoaded(true);
         
         setDisplay(loading, false);
         setDisplay(app, true);
         
-        updateMortarTypes();
+        updateWeaponSystems();
         await Calculator.updateShellTypes();
         
         UI.initUI();
@@ -110,30 +110,64 @@ async function init() {
 }
 
 /**
- * Update mortar type options from ballistic data
+ * Update weapon system options from ballistic data (mortars + MLRS)
  */
-function updateMortarTypes() {
-    const mortarTypeSelect = DOMCache.getElement('mortarType');
-    const currentValue = mortarTypeSelect.value;
+function updateWeaponSystems() {
+    const weaponSelect = DOMCache.getElement('mortarType');
+    const currentValue = weaponSelect.value;
     
-    const availableMortars = Calculator.getAllMortarTypes();
+    const allWeapons = Calculator.getAllWeaponSystems();
     
-    availableMortars.sort((a, b) => {
-        const aIsUS = a.id === 'US' || a.id.startsWith('US_');
-        const bIsUS = b.id === 'US' || b.id.startsWith('US_');
-        if (aIsUS && !bIsUS) return -1;
-        if (!aIsUS && bIsUS) return 1;
+    // Group by system type with custom ordering
+    // M252 first, then 2B14, then any other mortars alphabetically
+    const weaponOrder = ['M252', '2B14'];
+    const mortars = allWeapons.filter(w => w.systemType === 'mortar').sort((a, b) => {
+        const aIndex = weaponOrder.indexOf(a.id);
+        const bIndex = weaponOrder.indexOf(b.id);
+        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+        if (aIndex !== -1) return -1;
+        if (bIndex !== -1) return 1;
         return a.name.localeCompare(b.name);
     });
+    const mlrs = allWeapons.filter(w => w.systemType === 'mlrs').sort((a, b) => a.name.localeCompare(b.name));
     
-    populateSelect(mortarTypeSelect, availableMortars, 'id', 'name');
+    // Clear existing options
+    weaponSelect.innerHTML = '';
     
-    const optionExists = availableMortars.some(m => m.id === currentValue);
+    // Add mortars group
+    if (mortars.length > 0) {
+        const mortarGroup = document.createElement('optgroup');
+        mortarGroup.label = '🎯 Mortars';
+        mortars.forEach(weapon => {
+            const option = document.createElement('option');
+            option.value = weapon.id;
+            option.textContent = weapon.name;
+            mortarGroup.appendChild(option);
+        });
+        weaponSelect.appendChild(mortarGroup);
+    }
+    
+    // Add MLRS group
+    if (mlrs.length > 0) {
+        const mlrsGroup = document.createElement('optgroup');
+        mlrsGroup.label = '🚀 MLRS';
+        mlrs.forEach(weapon => {
+            const option = document.createElement('option');
+            option.value = weapon.id;
+            option.textContent = weapon.name;
+            mlrsGroup.appendChild(option);
+        });
+        weaponSelect.appendChild(mlrsGroup);
+    }
+    
+    // Restore previous selection or select first mortar
+    const optionExists = allWeapons.some(w => w.id === currentValue);
     if (optionExists) {
-        mortarTypeSelect.value = currentValue;
-    } else if (availableMortars.length > 0) {
-        const usMortar = availableMortars.find(m => m.id === 'US' || m.id.startsWith('US_'));
-        mortarTypeSelect.value = usMortar ? usMortar.id : availableMortars[0].id;
+        weaponSelect.value = currentValue;
+    } else if (mortars.length > 0) {
+        weaponSelect.value = mortars[0].id;
+    } else if (allWeapons.length > 0) {
+        weaponSelect.value = allWeapons[0].id;
     }
 }
 

@@ -132,6 +132,18 @@ export async function generateFFEPattern() {
         return;
     }
     
+    // Check if weapon is MLRS - FFE not supported
+    const weaponId = lastInput.weaponId || lastInput.mortarType;
+    try {
+        const config = BallisticCalculator.getWeaponConfig(weaponId, lastInput.shellType);
+        if (config.systemType === 'mlrs') {
+            throw new Error('Fire for Effect patterns are not supported for MLRS systems');
+        }
+    } catch (e) {
+        if (e.message.includes('not supported for MLRS')) throw e;
+        // Continue for other errors (weapon config might not be critical)
+    }
+    
     try {
         const ffePattern = getValue('ffePattern');
         const ffeRounds = parseInt(getValue('ffeRounds'));
@@ -141,28 +153,29 @@ export async function generateFFEPattern() {
             throw new Error('Position parser not available');
         }
         
-        const mortarPos = dependencies.parsePositionFromUI('mortar');
+        const weaponPos = dependencies.parsePositionFromUI('mortar');
         const targetPos = dependencies.parsePositionFromUI('target');
         
-        const mortarParsed = MortarCalculator.parsePosition(mortarPos);
-        const targetParsed = MortarCalculator.parsePosition(targetPos);
+        const weaponParsed = BallisticCalculator.parsePosition(weaponPos);
+        const targetParsed = BallisticCalculator.parsePosition(targetPos);
         
         let targetPositions;
         let patternParam;
         
         if (ffePattern === 'circular') {
             const ffeRadius = parseFloat(getValue('ffeRadius')) || 100;
-            targetPositions = MortarCalculator.generateCircularPattern(targetParsed, ffeRadius, ffeRounds);
+            targetPositions = BallisticCalculator.generateCircularPattern(targetParsed, ffeRadius, ffeRounds);
             patternParam = ffeRadius;
         } else {
             const ffeSpacing = parseFloat(getValue('ffeSpacing')) || 50;
-            targetPositions = MortarCalculator.generateFireForEffectPattern(mortarParsed, targetParsed, ffePattern, ffeRounds, ffeSpacing);
+            targetPositions = BallisticCalculator.generateFireForEffectPattern(weaponParsed, targetParsed, ffePattern, ffeRounds, ffeSpacing);
             patternParam = ffeSpacing;
         }
         
         const ffeSolutions = [];
-        const centerInput = MortarCalculator.prepareInput(mortarPos, targetParsed, lastInput.mortarType, lastInput.shellType);
-        const centerSolutions = MortarCalculator.calculateAllTrajectories(centerInput);
+        const weaponId = lastInput.weaponId || lastInput.mortarType;
+        const centerInput = BallisticCalculator.prepareInput(weaponPos, targetParsed, weaponId, lastInput.shellType);
+        const centerSolutions = BallisticCalculator.calculateAllTrajectories(centerInput);
         
         if (centerSolutions.length === 0 || !centerSolutions[0].inRange) {
             throw new Error('Center target out of range - cannot calculate FFE pattern');
@@ -171,9 +184,9 @@ export async function generateFFEPattern() {
         const ffeCharge = centerSolutions[0].charge;
         
         targetPositions.forEach((pos, index) => {
-            const input = MortarCalculator.prepareInput(mortarPos, pos, lastInput.mortarType, lastInput.shellType);
+            const input = BallisticCalculator.prepareInput(weaponPos, pos, weaponId, lastInput.shellType);
             input.chargeLevel = ffeCharge;
-            const solutions = MortarCalculator.calculateAllTrajectories(input);
+            const solutions = BallisticCalculator.calculateAllTrajectories(input);
             if (solutions.length > 0 && solutions[0].inRange) {
                 ffeSolutions.push({
                     roundNumber: index + 1,
@@ -184,7 +197,7 @@ export async function generateFFEPattern() {
             }
         });
         
-        const sortedFFE = MortarCalculator.sortFFESolutionsByAzimuth(ffeSolutions);
+        const sortedFFE = BallisticCalculator.sortFFESolutionsByAzimuth(ffeSolutions);
         
         if (sortedFFE.length > 0) {
             // Generate FFE HTML (import from calculator module)

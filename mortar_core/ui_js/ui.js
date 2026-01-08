@@ -1,7 +1,7 @@
 /**
  * UI Management Module
  * Handles DOM interactions, event listeners, input validation
- * Version: 2.3.2
+ * Version: 2.4.0
  * 
  * Architecture: Uses dependency injection for calculator functions
  */
@@ -128,25 +128,28 @@ export function validateGridFormat(input) {
 export function validateCoordinateRange(input) {
     const currentMode = CoordManager.getMode();
     
-    const isGridInput = input.id.includes('Grid');
-    
-    if (!isGridInput) {
-        const value = parseFloat(input.value);
-        const min = parseFloat(input.getAttribute('min'));
-        const max = parseFloat(input.getAttribute('max'));
+    // If called without input (e.g., from dropdown change), skip field validation
+    if (input) {
+        const isGridInput = input.id.includes('Grid');
         
-        if (isNaN(value)) {
-            clearFieldHighlighting(input);
-            updateCalculateButtonState();
-            return;
-        }
-        
-        if (!CoordManager.isValidCoordinate(value, min, max)) {
-            highlightField(input, `Must be between ${min} and ${max}`, COLORS.errorText);
-            updateCalculateButtonState();
-            return;
-        } else {
-            clearFieldHighlighting(input);
+        if (!isGridInput) {
+            const value = parseFloat(input.value);
+            const min = parseFloat(input.getAttribute('min'));
+            const max = parseFloat(input.getAttribute('max'));
+            
+            if (isNaN(value)) {
+                clearFieldHighlighting(input);
+                updateCalculateButtonState();
+                return;
+            }
+            
+            if (!CoordManager.isValidCoordinate(value, min, max)) {
+                highlightField(input, `Must be between ${min} and ${max}`, COLORS.errorText);
+                updateCalculateButtonState();
+                return;
+            } else {
+                clearFieldHighlighting(input);
+            }
         }
     }
     
@@ -168,8 +171,8 @@ export function validateCoordinateRange(input) {
         const mortarId = getValue('mortarType');
         const shellType = getValue('shellType');
         
-        const prepInput = MortarCalculator.prepareInput(mortarPos, targetPos, mortarId, shellType);
-        const solutions = MortarCalculator.calculateAllTrajectories(prepInput);
+        const prepInput = BallisticCalculator.prepareInput(mortarPos, targetPos, mortarId, shellType);
+        const solutions = BallisticCalculator.calculateAllTrajectories(prepInput);
         const distance = prepInput.distance;
         
         const inRange = solutions.length > 0 && solutions[0].inRange;
@@ -201,7 +204,7 @@ export function validateCoordinateRange(input) {
         console.error('[validateCoordinateRange] Error:', error);
         // Don't show grid format errors here - validateGridFormat handles those
         // Only show if it's not a grid format error (e.g., calculation errors)
-        if (input.id && input.id.includes('Grid')) {
+        if (input && input.id && input.id.includes('Grid')) {
             const errorMsg = error.message || String(error);
             // Skip showing the long grid format error - validateGridFormat already handles this
             if (!errorMsg.includes('Grid coordinates must be 3 or 4 digits')) {
@@ -223,17 +226,17 @@ function isFormValid() {
             return false;
         }
         
-        const mortarPos = CoordManager.parsePosition('mortar', true);
+        const weaponPos = CoordManager.parsePosition('mortar', true);
         const targetPos = CoordManager.parsePosition('target', true);
         
-        if (!mortarPos || !targetPos) {
+        if (!weaponPos || !targetPos) {
             return false;
         }
         
         const mortarId = getValue('mortarType');
         const shellType = getValue('shellType');
-        const prepInput = MortarCalculator.prepareInput(mortarPos, targetPos, mortarId, shellType);
-        const solutions = MortarCalculator.calculateAllTrajectories(prepInput);
+        const prepInput = BallisticCalculator.prepareInput(weaponPos, targetPos, mortarId, shellType);
+        const solutions = BallisticCalculator.calculateAllTrajectories(prepInput);
         
         return solutions.length > 0 && solutions[0].inRange;
     } catch (error) {
@@ -429,7 +432,7 @@ export function performReset() {
     });
     
     // Reset mortar type
-    setValue('mortarType', 'US');
+    setValue('mortarType', 'M252');
     if (dependencies.updateShellTypes) {
         dependencies.updateShellTypes();
     }
@@ -520,8 +523,8 @@ export function setTargetHighlight(color) {
 /**
  * Set position inputs from position objects - delegates to coord-manager
  */
-export function setPositionInputs(mortarPos, targetPos) {
-    CoordManager.setPositions(mortarPos, targetPos);
+export function setPositionInputs(weaponPos, targetPos) {
+    CoordManager.setPositions(weaponPos, targetPos);
 }
 
 /**
@@ -657,15 +660,18 @@ export function initUI() {
     
     const mortarTypeSelect = getElement('mortarType', false);
     if (mortarTypeSelect && dependencies.updateShellTypes) {
-        mortarTypeSelect.addEventListener('change', () => {
-            dependencies.updateShellTypes();
-            updateCalculateButtonState();
+        mortarTypeSelect.addEventListener('change', async () => {
+            await dependencies.updateShellTypes();
+            clearOutput();
+            validateCoordinateRange();
         });
     }
     
     const shellTypeSelect = getElement('shellType', false);
     if (shellTypeSelect) {
-        shellTypeSelect.addEventListener('change', updateCalculateButtonState);
+        shellTypeSelect.addEventListener('change', () => {
+            validateCoordinateRange();
+        });
     }
     
     debouncedValidateCoordinateRange = debounce(validateCoordinateRange, 300);

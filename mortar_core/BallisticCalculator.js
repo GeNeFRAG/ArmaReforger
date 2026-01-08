@@ -1,22 +1,25 @@
 /**
- * Arma Reforger Mortar Ballistic Calculator
- * Framework-agnostic calculation engine
- * Version: 1.6.1
+ * Arma Reforger Ballistic Calculator
+ * Framework-agnostic calculation engine for mortar and MLRS weapon systems
+ * Version: 2.4.0
  * 
  * Features:
- * - Precision ballistic calculations for mortar fire missions
- * - Support for multiple mortar types (RUS/US) and shell types
+ * - Precision ballistic calculations for mortar and MLRS fire missions
+ * - Support for multiple weapon systems:
+ *   - Mortars: M252 (US 81mm), 2B14 (Soviet 82mm)
+ *   - MLRS: BM-21 Grad (122mm) with 13 rocket types (5-40km range)
  * - Height correction for elevation differences
- * - Fire for Effect (FFE) pattern generation:
+ * - Fire for Effect (FFE) pattern generation (mortars only):
  *   - Lateral sheaf (perpendicular): Width coverage for area targets
  *   - Linear sheaf (along-bearing): Depth penetration for linear targets
  *   - Circular pattern: 360° area saturation
- * - Fire correction support:
+ * - Fire correction support (mortars only):
  *   - Gun-Target line corrections (standard mode)
  *   - Observer-Target line corrections (FO mode - eliminates guesswork)
  * - Works with corrected target coordinates
+ * - Automatic projectile selection for MLRS based on range
  * 
- * @module MortarCalculator
+ * @module BallisticCalculator
  */
 
 // ============================================================================
@@ -39,11 +42,11 @@
 /**
  * @typedef {Object} CalculatorInput
  * @property {number} distance - Horizontal distance in meters
- * @property {number} heightDifference - Target height - mortar height (meters)
+ * @property {number} heightDifference - Target height - weapon height (meters)
  * @property {number} bearing - Azimuth angle in degrees (0-360)
- * @property {string} mortarId - Weapon ID (e.g., "RUS", "US")
- * @property {string} shellType - Shell type (e.g., "HE", "SMOKE")
- * @property {number} [chargeLevel] - Optional: Force specific charge (0-4)
+ * @property {string} weaponId - Weapon ID: "M252" (US 81mm), "2B14" (Soviet 82mm), "BM21_GRAD" (MLRS)
+ * @property {string} shellType - Shell/projectile type (e.g., "HE", "SMOKE" for mortars; rocket types for MLRS)
+ * @property {number} [chargeLevel] - Optional: Force specific charge (0-4, mortars only)
  */
 
 /**
@@ -229,19 +232,19 @@ function applyCorrectionAlongBearing(targetPos, bearing, leftRight, addDrop) {
  * - Left/Right: Deflection correction perpendicular to line of fire
  * - Add/Drop: Range correction along line of fire
  * 
- * @param {Position3D} mortarPos - Mortar position
+ * @param {Position3D} weaponPos - Weapon position
  * @param {Position3D} targetPos - Original target position
  * @param {number} leftRight - Left/Right correction in meters (+ = Right, - = Left)
  * @param {number} addDrop - Add/Drop correction in meters (- = Add/raise elevation, + = Drop/lower elevation)
  * @returns {Position3D} Corrected target position
  * 
  * @example
- * const mortar = {x: 475, y: 695, z: 10};
+ * const weapon = {x: 475, y: 695, z: 10};
  * const target = {x: 855, y: 1055, z: 25};
- * const corrected = applyFireCorrection(mortar, target, -10, -20); // Left 10m, Add 20m (raise elevation)
+ * const corrected = applyFireCorrection(weapon, target, -10, -20); // Left 10m, Add 20m (raise elevation)
  */
-function applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) {
-    const bearing = calculateBearing(mortarPos, targetPos);
+function applyFireCorrection(weaponPos, targetPos, leftRight, addDrop) {
+    const bearing = calculateBearing(weaponPos, targetPos);
     return applyCorrectionAlongBearing(targetPos, bearing, leftRight, addDrop);
 }
 
@@ -254,7 +257,7 @@ function applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) {
  * - FO corrections are relative to their OT line, not GT line
  * - More accurate than estimating GT corrections from OT perspective
  * 
- * @param {Position3D} mortarPos - Mortar position (for final targeting)
+ * @param {Position3D} weaponPos - Weapon position (for final targeting)
  * @param {Position3D} observerPos - Forward Observer position
  * @param {Position3D} targetPos - Original target position
  * @param {number} leftRight - Left/Right correction in meters (+ = Right, - = Left from FO perspective)
@@ -262,19 +265,19 @@ function applyFireCorrection(mortarPos, targetPos, leftRight, addDrop) {
  * @returns {Object} {correctedTarget: Position3D, otBearing: number, gtBearing: number, angleDiff: number}
  * 
  * @example
- * const mortar = {x: 475, y: 695, z: 10};
+ * const weapon = {x: 475, y: 695, z: 10};
  * const observer = {x: 600, y: 800, z: 15};
  * const target = {x: 855, y: 1055, z: 25};
- * const result = applyFireCorrectionFromObserver(mortar, observer, target, 10, -20);
+ * const result = applyFireCorrectionFromObserver(weapon, observer, target, 10, -20);
  * // result.correctedTarget = new position
  * // result.otBearing = FO's bearing to target
  * // result.gtBearing = Gun's bearing to corrected target
  * // result.angleDiff = Angle between OT and GT lines
  */
-function applyFireCorrectionFromObserver(mortarPos, observerPos, targetPos, leftRight, addDrop) {
+function applyFireCorrectionFromObserver(weaponPos, observerPos, targetPos, leftRight, addDrop) {
     const otBearing = calculateBearing(observerPos, targetPos);
     const correctedTarget = applyCorrectionAlongBearing(targetPos, otBearing, leftRight, addDrop);
-    const gtBearing = calculateBearing(mortarPos, correctedTarget);
+    const gtBearing = calculateBearing(weaponPos, correctedTarget);
     
     let angleDiff = gtBearing - otBearing;
     if (angleDiff > 180) angleDiff -= 360;
@@ -437,22 +440,21 @@ function sortFFESolutionsByAzimuth(ffeSolutions) {
 
 /**
  * Prepare calculator input from two 3D positions
- * @param {Position3D|GridCoordinate|string} mortarPos - Mortar position
+ * @param {Position3D|GridCoordinate|string} weaponPos - Weapon position
  * @param {Position3D|GridCoordinate|string} targetPos - Target position
- * @param {string} mortarId - Weapon ID
+ * @param {string} weaponId - Weapon ID
  * @param {string} shellType - Shell type
  * @returns {CalculatorInput}
  */
-function prepareInput(mortarPos, targetPos, mortarId, shellType) {
-    const mortar = parsePosition(mortarPos);
+function prepareInput(weaponPos, targetPos, weaponId, shellType) {
+    const weapon = parsePosition(weaponPos);
     const target = parsePosition(targetPos);
     
     return {
-        distance: calculateHorizontalDistance(mortar, target),
-        heightDifference: target.z - mortar.z,
-        bearing: calculateBearing(mortar, target),
-        mortarId,
-        mortarType: mortarId.startsWith('RUS') ? 'RUS' : 'US',
+        distance: calculateHorizontalDistance(weapon, target),
+        heightDifference: target.z - weapon.z,
+        bearing: calculateBearing(weapon, target),
+        weaponId,
         shellType
     };
 }
@@ -464,21 +466,73 @@ function prepareInput(mortarPos, targetPos, mortarId, shellType) {
 let ballisticData = null;
 
 /**
+ * Normalize legacy data format to current schema
+ * Converts old mortarTypes structure to weaponSystems
+ * @private
+ */
+function normalizeBallisticData(data) {
+    // Already in new format
+    if (data.weaponSystems) {
+        return data;
+    }
+    
+    // Convert legacy mortarTypes to weaponSystems
+    if (data.mortarTypes) {
+        return {
+            ...data,
+            weaponSystems: data.mortarTypes.map(mortar => ({
+                ...mortar,
+                systemType: 'mortar'
+            }))
+        };
+    }
+    
+    throw new Error('Invalid ballistic data format: missing weaponSystems or mortarTypes');
+}
+
+/**
+ * Normalize calculator input to standard format
+ * Converts legacy field names to current schema
+ * @private
+ */
+function normalizeInput(input) {
+    return {
+        distance: input.distance,
+        heightDifference: input.heightDifference,
+        bearing: input.bearing,
+        weaponId: input.weaponId || input.mortarId,
+        ammoType: input.ammoType || input.projectileType || input.shellType,
+        chargeLevel: input.chargeLevel
+    };
+}
+
+/**
  * Load ballistic data from JSON file
  * @param {string|Object} dataSource - Path to JSON or data object
  * @returns {Promise<Object>} Loaded ballistic data
  */
 async function loadBallisticData(dataSource) {
-    if (typeof dataSource === 'object') {
-        ballisticData = dataSource;
-        return ballisticData;
-    }
+    let rawData;
     
-    // Node.js environment
-    if (typeof require !== 'undefined') {
+    if (typeof dataSource === 'object') {
+        rawData = dataSource;
+    } else if (typeof require !== 'undefined') {
+        // Node.js environment
         const fs = require('fs').promises;
         const data = await fs.readFile(dataSource, 'utf8');
-        ballisticData = JSON.parse(data);
+        rawData = JSON.parse(data);
+    } else {
+        // Browser environment
+        const response = await fetch(dataSource);
+        rawData = await response.json();
+    }
+    
+    ballisticData = normalizeBallisticData(rawData);
+    return ballisticData;
+}
+
+/**
+ * Get weapon configuration (unified for mortars and MLRS)
         return ballisticData;
     }
     
@@ -493,43 +547,122 @@ async function loadBallisticData(dataSource) {
 }
 
 /**
- * Get weapon configuration
- * @param {string} mortarId - Weapon ID
- * @param {string} shellType - Shell type
- * @returns {Object} Weapon configuration
+ * Get weapon configuration (unified for mortars and MLRS)
+ * @param {string} weaponId - Weapon ID (e.g., "2B14", "M252", "BM21")
+ * @param {string} ammoType - Ammunition type (e.g., "HE", "9M22_he_frag_full_range")
+ * @returns {Object} {weapon: Object, ammunition: Object, systemType: string}
  */
-function getWeaponConfig(mortarId, shellType) {
+function getWeaponConfig(weaponId, ammoType) {
     if (!ballisticData) {
         throw new Error('Ballistic data not loaded. Call loadBallisticData() first.');
     }
     
-    const mortar = ballisticData.mortarTypes.find(m => m.id === mortarId);
-    if (!mortar) {
-        throw new Error(`Unknown mortar ID: ${mortarId}`);
+    const weapon = ballisticData.weaponSystems.find(w => w.id === weaponId);
+    if (!weapon) {
+        throw new Error(`Unknown weapon ID: ${weaponId}`);
     }
     
-    const shell = mortar.shellTypes.find(s => s.type === shellType);
-    if (!shell) {
-        throw new Error(`Unknown shell type: ${shellType} for ${mortarId}`);
+    const systemType = weapon.systemType;
+    
+    let ammunition;
+    if (systemType === 'mortar') {
+        ammunition = weapon.shellTypes.find(s => s.type === ammoType);
+        if (!ammunition) {
+            throw new Error(`Unknown shell type: ${ammoType} for ${weaponId}`);
+        }
+    } else if (systemType === 'mlrs') {
+        ammunition = weapon.projectileTypes.find(p => p.id === ammoType || p.type === ammoType);
+        if (!ammunition) {
+            throw new Error(`Unknown projectile type: ${ammoType} for ${weaponId}`);
+        }
+    } else {
+        throw new Error(`Unknown system type: ${systemType}`);
     }
     
-    return { mortar, shell };
+    // Return unified interface (backward compatible)
+    return { 
+        weapon,
+        ammunition,
+        systemType,
+        // Legacy properties for backward compatibility
+        mortar: weapon,
+        shell: ammunition
+    };
 }
 
 /**
- * Get all available mortar types
- * @returns {Array} Array of mortar type objects
+ * Get all available weapon systems
+ * @param {string} [filterType] - Optional: 'mortar' or 'mlrs' to filter by type
+ * @returns {Array} Array of weapon system objects
  */
-function getAllMortarTypes() {
+function getAllWeaponSystems(filterType = null) {
     if (!ballisticData) {
         throw new Error('Ballistic data not loaded. Call loadBallisticData() first.');
     }
     
-    return ballisticData.mortarTypes.map(m => ({
-        id: m.id,
-        name: m.name,
-        caliber: m.caliber
+    // Support both old and new data formats
+    const weaponSystems = ballisticData.weaponSystems || ballisticData.mortarTypes;
+    if (!weaponSystems) {
+        return [];
+    }
+    
+    let systems = weaponSystems.map(w => ({
+        id: w.id,
+        name: w.name,
+        caliber: w.caliber,
+        systemType: w.systemType || 'mortar'
     }));
+    
+    if (filterType) {
+        systems = systems.filter(s => s.systemType === filterType);
+    }
+    
+    return systems;
+}
+
+/**
+ * Get all available mortar types (legacy compatibility)
+ * @returns {Array} Array of mortar type objects
+ */
+function getAllMortarTypes() {
+    return getAllWeaponSystems('mortar');
+}
+
+/**
+ * Get ammunition options for a weapon system
+ * @param {string} weaponId - Weapon system ID
+ * @returns {Array} Array of ammunition option objects
+ */
+function getAmmunitionOptions(weaponId) {
+    if (!ballisticData) {
+        throw new Error('Ballistic data not loaded.');
+    }
+    
+    const weaponSystems = ballisticData.weaponSystems || ballisticData.mortarTypes;
+    const weapon = weaponSystems.find(w => w.id === weaponId);
+    if (!weapon) {
+        return [];
+    }
+    
+    const systemType = weapon.systemType || 'mortar';
+    
+    if (systemType === 'mortar') {
+        return weapon.shellTypes.map(s => ({
+            id: s.type,
+            name: s.name,
+            type: s.type
+        }));
+    } else if (systemType === 'mlrs') {
+        return weapon.projectileTypes.map(p => ({
+            id: p.id,
+            name: p.name,
+            type: p.type,
+            variant: p.variant,
+            minRange: p.minRange,
+            maxRange: p.maxRange
+        }));
+    }
+    return [];
 }
 
 // ============================================================================
@@ -662,24 +795,26 @@ function calculateAzimuthMils(bearingDegrees, mortarType) {
 }
 
 /**
- * Get mil system configuration for a mortar type
- * @param {string} mortarType - Mortar type ID
+ * Get mil system configuration for a weapon
+ * @param {string} weaponId - Weapon ID (e.g., "2B14", "M252", "BM21")
  * @returns {Object} Mil system configuration
  */
-function getMilSystemConfig(mortarType) {
+function getMilSystemConfig(weaponId) {
     if (!ballisticData) {
         throw new Error('Ballistic data not loaded. Call loadBallisticData() first.');
     }
     
-    const mortar = ballisticData.mortarTypes.find(m => m.id === mortarType);
-    if (!mortar || !mortar.milSystem) {
-        // Fallback to hardcoded values if not in data
-        return mortarType === 'RUS' 
-            ? { name: 'Warsaw Pact', milsPerCircle: 6000, milsPerDegree: 16.6667 }
-            : { name: 'NATO', milsPerCircle: 6400, milsPerDegree: 17.7778 };
+    const weapon = ballisticData.weaponSystems.find(w => w.id === weaponId);
+    
+    if (!weapon) {
+        throw new Error(`Weapon system '${weaponId}' not found in ballistic data`);
     }
     
-    return mortar.milSystem;
+    if (!weapon.milSystem) {
+        throw new Error(`Weapon system '${weaponId}' missing milSystem configuration`);
+    }
+    
+    return weapon.milSystem;
 }
 
 /**
@@ -746,51 +881,78 @@ function formatForField(solution) {
 /**
  * Validate calculator input
  * @param {CalculatorInput} input 
+ * @returns {Object} Normalized input
  * @throws {Error} If input is invalid
  */
 function validateInput(input) {
-    if (!input.distance || input.distance < 0) {
-        throw new Error('Invalid distance');
+    const normalized = normalizeInput(input);
+    
+    if (typeof normalized.distance !== 'number' || normalized.distance < 0) {
+        throw new Error('Invalid distance: must be a positive number');
     }
-    if (!input.mortarId || !input.shellType) {
-        throw new Error('Mortar ID and shell type are required');
+    
+    if (typeof normalized.heightDifference !== 'number') {
+        throw new Error('Invalid height difference: must be a number');
     }
-    if (input.bearing < 0 || input.bearing > 360) {
-        throw new Error('Bearing must be between 0 and 360 degrees');
+    
+    if (typeof normalized.bearing !== 'number' || normalized.bearing < 0 || normalized.bearing > 360) {
+        throw new Error('Invalid bearing: must be between 0 and 360 degrees');
     }
+    
+    if (!normalized.weaponId || typeof normalized.weaponId !== 'string') {
+        throw new Error('Missing or invalid weaponId');
+    }
+    
+    if (!normalized.ammoType || typeof normalized.ammoType !== 'string') {
+        throw new Error('Missing or invalid ammoType');
+    }
+    
+    return normalized;
 }
 
 /**
- * Calculate all possible firing solutions (all charges that can reach target)
+ * Calculate all possible firing solutions (all charges/projectiles that can reach target)
  * @param {CalculatorInput} input - Calculation parameters
  * @returns {Array<FiringSolution>} Array of all possible firing solutions
  */
 function calculateAllTrajectories(input) {
-    validateInput(input);
+    const normalized = validateInput(input);
     
-    const { mortar, shell } = getWeaponConfig(input.mortarId, input.shellType);
+    const { weapon, ammunition, systemType } = getWeaponConfig(
+        normalized.weaponId,
+        normalized.ammoType
+    );
+    
+    // MLRS: Single solution per projectile type (no charge selection)
+    if (systemType === 'mlrs') {
+        const solution = calculateForMLRS(ammunition, normalized);
+        return [solution];
+    }
+    
+    // Mortar: Multiple charge solutions (existing logic)
     const solutions = [];
+    const shell = ammunition;
     
     // If charge is manually specified, only calculate for that charge
-    if (input.chargeLevel !== undefined) {
-        const charge = shell.charges.find(c => c.level === input.chargeLevel);
+    if (normalized.chargeLevel !== undefined) {
+        const charge = shell.charges.find(c => c.level === normalized.chargeLevel);
         if (!charge) {
             return [{
                 inRange: false,
-                error: `Charge ${input.chargeLevel} not available for this weapon`,
+                error: `Charge ${normalized.chargeLevel} not available for this weapon`,
                 minRange: Math.min(...shell.charges.map(c => c.minRange)),
                 maxRange: Math.max(...shell.charges.map(c => c.maxRange))
             }];
         }
         
-        const solution = calculateForCharge(charge, input);
+        const solution = calculateForCharge(charge, normalized);
         return [solution];
     }
     
     // Find all charges that can reach the target
     for (const charge of shell.charges) {
-        if (input.distance >= charge.minRange && input.distance <= charge.maxRange) {
-            const solution = calculateForCharge(charge, input);
+        if (normalized.distance >= charge.minRange && normalized.distance <= charge.maxRange) {
+            const solution = calculateForCharge(charge, normalized);
             if (solution.inRange) {
                 solutions.push(solution);
             }
@@ -811,6 +973,72 @@ function calculateAllTrajectories(input) {
     solutions.sort((a, b) => a.charge - b.charge);
     
     return solutions;
+}
+
+/**
+ * Calculate MLRS firing solution (no charge selection, single trajectory)
+ * @private
+ * @param {Object} projectile - MLRS projectile configuration
+ * @param {CalculatorInput} input - Calculation parameters
+ * @returns {FiringSolution} Firing solution
+ */
+function calculateForMLRS(projectile, input) {
+    // Check range
+    if (input.distance < projectile.minRange || input.distance > projectile.maxRange) {
+        return {
+            inRange: false,
+            error: `Target out of range (${projectile.minRange}m - ${projectile.maxRange}m)`,
+            minRange: projectile.minRange,
+            maxRange: projectile.maxRange,
+            projectileId: projectile.id,
+            projectileName: projectile.name
+        };
+    }
+    
+    // Interpolate from ballistic table (reusing mortar logic)
+    const ballistics = interpolateFromTable(projectile.ballisticTable, input.distance);
+    
+    if (!ballistics) {
+        return {
+            inRange: false,
+            error: 'No ballistic data for this range',
+            minRange: projectile.minRange,
+            maxRange: projectile.maxRange,
+            projectileId: projectile.id,
+            projectileName: projectile.name
+        };
+    }
+    
+    // MLRS: Direct elevation (no charge, simplified height correction for now)
+    // Future: Add height correction when dElev/tofPer100m data available
+    const elevation = ballistics.elevation;
+    const tof = ballistics.tof;
+    
+    // Use weaponId from input for mil system conversion
+    const weaponId = input.weaponId || input.mortarId;
+    const elevationDegrees = milsToDegrees(elevation, weaponId);
+    const azimuthMils = calculateAzimuthMils(input.bearing, weaponId);
+    
+    return {
+        inRange: true,
+        projectileId: projectile.id,
+        projectileName: projectile.name,
+        variant: projectile.variant,
+        charge: 0,  // MLRS has no charge concept
+        elevation: Math.round(elevation),
+        elevationPrecise: parseFloat(elevation.toFixed(2)),
+        elevationCorrection: 0,  // Future enhancement
+        dElev: 0,
+        elevationDegrees: parseFloat(elevationDegrees.toFixed(1)),
+        azimuth: parseFloat(input.bearing.toFixed(1)),
+        azimuthMils: Math.round(azimuthMils),
+        timeOfFlight: parseFloat(tof.toFixed(1)),
+        tofCorrection: 0,  // Future enhancement
+        tofPer100m: 0,
+        minRange: projectile.minRange,
+        maxRange: projectile.maxRange,
+        trajectoryType: elevation > 800 ? 'high' : 'low'
+    };
 }
 
 /**
@@ -853,9 +1081,9 @@ function calculateForCharge(charge, input) {
         ? correctedTOF - ballistics.tof
         : 0;
     
-    const mortarType = input.mortarType || (input.mortarId.startsWith('RUS') ? 'RUS' : 'US');
-    const elevationDegrees = milsToDegrees(correctedElevation, mortarType);
-    const azimuthMils = calculateAzimuthMils(input.bearing, mortarType);
+    const weaponId = input.weaponId || input.mortarId;
+    const elevationDegrees = milsToDegrees(correctedElevation, weaponId);
+    const azimuthMils = calculateAzimuthMils(input.bearing, weaponId);
     
     return {
         inRange: true,
@@ -887,15 +1115,25 @@ function calculateForCharge(charge, input) {
  *   distance: 1250,
  *   heightDifference: -45,
  *   bearing: 67.5,
- *   mortarId: "RUS",
+ *   mortarId: "2B14",
  *   shellType: "HE"
  * });
  */
 function calculate(input) {
-    validateInput(input);
+    const normalized = validateInput(input);
     
-    const { mortar, shell } = getWeaponConfig(input.mortarId, input.shellType);
+    const { weapon, ammunition, systemType } = getWeaponConfig(
+        normalized.weaponId,
+        normalized.ammoType
+    );
     
+    // MLRS: Direct calculation (no charge selection)
+    if (systemType === 'mlrs') {
+        return calculateForMLRS(ammunition, normalized);
+    }
+    
+    // Mortar: Charge selection
+    const shell = ammunition;
     const charge = input.chargeLevel !== undefined
         ? shell.charges.find(c => c.level === input.chargeLevel)
         : findOptimalCharge(shell.charges, input.distance);
@@ -941,8 +1179,9 @@ function calculate(input) {
         ? correctedTOF - ballistics.tof
         : 0;
     
-    const elevationDegrees = milsToDegrees(correctedElevation, input.mortarType);
-    const azimuthMils = calculateAzimuthMils(input.bearing, input.mortarType);
+    const weaponId = input.weaponId || input.mortarId;
+    const elevationDegrees = milsToDegrees(correctedElevation, weaponId);
+    const azimuthMils = calculateAzimuthMils(input.bearing, weaponId);
     
     const solution = {
         inRange: true,
@@ -968,7 +1207,7 @@ function calculate(input) {
  * Generate trajectory points for visualization
  * @param {Array<FiringSolution>} solutions - Array of firing solutions
  * @param {number} distance - Horizontal distance in meters
- * @param {string} mortarType - 'RUS' or 'US' for mil conversion
+ * @param {string} mortarType - Weapon ID for mil conversion (e.g., "2B14", "M252", "BM21")
  * @returns {Array<Object>} Array of trajectory series with {charge, elevDeg, tof, points: [{x, y}], color}
  */
 function generateTrajectoryPoints(solutions, distance, mortarType) {
@@ -1045,6 +1284,8 @@ if (typeof module !== 'undefined' && module.exports) {
         calculateDistance,
         calculateHorizontalDistance,
         calculateBearing,
+        getAllWeaponSystems,
+        getAmmunitionOptions,
         getWeaponConfig,
         getAllMortarTypes,
         getMilSystemConfig,
@@ -1070,7 +1311,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Browser global
 if (typeof window !== 'undefined') {
-    window.MortarCalculator = {
+    window.BallisticCalculator = {
         calculate,
         calculateAllTrajectories,
         loadBallisticData,
@@ -1078,6 +1319,8 @@ if (typeof window !== 'undefined') {
         calculateDistance,
         calculateHorizontalDistance,
         calculateBearing,
+        getAllWeaponSystems,
+        getAmmunitionOptions,
         getWeaponConfig,
         getAllMortarTypes,
         getMilSystemConfig,

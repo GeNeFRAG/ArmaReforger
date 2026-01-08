@@ -1,7 +1,7 @@
 /**
  * Corrections Module
  * Fire correction logic (Add/Drop, Left/Right, FO mode)
- * Version: 2.3.2
+ * Version: 2.4.0
  * 
  * Architecture: Uses dependency injection to avoid circular dependencies
  */
@@ -108,14 +108,14 @@ export function updateOTBearingDisplay() {
     }
     
     try {
-        const mortarPos = dependencies.parsePositionFromUI('mortar', true);
+        const weaponPos = dependencies.parsePositionFromUI('mortar', true);
         const observerPos = dependencies.parsePositionFromUI('observer', true);
         const targetPos = dependencies.parsePositionFromUI('target', true);
         
-        if (!mortarPos || !observerPos || !targetPos) {
+        if (!weaponPos || !observerPos || !targetPos) {
             setDisplay(otBearingDisplay, false);
             // Show warning if FO mode is on but observer coordinates are missing
-            if (observerWarning && (!observerPos && targetPos && mortarPos)) {
+            if (observerWarning && (!observerPos && targetPos && weaponPos)) {
                 setDisplay(observerWarning, true);
             }
             return;
@@ -124,8 +124,8 @@ export function updateOTBearingDisplay() {
         // Hide warning when observer coordinates are entered
         if (observerWarning) setDisplay(observerWarning, false);
         
-        const otBearing = MortarCalculator.calculateBearing(observerPos, targetPos);
-        const gtBearing = MortarCalculator.calculateBearing(mortarPos, targetPos);
+        const otBearing = BallisticCalculator.calculateBearing(observerPos, targetPos);
+        const gtBearing = BallisticCalculator.calculateBearing(weaponPos, targetPos);
         
         let angleDiff = gtBearing - otBearing;
         if (angleDiff > 180) angleDiff -= 360;
@@ -195,7 +195,7 @@ export async function applyFireCorrectionUI() {
     State.setLastCorrectionAD(correctionAD);
     
     try {
-        const mortarPos = dependencies.parsePositionFromUI('mortar');
+        const weaponPos = dependencies.parsePositionFromUI('mortar');
         const targetPos = dependencies.parsePositionFromUI('target');
         
         if (!State.getOriginalTargetPos()) {
@@ -232,8 +232,8 @@ export async function applyFireCorrectionUI() {
                 const warning = getElement('observerWarning', false);  // Dynamic
                 if (warning) setDisplay(warning, false);
             }
-            const result = MortarCalculator.applyFireCorrectionFromObserver(
-                mortarPos, observerPos, targetPos, correctionLR, correctionAD
+            const result = BallisticCalculator.applyFireCorrectionFromObserver(
+                weaponPos, observerPos, targetPos, correctionLR, correctionAD
             );
             corrected = result.correctedTarget;
             
@@ -242,7 +242,7 @@ export async function applyFireCorrectionUI() {
             setValue('angleDiffValue', result.angleDiff);
             setDisplay(getElement('otBearingDisplay', false), true);  // Dynamic
         } else {
-            corrected = MortarCalculator.applyFireCorrection(mortarPos, targetPos, correctionLR, correctionAD);
+            corrected = BallisticCalculator.applyFireCorrection(weaponPos, targetPos, correctionLR, correctionAD);
         }
         
         const isGridMode = CoordManager.getMode() === 'grid';
@@ -253,7 +253,7 @@ export async function applyFireCorrectionUI() {
             const currentValue = targetGridXEl ? targetGridXEl.value.trim() : '';
             const useHighPrecision = currentValue.length === 4;
             
-            const gridCoords = MortarCalculator.metersToGrid(corrected.x, corrected.y, useHighPrecision);
+            const gridCoords = BallisticCalculator.metersToGrid(corrected.x, corrected.y, useHighPrecision);
             const gridParts = gridCoords.split('/');
             setValue('targetGridX', gridParts[0]);
             setValue('targetGridY', gridParts[1]);
@@ -302,7 +302,7 @@ export async function undoCorrection() {
     }
     
     try {
-        const mortarPos = dependencies.parsePositionFromUI('mortar');
+        const weaponPos = dependencies.parsePositionFromUI('mortar');
         const original = State.getOriginalTargetPos();
         
         if (original.mode === 'grid' && original.gridX && original.gridY) {
@@ -312,7 +312,7 @@ export async function undoCorrection() {
             setValue('targetZ', original.meters.z.toFixed(1));
         } else {
             // Fallback or meters mode
-            dependencies.setPositionInputs(mortarPos, original.meters);
+            dependencies.setPositionInputs(weaponPos, original.meters);
         }
         
         State.resetCorrectionState();

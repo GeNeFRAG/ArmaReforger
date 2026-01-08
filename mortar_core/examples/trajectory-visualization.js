@@ -1,24 +1,24 @@
 /**
  * Example: Trajectory Visualization
  * 
- * Demonstrates how to use MortarCalculator.generateTrajectoryPoints()
+ * Demonstrates how to use BallisticCalculator.generateTrajectoryPoints()
  * for custom visualizations (terminal output, canvas, etc.)
  */
 
-const MortarCalculator = require('../MortarCalculator');
+const BallisticCalculator = require('../BallisticCalculator');
 const path = require('path');
 
 async function main() {
     // Load ballistic data
     const dataPath = path.join(__dirname, '../ballistic-data.json');
-    await MortarCalculator.loadBallisticData(dataPath);
+    await BallisticCalculator.loadBallisticData(dataPath);
     
     // Define test positions (from default example)
     const mortarPos = { x: 4800, y: 7049, z: 168 };
     const targetPos = { x: 4696, y: 5516, z: 64 };
     
     // Prepare input
-    const input = MortarCalculator.prepareInput(mortarPos, targetPos, "RUS", "HE");
+    const input = BallisticCalculator.prepareInput(mortarPos, targetPos, "RUS", "HE");
     
     console.log('Calculating trajectories for:');
     console.log(`  Distance: ${input.distance.toFixed(1)}m`);
@@ -26,7 +26,7 @@ async function main() {
     console.log(`  Bearing: ${input.bearing.toFixed(1)}°\n`);
     
     // Get all trajectory options
-    const solutions = MortarCalculator.calculateAllTrajectories(input);
+    const solutions = BallisticCalculator.calculateAllTrajectories(input);
     
     if (solutions.length === 0 || !solutions[0].inRange) {
         console.log('No solutions available');
@@ -36,7 +36,7 @@ async function main() {
     console.log(`Found ${solutions.length} firing solution(s)\n`);
     
     // Generate trajectory points
-    const trajectoryData = MortarCalculator.generateTrajectoryPoints(
+    const trajectoryData = BallisticCalculator.generateTrajectoryPoints(
         solutions, 
         input.distance, 
         input.mortarType

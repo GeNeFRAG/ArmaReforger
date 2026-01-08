@@ -1,6 +1,6 @@
 # ARMA REFORGER Ballistic Calculator
 
-Mortar ballistics calculation engine for Arma Reforger mortar weapon systems.
+Ballistic calculation engine for Arma Reforger mortar and MLRS weapon systems.
 
 ## 🎯 Quick Reference
 
@@ -20,14 +20,17 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 ## 🚀 Features
 - ✅ **Pure JavaScript** - No external dependencies
 - ✅ **Framework-agnostic** - Works in Node.js and browsers
+- ✅ **Multiple weapon systems** - Mortars (M252, 2B14) and MLRS (BM-21 Grad)
 - ✅ **Real-time validation** - Instant format and range checking while typing
+- ✅ **Dynamic range validation** - Updates when switching weapons or projectile types
 - ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision
 - ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
 - ✅ **Height correction** - Automatic elevation adjustment with correction factors displayed
 - ✅ **Transparent calculations** - Shows dElev and TOF per 100m correction factors
-- ✅ **Fire correction** - Gun-Target or Observer-Target line adjustments
-- ✅ **Fire for Effect** - Multiple pattern types (Lateral/Linear sheaf, Circular saturation)
+- ✅ **Fire correction** - Gun-Target or Observer-Target line adjustments (mortar only)
+- ✅ **Fire for Effect** - Multiple pattern types for mortars (Lateral/Linear sheaf, Circular saturation)
 - ✅ **Automatic charge selection** - Or force specific charge
+- ✅ **MLRS support** - 13 BM-21 Grad rocket types with ranges from 2km to 40km
 
 ## 📸 Screenshots
 ### Entering Grid coordinates in 10m precision:
@@ -50,7 +53,7 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 
 ## 📚 Documentation
 
-- **[MortarCalculator-API.md](MortarCalculator-API.md)** - Complete API documentation
+- **[BallisticCalculator-API.md](BallisticCalculator-API.md)** - Complete API documentation
 - **[examples/](examples/)** - Usage examples for Node.js, browser, and map integration
 
 
@@ -62,7 +65,7 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 
 ### Core Module
 
-- **[MortarCalculator.js](MortarCalculator.js)** - Framework-agnostic calculation engine
+- **[BallisticCalculator.js](BallisticCalculator.js)** - Framework-agnostic calculation engine
 
 ### Data
 
@@ -114,8 +117,8 @@ parsePosition(position) → Position3D
 
 ```javascript
 // Using grid coordinates (3-digit = center of 100m square, 4-digit = center of 10m square)
-const solution = MortarCalculator.calculate(
-    MortarCalculator.prepareInput(
+const solution = BallisticCalculator.calculate(
+    BallisticCalculator.prepareInput(
         { grid: "047/069", z: 15 },  // Mortar at 4750m/6950m, elevation 15m
         { grid: "085/105", z: 25 },  // Target at 8550m/10550m, elevation 25m
         "US",
@@ -124,7 +127,7 @@ const solution = MortarCalculator.calculate(
 );
 
 // Using 4-digit grid (1m precision)
-const input = MortarCalculator.prepareInput(
+const input = BallisticCalculator.prepareInput(
     "0475/0695",  // Simple string format
     { grid: "0850/1050", z: 30 },
     "RUS",
@@ -132,9 +135,9 @@ const input = MortarCalculator.prepareInput(
 );
 
 // Conversion functions
-MortarCalculator.parseGridToMeters("047/069");  // → {x: 475, y: 695}
-MortarCalculator.metersToGrid(475, 695, false); // → "047/069"
-MortarCalculator.metersToGrid(475, 695, true);  // → "0475/0695"
+BallisticCalculator.parseGridToMeters("047/069");  // → {x: 475, y: 695}
+BallisticCalculator.metersToGrid(475, 695, false); // → "047/069"
+BallisticCalculator.metersToGrid(475, 695, true);  // → "0475/0695"
 ```
 
 ### Geometry Utilities
@@ -152,7 +155,7 @@ sortFFESolutionsByAzimuth(solutions)
 
 ```javascript
 // Standard mode: Corrections along Gun-Target line
-const correctedTarget = MortarCalculator.applyFireCorrection(
+const correctedTarget = BallisticCalculator.applyFireCorrection(
     mortarPos,          // {x: 4750, y: 6950, z: 15}
     targetPos,          // {x: 8550, y: 10500, z: 25}
     10,                 // Left/Right: +10 = Right 10m, -10 = Left 10m
@@ -161,7 +164,7 @@ const correctedTarget = MortarCalculator.applyFireCorrection(
 // Returns corrected position perpendicular (L/R) and along bearing (A/D)
 
 // Forward Observer mode: Corrections along Observer-Target line
-const result = MortarCalculator.applyFireCorrectionFromObserver(
+const result = BallisticCalculator.applyFireCorrectionFromObserver(
     mortarPos,          // {x: 4750, y: 6950, z: 15}
     observerPos,        // {x: 6000, y: 8000, z: 20}
     targetPos,          // {x: 8550, y: 10500, z: 25}
@@ -176,7 +179,7 @@ const result = MortarCalculator.applyFireCorrectionFromObserver(
 
 ```javascript
 // Lateral sheaf - 5 rounds spread perpendicular to line of fire, 50m apart
-const lateralTargets = MortarCalculator.generateFireForEffectPattern(
+const lateralTargets = BallisticCalculator.generateFireForEffectPattern(
     mortarPos,
     targetPos,
     5,                  // Number of rounds
@@ -186,11 +189,11 @@ const lateralTargets = MortarCalculator.generateFireForEffectPattern(
 
 // Sort FFE solutions by azimuth for easier gun traverse (single direction)
 const solutions = lateralTargets.map(target => 
-    MortarCalculator.calculate(MortarCalculator.prepareInput(
+    BallisticCalculator.calculate(BallisticCalculator.prepareInput(
         mortarPos, target, 'mortar_82mm', 'mortar_he'
     ))
 );
-const sortedSolutions = MortarCalculator.sortFFESolutionsByAzimuth(solutions);
+const sortedSolutions = BallisticCalculator.sortFFESolutionsByAzimuth(solutions);
     mortarPos,          // {x: 4750, y: 6950, z: 15}
     targetPos,          // {x: 8550, y: 10500, z: 25}
     'perpendicular',    // Pattern type
@@ -199,7 +202,7 @@ const sortedSolutions = MortarCalculator.sortFFESolutionsByAzimuth(solutions);
 );
 
 // Circular pattern - 8 rounds evenly distributed around target
-const circularTargets = MortarCalculator.generateCircularPattern(
+const circularTargets = BallisticCalculator.generateCircularPattern(
     targetPos,          // {x: 8550, y: 10500, z: 25}
     100,                // Radius in meters
     8                   // Number of rounds
@@ -207,13 +210,13 @@ const circularTargets = MortarCalculator.generateCircularPattern(
 
 // Calculate firing solution for each round
 lateralTargets.forEach((pos, index) => {
-    const input = MortarCalculator.prepareInput(mortarPos, pos, "US", "HE");
-    const solution = MortarCalculator.calculate(input);
+    const input = BallisticCalculator.prepareInput(mortarPos, pos, "US", "HE");
+    const solution = BallisticCalculator.calculate(input);
     console.log(`Round ${index + 1}: Elevation ${solution.elevation} mils`);
 });
 ```
 
-See **[MortarCalculator-API.md](MortarCalculator-API.md)** for complete documentation.
+See **[BallisticCalculator-API.md](BallisticCalculator-API.md)** for complete documentation.
 
 ## 🎮 Supported Weapons
 
@@ -226,10 +229,24 @@ All weapon data is dynamically loaded from `ballistic-data.json`:
 
 **Current weapons in database:**
 
-| Mortar ID | Name | Caliber | Mil System | Shell Types |
+### Mortars
+
+| Weapon ID | Name | Caliber | Mil System | Shell Types |
 |-----------|------|---------|------------|-------------|
-| `RUS` | Soviet 2B14 | 82mm | Warsaw Pact (6000) | HE, SMOKE, ILLUM |
-| `US` | US M252 | 81mm | NATO (6400) | HE, SMOKE, ILLUM |
+| `M252` | US M252 | 81mm | NATO (6400) | HE, SMOKE, ILLUM |
+| `2B14` | Soviet 2B14 | 82mm | Warsaw Pact (6000) | HE, SMOKE, ILLUM |
+
+### MLRS
+
+| Weapon ID | Name | Caliber | Projectile Types | Range |
+|-----------|------|---------|------------------|-------|
+| `BM21_GRAD` | BM-21 Grad | 122mm | 13 rocket variants | 2.8km - 40km |
+
+**BM-21 Grad Projectile Types:**
+- **9M22 Series** - HE fragmentation (short/medium/long range)
+- **9M43 Series** - Smoke screening (short/medium/long range)
+- **3M16 Series** - Cluster munitions (medium/long/extra long range)
+- **9M28K Series** - Incendiary cluster (short/medium/long/extra long range)
 
 To add new weapons, update `ballistic-data.json` - no code changes required.
 
@@ -253,28 +270,39 @@ npx http-server .            # Node.js
 ### Node.js
 
 ```javascript
-const MortarCalculator = require('./MortarCalculator');
+const BallisticCalculator = require('./BallisticCalculator');
 
 // Load ballistic data
-await MortarCalculator.loadBallisticData('./ballistic-data.json');
+await BallisticCalculator.loadBallisticData('./ballistic-data.json');
 
-// Calculate firing solution
-const solution = MortarCalculator.calculate({
+// Mortar calculation
+const mortarSolution = BallisticCalculator.calculate({
     distance: 1250,
     heightDifference: -45,
     bearing: 67.5,
-    mortarId: "RUS",
+    weaponId: "M252",
     shellType: "HE"
 });
 
-console.log(`Charge: ${solution.charge}, Elevation: ${solution.elevation} mils`);
+console.log(`Mortar: Charge ${mortarSolution.charge}, Elevation ${mortarSolution.elevation} mils`);
+
+// MLRS calculation
+const mlrsSolution = BallisticCalculator.calculate({
+    distance: 12000,
+    heightDifference: 50,
+    bearing: 180,
+    weaponId: "BM21_GRAD",
+    shellType: "9M22_he_frag_medium_range"
+});
+
+console.log(`MLRS: Elevation ${mlrsSolution.elevation} mils, TOF ${mlrsSolution.timeOfFlight}s`);
 ```
 
 ### Project Structure
 ```
 mortar_core/
 ├── index.html              # Web calculator UI
-├── MortarCalculator.js     # Core calculation engine
+├── BallisticCalculator.js     # Core calculation engine
 ├── ballistic-data.json     # Weapon ballistics database
 ├── ui_js/                  # UI modules (ES6)
 │   ├── main.js            # Application initialization
@@ -297,6 +325,28 @@ mortar_core/
 - **Node.js:** 12+
 
 ## 📝 Changelog
+
+### v2.4.0 - MLRS Integration (January 2026)
+
+**New Features:**
+- ✅ BM-21 Grad MLRS support with 13 projectile types
+- ✅ Projectile dropdown grouped by rocket model (9M22, 9M43, 3M16, 9M28K)
+- ✅ Range display in projectile dropdown (e.g., "9M22 HE Medium (9800-13200m)")
+- ✅ Dynamic range validation - updates when switching weapons or projectiles
+- ✅ Custom weapon ordering - M252 first, then 2B14, then MLRS systems
+
+**Architecture Improvements:**
+- ✅ Generic variable naming - `weaponPos`/`weaponId` instead of `mortarPos`/`mortarId`
+- ✅ System type detection - Automatic MLRS vs mortar feature toggling
+- ✅ FFE disabled for MLRS - Fire for Effect only available for mortars
+- ✅ Fire corrections disabled for MLRS - Tactical feature specific to mortars
+- ✅ Mission history shows weapon and projectile names instead of IDs
+
+**Bug Fixes:**
+- ✅ Fixed range validation not updating on weapon/projectile change
+- ✅ Fixed stale calculation data when switching weapons
+- ✅ Fixed `mortarType` property references - updated to `weaponId`
+- ✅ Fixed async race condition in weapon dropdown update
 
 ### v2.3.3 - Mobile Input Hotfix (January 2026)
 

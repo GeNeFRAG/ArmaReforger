@@ -1,5 +1,5 @@
 /**
- * Integration example showing how to use MortarCalculator with the existing
+ * Integration example showing how to use BallisticCalculator with the existing
  * Leaflet-based map engine (mapEngine.js)
  * 
  * This assumes:
@@ -8,11 +8,11 @@
  * - Height map data is loaded
  */
 
-const MortarCalculator = require('../MortarCalculator');
+const BallisticCalculator = require('../BallisticCalculator');
 
 async function integrateWithMapEngine(map, engine) {
     // Load ballistic data
-    await MortarCalculator.loadBallisticData('../ballistic-data.json');
+    await BallisticCalculator.loadBallisticData('../ballistic-data.json');
     
     // Get mortar position from map center
     const mortarLatLng = map.getCenter();
@@ -53,8 +53,8 @@ async function integrateWithMapEngine(map, engine) {
     };
     
     // Calculate firing solution
-    const input = MortarCalculator.prepareInput(mortarPos, targetPos, "RUS", "HE");
-    const solution = MortarCalculator.calculate(input);
+    const input = BallisticCalculator.prepareInput(mortarPos, targetPos, "RUS", "HE");
+    const solution = BallisticCalculator.calculate(input);
     
     console.log('Mortar Position:', mortarPos);
     console.log('Target Position:', targetPos);
@@ -108,8 +108,8 @@ function setupMapClickHandler(map, engine) {
             z: targetHeight 
         };
         
-        const input = MortarCalculator.prepareInput(mortarPos, targetPos, "RUS", "HE");
-        const solution = MortarCalculator.calculate(input);
+        const input = BallisticCalculator.prepareInput(mortarPos, targetPos, "RUS", "HE");
+        const solution = BallisticCalculator.calculate(input);
         
         if (solution.inRange) {
             alert(`Firing Solution:

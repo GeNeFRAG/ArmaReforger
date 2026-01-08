@@ -126,7 +126,7 @@ function parseGridPosition(prefix, allowUndefined) {
     }
     
     const gridCoord = `${gridX}/${gridY}`;
-    const meters = MortarCalculator.parseGridToMeters(gridCoord);
+    const meters = BallisticCalculator.parseGridToMeters(gridCoord);
     
     const z = parseFloat(getValue(`${prefix}Z`, '0')) || 0;
     
@@ -181,7 +181,7 @@ export function setPosition(prefix, position) {
             const gridYEl = getElement(`${prefix}GridY`, false, true);
             // Only set if fields are empty
             if (gridXEl && gridYEl && !gridXEl.value.trim() && !gridYEl.value.trim()) {
-                const grid = MortarCalculator.metersToGrid(position.x, position.y, true).split('/');
+                const grid = BallisticCalculator.metersToGrid(position.x, position.y, true).split('/');
                 setValue(`${prefix}GridX`, grid[0]);
                 setValue(`${prefix}GridY`, grid[1]);
             }
@@ -193,7 +193,7 @@ export function setPosition(prefix, position) {
         const currentValue = gridXEl ? gridXEl.value.trim() : '';
         const useHighPrecision = currentValue.length === 4;
         
-        const grid = MortarCalculator.metersToGrid(position.x, position.y, useHighPrecision).split('/');
+        const grid = BallisticCalculator.metersToGrid(position.x, position.y, useHighPrecision).split('/');
         setValue(`${prefix}GridX`, grid[0]);
         setValue(`${prefix}GridY`, grid[1]);
     } else {
@@ -220,12 +220,12 @@ export function setPosition(prefix, position) {
 
 /**
  * Set multiple positions at once
- * @param {{x: number, y: number, z?: number}} mortarPos
+ * @param {{x: number, y: number, z?: number}} weaponPos
  * @param {{x: number, y: number, z?: number}} targetPos
  * @param {{x: number, y: number, z?: number}?} observerPos
  */
-export function setPositions(mortarPos, targetPos, observerPos = null) {
-    setPosition('mortar', mortarPos);
+export function setPositions(weaponPos, targetPos, observerPos = null) {
+    setPosition('mortar', weaponPos);
     setPosition('target', targetPos);
     
     if (observerPos) {

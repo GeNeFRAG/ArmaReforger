@@ -30,7 +30,7 @@ export function debounce(func, wait) {
  */
 export function formatPositionDisplay(pos, inputMode) {
     if (inputMode === 'grid') {
-        return MortarCalculator.metersToGrid(pos.x, pos.y, true);
+        return BallisticCalculator.metersToGrid(pos.x, pos.y, true);
     } else {
         return `${Math.round(pos.x)}/${Math.round(pos.y)}`;
     }

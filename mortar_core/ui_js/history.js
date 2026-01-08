@@ -1,7 +1,7 @@
 /**
  * History Management Module
  * Handles mission history storage, retrieval, and display
- * Version: 2.3.2
+ * Version: 2.4.0
  * 
  * CRITICAL: Always deep copy position objects to prevent mutation
  * Architecture: Uses dependency injection to avoid circular dependencies
@@ -90,7 +90,7 @@ export async function captureCurrentInputs() {
  * Add entry to mission history
  * Deep copies all position objects to prevent cross-contamination
  */
-export async function addToHistory(mortarPos, targetPos, distance, solutions) {
+export async function addToHistory(weaponPos, targetPos, distance, solutions) {
     if (isLoadingFromHistory) {
         return;
     }
@@ -137,7 +137,7 @@ export async function addToHistory(mortarPos, targetPos, distance, solutions) {
                 originalTargetGridValues = { x: origPos.gridX, y: origPos.gridY };
             } else {
                 // Fallback: convert from meters (legacy or meters mode)
-                const origGrid = MortarCalculator.metersToGrid(originalMeters.x, originalMeters.y, true).split('/');
+                const origGrid = BallisticCalculator.metersToGrid(originalMeters.x, originalMeters.y, true).split('/');
                 originalTargetGridValues = { x: origGrid[0], y: origGrid[1] };
             }
         }
@@ -147,7 +147,7 @@ export async function addToHistory(mortarPos, targetPos, distance, solutions) {
         id: Date.now(),
         timestamp: new Date(),
         ...capturedInputs,
-        mortarPos: { ...mortarPos },
+        mortarPos: { ...weaponPos },
         targetPos: { ...targetPos },
         observerPos: capturedInputs.observerPos ? { ...capturedInputs.observerPos } : null,
         distance,
@@ -283,7 +283,7 @@ export async function setInputsFromData(data) {
                 setValue('observerGridY', data.observerGridValues.y);
             } else {
                 // Fallback: convert from meters (legacy entries)
-                const observerGrid = MortarCalculator.metersToGrid(data.observerPos.x, data.observerPos.y, true).split('/');
+                const observerGrid = BallisticCalculator.metersToGrid(data.observerPos.x, data.observerPos.y, true).split('/');
                 setValue('observerGridX', observerGrid[0]);
                 setValue('observerGridY', observerGrid[1]);
             }
@@ -312,7 +312,7 @@ export async function updateHistoryDisplay() {
     
     setDisplay(historyPanel, true);
     
-    const mortarTypes = dependencies.getAllMortarTypes ? dependencies.getAllMortarTypes() : [];
+    const weaponSystems = dependencies.getAllMortarTypes ? dependencies.getAllMortarTypes() : [];
     
     historyList.innerHTML = missionHistory.map((entry, index) => {
         const time = entry.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -320,7 +320,27 @@ export async function updateHistoryDisplay() {
         const mortarDisplay = formatPositionDisplay(entry.mortarPos, entry.inputMode);
         const targetDisplay = formatPositionDisplay(entry.targetPos, entry.inputMode);
         
-        const mortarName = mortarTypes.find(m => m.id === entry.mortarType)?.name || entry.mortarType;
+        // Support both old (mortarType) and new (weaponId) field names
+        const weaponId = entry.weaponId || entry.mortarType;
+        const weaponName = weaponSystems.find(w => w.id === weaponId)?.name || weaponId;
+        
+        // Get ammo/projectile name
+        const ammoId = entry.ammoType || entry.shellType;
+        let ammoName = ammoId;
+        try {
+            const weaponConfig = BallisticCalculator.getWeaponConfig(weaponId, ammoId);
+            if (weaponConfig.systemType === 'mlrs') {
+                const projectile = weaponConfig.weapon.projectileTypes.find(p => p.id === ammoId);
+                ammoName = projectile ? projectile.name : ammoId;
+            } else {
+                const shell = weaponConfig.weapon.shells.find(s => s.id === ammoId);
+                ammoName = shell ? shell.name : ammoId;
+            }
+        } catch (e) {
+            // Fallback to ID if lookup fails
+            ammoName = ammoId;
+        }
+        
         const foInfo = entry.foModeEnabled ? ` | 👁️ FO` : '';
         const modeInfo = entry.inputMode === 'grid' ? ' | 🎯 Grid' : ' | 📏 Meters';
         // Sanitize user-provided mission label to prevent XSS
@@ -354,13 +374,13 @@ export async function updateHistoryDisplay() {
             let originalSolutionInfo = '';
             if (entry.azimuth !== null && entry.elevation !== null) {
                 // Need to recalculate original solution
-                const mortarId = entry.mortarType;
-                const shellType = entry.shellType;
+                const weaponId = entry.weaponId || entry.mortarType;
+                const ammoType = entry.ammoType || entry.shellType;
                 const origPos = entry.originalTargetPos;
                 const originalMeters = origPos.meters || origPos;
-                const originalInput = MortarCalculator.prepareInput(entry.mortarPos, originalMeters, mortarId, shellType);
+                const originalInput = BallisticCalculator.prepareInput(entry.mortarPos, originalMeters, weaponId, ammoType);
                 originalInput.chargeLevel = entry.selectedCharge;
-                const originalSolutions = MortarCalculator.calculateAllTrajectories(originalInput);
+                const originalSolutions = BallisticCalculator.calculateAllTrajectories(originalInput);
                 
                 if (originalSolutions.length > 0 && originalSolutions[0].inRange) {
                     const origSol = originalSolutions[0];
@@ -399,7 +419,7 @@ export async function updateHistoryDisplay() {
                 <div class="history-header">
                     <div>
                         <span class="history-time">${time}</span>
-                        <span class="history-title">${labelDisplay}${mortarName} ${entry.shellType}</span>
+                        <span class="history-title">${labelDisplay}${weaponName} ${ammoName}</span>
                     </div>
                     <button class="history-delete" data-index="${index}" title="Delete mission">🗑️</button>
                 </div>
