@@ -4885,9 +4885,9 @@
           ]
         },
         {
-          "id": "9M28K_cluster_standard",
-          "name": "9M28K Cluster Standard",
-          "type": "cluster",
+          "id": "9M28K_incend_standard",
+          "name": "9M28K Incend Standard",
+          "type": "incendiary",
           "variant": "standard",
           "minRange": 3800,
           "maxRange": 9600,
@@ -5105,9 +5105,9 @@
           ]
         },
         {
-          "id": "9M28K_cluster_short_range",
-          "name": "9M28K Cluster Short",
-          "type": "cluster",
+          "id": "9M28K_incend_short_range",
+          "name": "9M28K Incend Short",
+          "type": "incendiary",
           "variant": "large_braking_ring",
           "minRange": 1400,
           "maxRange": 4600,
@@ -5234,9 +5234,9 @@
           ]
         },
         {
-          "id": "9M28K_cluster_extended_range",
-          "name": "9M28K Cluster Extended",
-          "type": "cluster",
+          "id": "9M28K_incend_extended_range",
+          "name": "9M28K Incend Extended",
+          "type": "incendiary",
           "variant": "small_braking_ring_extended",
           "minRange": 9800,
           "maxRange": 13200,
@@ -5370,9 +5370,9 @@
           ]
         },
         {
-          "id": "9M28K_cluster_medium_range",
-          "name": "9M28K Cluster Medium",
-          "type": "cluster",
+          "id": "9M28K_incend_medium_range",
+          "name": "9M28K Incend Medium",
+          "type": "incendiary",
           "variant": "small_braking_ring_short",
           "minRange": 2000,
           "maxRange": 7000,
