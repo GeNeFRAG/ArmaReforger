@@ -386,8 +386,12 @@
             font-family: monospace;
         }
         #rocketSuggestion {
+            display: none;
             position: relative;
             z-index: 10;
+        }
+        #rocketSuggestion.show {
+            display: block !important;
             -webkit-animation: slideDown 0.3s ease;
             animation: slideDown 0.3s ease;
         }
