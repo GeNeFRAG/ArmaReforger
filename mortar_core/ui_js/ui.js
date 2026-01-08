@@ -899,8 +899,12 @@ function showRocketSuggestion(optimalRocket) {
         suggestionText.textContent = `${optimalRocket.name} (${rangeKm}) - Better match for this distance`;
     }
     
-    banner.classList.add('show');
+    banner.style.removeProperty('display');
+    banner.style.setProperty('display', 'block', 'important');
     banner.dataset.suggestedId = optimalRocket.id;
+    
+    void banner.offsetHeight;
+    
     console.log('[MLRS] Showing suggestion:', optimalRocket.name, rangeKm);
 }
 
@@ -910,7 +914,7 @@ function showRocketSuggestion(optimalRocket) {
 function hideRocketSuggestion() {
     const banner = getElement('rocketSuggestion', false);
     if (banner) {
-        banner.classList.remove('show');
+        banner.style.setProperty('display', 'none', 'important');
         delete banner.dataset.suggestedId;
     }
 }
