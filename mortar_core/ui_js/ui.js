@@ -198,6 +198,7 @@ export function validateCoordinateRange(input) {
         });
         
         updateRangeIndicator(inRange, distance, solutions[0]);
+        updateMLRSSuggestion(mortarId, shellType, distance, inRange, solutions);
         updateCalculateButtonState();
         
     } catch (error) {
@@ -780,6 +781,133 @@ function setupUIListeners() {
     const clearHistoryBtn = getElement('clearHistoryBtn', false);
     if (clearHistoryBtn && dependencies.clearHistory) {
         clearHistoryBtn.addEventListener('click', dependencies.clearHistory);
+    }
+    
+    // MLRS rocket suggestion handlers
+    const acceptBtn = getElement('acceptSuggestion', false);
+    const dismissBtn = getElement('dismissSuggestion', false);
+    
+    if (acceptBtn) {
+        acceptBtn.addEventListener('click', () => {
+            const banner = getElement('rocketSuggestion', false);
+            if (banner && banner.dataset.suggestedId) {
+                const shellTypeSelect = getElement('shellType');
+                shellTypeSelect.value = banner.dataset.suggestedId;
+                hideRocketSuggestion();
+                debouncedValidateCoordinateRange();
+            }
+        });
+    }
+    
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', () => {
+            hideRocketSuggestion();
+        });
+    }
+    
+    // Retrigger suggestion check when user manually changes selection
+    const shellTypeSelect = getElement('shellType');
+    shellTypeSelect.addEventListener('change', () => {
+        if (!window.isLoadingFromHistory) {
+            validateCoordinateRange();
+        }
+    });
+}
+
+/**
+ * Update MLRS rocket suggestion based on distance
+ */
+function updateMLRSSuggestion(weaponId, currentShellType, distance, inRange, solutions) {
+    if (window.isLoadingFromHistory) {
+        hideRocketSuggestion();
+        return;
+    }
+    
+    try {
+        const config = BallisticCalculator.getWeaponConfig(weaponId, currentShellType);
+        
+        if (config.systemType !== 'mlrs') {
+            hideRocketSuggestion();
+            return;
+        }
+        
+        let preferredType = 'HE';
+        if (config.ammunition) {
+            preferredType = config.ammunition.type;
+        }
+        
+        const optimal = selectOptimalMLRSProjectile(weaponId, distance, preferredType);
+        
+        if (optimal && optimal.id !== currentShellType) {
+            showRocketSuggestion(optimal);
+        } else {
+            hideRocketSuggestion();
+        }
+        
+    } catch (error) {
+        console.error('[MLRS Suggestion] Error:', error);
+        hideRocketSuggestion();
+    }
+}
+
+/**
+ * Selecsuggests variants within the same ammunition type (HE->HE, Smoke->Smoke)
+ */
+function selectOptimalMLRSProjectile(weaponId, distance, preferredType = 'HE') {
+    try {
+        const config = BallisticCalculator.getWeaponConfig(weaponId, 'HE');
+        const weapon = config.weapon;
+        
+        if (config.systemType !== 'mlrs') return null;
+        
+        const candidates = weapon.projectileTypes.filter(proj => 
+            proj.type === preferredType &&
+            distance >= proj.minRange && 
+            distance <= proj.maxRange
+        );
+        
+        if (candidates.length === 0) return null;
+        
+        candidates.sort((a, b) => a.maxRange - b.maxRange);
+        
+        return {
+            id: candidates[0].id,
+            name: candidates[0].name,
+            minRange: candidates[0].minRange,
+            maxRange: candidates[0].maxRange,
+            type: candidates[0].type
+        };
+    } catch (error) {
+        return null;
+    }
+}
+
+/**
+ * Show rocket suggestion banner
+ */
+function showRocketSuggestion(optimalRocket) {
+    const banner = getElement('rocketSuggestion', false);
+    if (!banner) return;
+    
+    const rangeKm = `${(optimalRocket.minRange / 1000).toFixed(1)}-${(optimalRocket.maxRange / 1000).toFixed(1)}km`;
+    const suggestionText = getElement('suggestionText', false);
+    
+    if (suggestionText) {
+        suggestionText.textContent = `${optimalRocket.name} (${rangeKm}) - Better match for this distance`;
+    }
+    
+    banner.style.display = 'block';
+    banner.dataset.suggestedId = optimalRocket.id;
+}
+
+/**
+ * Hide rocket suggestion banner
+ */
+function hideRocketSuggestion() {
+    const banner = getElement('rocketSuggestion', false);
+    if (banner) {
+        banner.style.display = 'none';
+        delete banner.dataset.suggestedId;
     }
 }
 

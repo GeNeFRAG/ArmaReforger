@@ -145,6 +145,16 @@
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
         button {
             background: linear-gradient(180deg, #7a9f35 0%, #6b8e23 100%);
             color: white;
@@ -434,6 +444,24 @@
                     <select id="shellType">
                         <!-- Populated dynamically from ballistic-data.json -->
                     </select>
+                </div>
+                
+                <!-- Rocket Selection Suggestion Banner -->
+                <div id="rocketSuggestion" style="display: none; margin-top: 10px; padding: 10px; background: linear-gradient(135deg, rgba(143, 188, 30, 0.15) 0%, rgba(107, 142, 35, 0.15) 100%); border: 1px solid rgba(143, 188, 30, 0.4); border-radius: 4px; animation: slideDown 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                        <div style="flex: 1;">
+                            <div style="color: #8fbc1e; font-size: 12px; font-weight: 600; margin-bottom: 3px;">💡 Recommended Rocket</div>
+                            <div id="suggestionText" style="color: #c8d4a0; font-size: 11px;"></div>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button type="button" id="acceptSuggestion" class="btn-press" style="padding: 5px 10px; background: linear-gradient(180deg, #8fbc1e 0%, #7aaa1a 100%); border: 1px solid #9fcc2e; border-radius: 3px; color: white; font-weight: 600; cursor: pointer; font-size: 10px; white-space: nowrap; margin: 0; width: auto;">
+                                Use This
+                            </button>
+                            <button type="button" id="dismissSuggestion" style="padding: 5px 10px; background: rgba(100, 100, 100, 0.3); border: 1px solid rgba(150, 150, 150, 0.4); border-radius: 3px; color: #aaa; font-weight: 600; cursor: pointer; font-size: 10px; white-space: nowrap; margin: 0; width: auto;">
+                                Dismiss
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
