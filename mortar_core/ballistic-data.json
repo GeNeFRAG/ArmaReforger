@@ -3330,7 +3330,7 @@
       "projectileTypes": [
         {
           "id": "9M22_he_frag_full_range",
-          "name": "9M22 HE Full",
+          "name": "9M22 122mm HE",
           "type": "HE",
           "variant": "standard",
           "minRange": 4600,
@@ -3774,7 +3774,7 @@
         },
         {
           "id": "9M22_he_frag_short_range",
-          "name": "9M22 HE Short",
+          "name": "9M22 122mm HE Large brake ring",
           "type": "HE",
           "variant": "large_braking_ring",
           "minRange": 1600,
@@ -3917,7 +3917,7 @@
         },
         {
           "id": "9M22_he_frag_medium_range",
-          "name": "9M22 HE Medium",
+          "name": "9M22 122mm HE Small brake ring",
           "type": "HE",
           "variant": "small_braking_ring",
           "minRange": 2400,
@@ -4130,7 +4130,7 @@
         },
         {
           "id": "9M43_smoke_full_range",
-          "name": "9M43 Smoke Full",
+          "name": "9M43 122mm Smoke",
           "type": "smoke",
           "variant": "standard",
           "minRange": 4600,
@@ -4574,7 +4574,7 @@
         },
         {
           "id": "9M43_smoke_short_range",
-          "name": "9M43 Smoke Short",
+          "name": "9M43 122m Smoke Large brake ring",
           "type": "smoke",
           "variant": "large_braking_ring",
           "minRange": 1600,
@@ -4717,7 +4717,7 @@
         },
         {
           "id": "9M43_smoke_medium_range",
-          "name": "9M43 Smoke Medium",
+          "name": "9M43 122mm Smoke Small brake ring",
           "type": "smoke",
           "variant": "small_braking_ring",
           "minRange": 2400,
@@ -4930,12 +4930,222 @@
         },
         {
           "id": "3M16_cluster_long_range",
-          "name": "3M16 Cluster Long",
+          "name": "3M16 AP Remote Mines",
           "type": "cluster",
           "variant": "standard",
-          "minRange": 9800,
+          "minRange": 3800,
           "maxRange": 13400,
           "ballisticTable": [
+            {
+              "range": 3800,
+              "elevation": 147,
+              "tof": 10.8,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4000,
+              "elevation": 154,
+              "tof": 11.3,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4200,
+              "elevation": 161,
+              "tof": 11.9,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4400,
+              "elevation": 169,
+              "tof": 12.4,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4600,
+              "elevation": 176,
+              "tof": 13.0,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4800,
+              "elevation": 183,
+              "tof": 13.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 5000,
+              "elevation": 190,
+              "tof": 14.1,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 5200,
+              "elevation": 198,
+              "tof": 14.7,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 5400,
+              "elevation": 205,
+              "tof": 15.3,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 5600,
+              "elevation": 213,
+              "tof": 15.9,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 5800,
+              "elevation": 220,
+              "tof": 16.5,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 6000,
+              "elevation": 228,
+              "tof": 17.0,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 6200,
+              "elevation": 236,
+              "tof": 17.7,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 6400,
+              "elevation": 243,
+              "tof": 18.3,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 6600,
+              "elevation": 251,
+              "tof": 18.9,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 6800,
+              "elevation": 259,
+              "tof": 19.5,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 7000,
+              "elevation": 267,
+              "tof": 20.1,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 7200,
+              "elevation": 275,
+              "tof": 20.7,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 7400,
+              "elevation": 283,
+              "tof": 21.3,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 7600,
+              "elevation": 292,
+              "tof": 21.9,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 7800,
+              "elevation": 300,
+              "tof": 22.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 8000,
+              "elevation": 309,
+              "tof": 23.2,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 8200,
+              "elevation": 317,
+              "tof": 23.9,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 8400,
+              "elevation": 326,
+              "tof": 24.5,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 8600,
+              "elevation": 335,
+              "tof": 25.2,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 8800,
+              "elevation": 344,
+              "tof": 25.8,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 9000,
+              "elevation": 353,
+              "tof": 26.5,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 9200,
+              "elevation": 362,
+              "tof": 27.2,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 9400,
+              "elevation": 372,
+              "tof": 27.9,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 9600,
+              "elevation": 382,
+              "tof": 28.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
             {
               "range": 9800,
               "elevation": 392,
@@ -5070,10 +5280,139 @@
               "angleOfFall": null
             }
           ]
+        }, 
+        {
+          "id": "3M16_cluster_short_range",
+          "name": "3M16 AP Remote Mines Large brake ring",
+          "type": "cluster",
+          "variant": "large_braking_ring",
+          "minRange": 1400,
+          "maxRange": 4600,
+          "ballisticTable": [
+            {
+              "range": 1400,
+              "elevation": 147,
+              "tof": 6.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 1600,
+              "elevation": 168,
+              "tof": 7.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 1800,
+              "elevation": 190,
+              "tof": 8.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2000,
+              "elevation": 213,
+              "tof": 9.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2200,
+              "elevation": 236,
+              "tof": 10.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2400,
+              "elevation": 259,
+              "tof": 11.7,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2600,
+              "elevation": 283,
+              "tof": 12.7,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2800,
+              "elevation": 308,
+              "tof": 13.8,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 3000,
+              "elevation": 334,
+              "tof": 15.0,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 3200,
+              "elevation": 362,
+              "tof": 16.2,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 3400,
+              "elevation": 391,
+              "tof": 17.4,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 3600,
+              "elevation": 422,
+              "tof": 18.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 3800,
+              "elevation": 456,
+              "tof": 20.1,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4000,
+              "elevation": 494,
+              "tof": 21.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4200,
+              "elevation": 537,
+              "tof": 23.3,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4400,
+              "elevation": 592,
+              "tof": 25.4,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4600,
+              "elevation": 679,
+              "tof": 28.5,
+              "windDrift100m": null,
+              "angleOfFall": null
+            }
+          ]
         },
         {
           "id": "3M16_cluster_medium_range",
-          "name": "3M16 Cluster Medium",
+          "name": "3M16 AP Remote Mines Small brake ring",
           "type": "cluster",
           "variant": "small_braking_ring",
           "minRange": 2000,
@@ -5264,141 +5603,12 @@
           ]
         },
         {
-          "id": "3M16_cluster_short_range",
-          "name": "3M16 Cluster Short",
-          "type": "cluster",
-          "variant": "large_braking_ring",
-          "minRange": 1400,
-          "maxRange": 4600,
-          "ballisticTable": [
-            {
-              "range": 1400,
-              "elevation": 147,
-              "tof": 6.6,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 1600,
-              "elevation": 168,
-              "tof": 7.6,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 1800,
-              "elevation": 190,
-              "tof": 8.6,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 2000,
-              "elevation": 213,
-              "tof": 9.6,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 2200,
-              "elevation": 236,
-              "tof": 10.6,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 2400,
-              "elevation": 259,
-              "tof": 11.7,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 2600,
-              "elevation": 283,
-              "tof": 12.7,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 2800,
-              "elevation": 308,
-              "tof": 13.8,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 3000,
-              "elevation": 334,
-              "tof": 15.0,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 3200,
-              "elevation": 362,
-              "tof": 16.2,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 3400,
-              "elevation": 391,
-              "tof": 17.4,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 3600,
-              "elevation": 422,
-              "tof": 18.6,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 3800,
-              "elevation": 456,
-              "tof": 20.1,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 4000,
-              "elevation": 494,
-              "tof": 21.6,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 4200,
-              "elevation": 537,
-              "tof": 23.3,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 4400,
-              "elevation": 592,
-              "tof": 25.4,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 4600,
-              "elevation": 679,
-              "tof": 28.5,
-              "windDrift100m": null,
-              "angleOfFall": null
-            }
-          ]
-        },
-        {
           "id": "9M28K_incend_standard",
-          "name": "9M28K Incend Standard",
+          "name": "9M28K AT Remote Mines",
           "type": "incendiary",
           "variant": "standard",
           "minRange": 3800,
-          "maxRange": 9600,
+          "maxRange": 13200,
           "ballisticTable": [
             {
               "range": 3800,
@@ -5609,146 +5819,7 @@
               "tof": 29.1,
               "windDrift100m": null,
               "angleOfFall": null
-            }
-          ]
-        },
-        {
-          "id": "9M28K_incend_short_range",
-          "name": "9M28K Incend Short",
-          "type": "incendiary",
-          "variant": "large_braking_ring",
-          "minRange": 1400,
-          "maxRange": 4600,
-          "ballisticTable": [
-            {
-              "range": 1400,
-              "elevation": 147,
-              "tof": 6.7,
-              "windDrift100m": null,
-              "angleOfFall": null
             },
-            {
-              "range": 1600,
-              "elevation": 169,
-              "tof": 7.6,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 1800,
-              "elevation": 191,
-              "tof": 8.6,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 2000,
-              "elevation": 213,
-              "tof": 9.6,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 2200,
-              "elevation": 236,
-              "tof": 10.7,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 2400,
-              "elevation": 260,
-              "tof": 11.7,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 2600,
-              "elevation": 284,
-              "tof": 12.8,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 2800,
-              "elevation": 309,
-              "tof": 13.9,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 3000,
-              "elevation": 336,
-              "tof": 15.0,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 3200,
-              "elevation": 363,
-              "tof": 16.2,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 3400,
-              "elevation": 392,
-              "tof": 17.4,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 3600,
-              "elevation": 424,
-              "tof": 18.7,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 3800,
-              "elevation": 458,
-              "tof": 20.1,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 4000,
-              "elevation": 496,
-              "tof": 21.6,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 4200,
-              "elevation": 540,
-              "tof": 23.3,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 4400,
-              "elevation": 596,
-              "tof": 25.5,
-              "windDrift100m": null,
-              "angleOfFall": null
-            },
-            {
-              "range": 4600,
-              "elevation": 689,
-              "tof": 28.8,
-              "windDrift100m": null,
-              "angleOfFall": null
-            }
-          ]
-        },
-        {
-          "id": "9M28K_incend_extended_range",
-          "name": "9M28K Incend Extended",
-          "type": "incendiary",
-          "variant": "small_braking_ring_extended",
-          "minRange": 9800,
-          "maxRange": 13200,
-          "ballisticTable": [
             {
               "range": 9800,
               "elevation": 402,
@@ -5872,6 +5943,135 @@
               "range": 13200,
               "elevation": 697,
               "tof": 49.2,
+              "windDrift100m": null,
+              "angleOfFall": null
+            }
+          ]
+        },
+        {
+          "id": "9M28K_incend_short_range",
+          "name": "9M28K AT Remote Mines Large brake ring",
+          "type": "incendiary",
+          "variant": "large_braking_ring",
+          "minRange": 1400,
+          "maxRange": 4600,
+          "ballisticTable": [
+            {
+              "range": 1400,
+              "elevation": 147,
+              "tof": 6.7,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 1600,
+              "elevation": 169,
+              "tof": 7.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 1800,
+              "elevation": 191,
+              "tof": 8.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2000,
+              "elevation": 213,
+              "tof": 9.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2200,
+              "elevation": 236,
+              "tof": 10.7,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2400,
+              "elevation": 260,
+              "tof": 11.7,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2600,
+              "elevation": 284,
+              "tof": 12.8,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2800,
+              "elevation": 309,
+              "tof": 13.9,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 3000,
+              "elevation": 336,
+              "tof": 15.0,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 3200,
+              "elevation": 363,
+              "tof": 16.2,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 3400,
+              "elevation": 392,
+              "tof": 17.4,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 3600,
+              "elevation": 424,
+              "tof": 18.7,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 3800,
+              "elevation": 458,
+              "tof": 20.1,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4000,
+              "elevation": 496,
+              "tof": 21.6,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4200,
+              "elevation": 540,
+              "tof": 23.3,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4400,
+              "elevation": 596,
+              "tof": 25.5,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 4600,
+              "elevation": 689,
+              "tof": 28.8,
               "windDrift100m": null,
               "angleOfFall": null
             }
