@@ -4929,9 +4929,9 @@
           ]
         },
         {
-          "id": "3M16_cluster_long_range",
+          "id": "3M16_ap_long_range",
           "name": "3M16 AP Remote Mines",
-          "type": "cluster",
+          "type": "AP",
           "variant": "standard",
           "minRange": 3800,
           "maxRange": 13400,
@@ -5282,9 +5282,9 @@
           ]
         }, 
         {
-          "id": "3M16_cluster_short_range",
+          "id": "3M16_ap_short_range",
           "name": "3M16 AP Remote Mines Large brake ring",
-          "type": "cluster",
+          "type": "AP",
           "variant": "large_braking_ring",
           "minRange": 1400,
           "maxRange": 4600,
@@ -5411,9 +5411,9 @@
           ]
         },
         {
-          "id": "3M16_cluster_medium_range",
+          "id": "3M16_ap_medium_range",
           "name": "3M16 AP Remote Mines Small brake ring",
-          "type": "cluster",
+          "type": "AP",
           "variant": "small_braking_ring",
           "minRange": 2000,
           "maxRange": 7000,
@@ -5603,9 +5603,9 @@
           ]
         },
         {
-          "id": "9M28K_incend_standard",
+          "id": "9M28K_at_standard",
           "name": "9M28K AT Remote Mines",
-          "type": "incendiary",
+          "type": "AT",
           "variant": "standard",
           "minRange": 3800,
           "maxRange": 13200,
@@ -5949,9 +5949,9 @@
           ]
         },
         {
-          "id": "9M28K_incend_short_range",
+          "id": "9M28K_at_short_range",
           "name": "9M28K AT Remote Mines Large brake ring",
-          "type": "incendiary",
+          "type": "AT",
           "variant": "large_braking_ring",
           "minRange": 1400,
           "maxRange": 4600,
@@ -6078,9 +6078,9 @@
           ]
         },
         {
-          "id": "9M28K_incend_medium_range",
-          "name": "9M28K Incend Medium",
-          "type": "incendiary",
+          "id": "9M28K_at_medium_range",
+          "name": "9M28K AT Remote Mines Short brake ring",
+          "type": "AT",
           "variant": "small_braking_ring_short",
           "minRange": 2000,
           "maxRange": 7000,

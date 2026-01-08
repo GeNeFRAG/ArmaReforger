@@ -963,19 +963,18 @@ Apply height correction to base elevation.
 
 | Projectile ID | Name | Type | Range (m) |
 |---------------|------|------|----------|
-| `9M22_he_frag_short_range` | 9M22 HE Short | HE Fragmentation | 2800-9800 |
-| `9M22_he_frag_medium_range` | 9M22 HE Medium | HE Fragmentation | 9800-13200 |
-| `9M22_he_frag_long_range` | 9M22 HE Long | HE Fragmentation | 13200-20380 |
-| `9M43_smoke_short_range` | 9M43 Smoke Short | Smoke Screen | 3000-9800 |
-| `9M43_smoke_medium_range` | 9M43 Smoke Medium | Smoke Screen | 9800-13200 |
-| `9M43_smoke_long_range` | 9M43 Smoke Long | Smoke Screen | 13200-20380 |
-| `3M16_cluster_medium_range` | 3M16 Cluster Medium | Cluster Munition | 9400-15300 |
-| `3M16_cluster_long_range` | 3M16 Cluster Long | Cluster Munition | 15300-20600 |
-| `3M16_cluster_extra_long_range` | 3M16 Cluster Extra Long | Cluster Munition | 20600-30000 |
-| `9M28K_incendiary_short_range` | 9M28K Incendiary Short | Incendiary Cluster | 5000-10000 |
-| `9M28K_incendiary_medium_range` | 9M28K Incendiary Medium | Incendiary Cluster | 10000-20000 |
-| `9M28K_incendiary_long_range` | 9M28K Incendiary Long | Incendiary Cluster | 20000-30000 |
-| `9M28K_incendiary_extra_long_range` | 9M28K Incendiary Extra Long | Incendiary Cluster | 30000-40000 |
+| `9M22_he_frag_full_range` | 9M22 122mm HE | HE | 4600-16800 |
+| `9M22_he_frag_short_range` | 9M22 122mm HE Large brake ring | HE | 1600-5200 |
+| `9M22_he_frag_medium_range` | 9M22 122mm HE Small brake ring | HE | 2400-8000 |
+| `9M43_smoke_full_range` | 9M43 122mm Smoke | Smoke | 4600-16800 |
+| `9M43_smoke_short_range` | 9M43 122m Smoke Large brake ring | Smoke | 1600-5200 |
+| `9M43_smoke_medium_range` | 9M43 122mm Smoke Small brake ring | Smoke | 2400-8000 |
+| `3M16_ap_long_range` | 3M16 AP Remote Mines | AP | 3800-13400 |
+| `3M16_ap_medium_range` | 3M16 AP Remote Mines Small brake ring | AP | 2000-7000 |
+| `3M16_ap_short_range` | 3M16 AP Remote Mines Large brake ring | AP | 1400-4600 |
+| `9M28K_at_standard` | 9M28K AT Remote Mines | AT | 3800-13200 |
+| `9M28K_at_short_range` | 9M28K AT Remote Mines Large brake ring | AT | 1400-4600 |
+| `9M28K_at_medium_range` | 9M28K AT Remote Mines Short brake ring | AT | 2000-7000 |
 
 ### Mil Systems
 
