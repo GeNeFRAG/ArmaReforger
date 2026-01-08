@@ -392,6 +392,14 @@
             .solution-grid {
                 grid-template-columns: 1fr;
             }
+            #rocketSuggestion > div {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            #rocketSuggestion .suggestion-buttons {
+                width: 100%;
+                flex-direction: row !important;
+            }
         }
     </style>
 </head>
@@ -541,11 +549,11 @@
                         <div style="color: #8fbc1e; font-size: 12px; font-weight: 600; margin-bottom: 3px;">💡 Recommended Rocket</div>
                         <div id="suggestionText" style="color: #c8d4a0; font-size: 11px;"></div>
                     </div>
-                    <div style="display: flex; gap: 6px;">
-                        <button type="button" id="acceptSuggestion" class="btn-press" style="padding: 5px 10px; background: linear-gradient(180deg, #8fbc1e 0%, #7aaa1a 100%); border: 1px solid #9fcc2e; border-radius: 3px; color: white; font-weight: 600; cursor: pointer; font-size: 10px; white-space: nowrap; margin: 0; width: auto;">
+                    <div class="suggestion-buttons" style="display: flex; gap: 6px;">
+                        <button type="button" id="acceptSuggestion" class="btn-press" style="padding: 8px 12px; background: linear-gradient(180deg, #8fbc1e 0%, #7aaa1a 100%); border: 1px solid #9fcc2e; border-radius: 3px; color: white; font-weight: 600; cursor: pointer; font-size: 11px; white-space: nowrap; margin: 0; width: auto;">
                             Use This
                         </button>
-                        <button type="button" id="dismissSuggestion" style="padding: 5px 10px; background: rgba(100, 100, 100, 0.3); border: 1px solid rgba(150, 150, 150, 0.4); border-radius: 3px; color: #aaa; font-weight: 600; cursor: pointer; font-size: 10px; white-space: nowrap; margin: 0; width: auto;">
+                        <button type="button" id="dismissSuggestion" style="padding: 8px 12px; background: rgba(100, 100, 100, 0.3); border: 1px solid rgba(150, 150, 150, 0.4); border-radius: 3px; color: #aaa; font-weight: 600; cursor: pointer; font-size: 11px; white-space: nowrap; margin: 0; width: auto;">
                             Dismiss
                         </button>
                     </div>
