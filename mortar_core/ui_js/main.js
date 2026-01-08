@@ -129,6 +129,7 @@ function updateWeaponSystems() {
         if (bIndex !== -1) return 1;
         return a.name.localeCompare(b.name);
     });
+    const howitzers = allWeapons.filter(w => w.systemType === 'howitzer').sort((a, b) => a.name.localeCompare(b.name));
     const mlrs = allWeapons.filter(w => w.systemType === 'mlrs').sort((a, b) => a.name.localeCompare(b.name));
     
     // Clear existing options
@@ -145,6 +146,19 @@ function updateWeaponSystems() {
             mortarGroup.appendChild(option);
         });
         weaponSelect.appendChild(mortarGroup);
+    }
+    
+    // Add Howitzers group
+    if (howitzers.length > 0) {
+        const howitzerGroup = document.createElement('optgroup');
+        howitzerGroup.label = '🎯 Howitzers';
+        howitzers.forEach(weapon => {
+            const option = document.createElement('option');
+            option.value = weapon.id;
+            option.textContent = weapon.name;
+            howitzerGroup.appendChild(option);
+        });
+        weaponSelect.appendChild(howitzerGroup);
     }
     
     // Add MLRS group

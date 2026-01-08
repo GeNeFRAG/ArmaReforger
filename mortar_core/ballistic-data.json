@@ -2811,6 +2811,514 @@
     },
     {
       "systemType": "mlrs",
+      "id": "TYPE63",
+      "name": "Type-63 107mm",
+      "caliber": 107,
+      "milSystem": {
+        "name": "NATO",
+        "milsPerCircle": 6400,
+        "milsPerDegree": 17.7778
+      },
+      "projectileTypes": [
+        {
+          "id": "type63_he_low_angle",
+          "name": "Type-63 HE (Low)",
+          "type": "HE",
+          "variant": "low_angle",
+          "minRange": 500,
+          "maxRange": 2250,
+          "ballisticTable": [
+            {
+              "range": 500,
+              "elevation": 89,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 1000,
+              "elevation": 196,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 1500,
+              "elevation": 320,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2000,
+              "elevation": 480,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2250,
+              "elevation": 800,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null
+            }
+          ]
+        },
+        {
+          "id": "type63_he_high_angle",
+          "name": "Type-63 HE (High)",
+          "type": "HE",
+          "variant": "high_angle",
+          "minRange": 1750,
+          "maxRange": 2250,
+          "ballisticTable": [
+            {
+              "range": 1750,
+              "elevation": 1067,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null
+            },
+            {
+              "range": 2250,
+              "elevation": 800,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "systemType": "howitzer",
+      "id": "D30",
+      "name": "D-30 122mm Howitzer",
+      "caliber": 122,
+      "milSystem": {
+        "name": "NATO",
+        "milsPerCircle": 6400,
+        "milsPerDegree": 17.7778
+      },
+      "projectileTypes": [
+        {
+          "id": "d30_he_low_angle",
+          "name": "D-30 HE (Low)",
+          "type": "HE",
+          "variant": "low_angle",
+          "minRange": 500,
+          "maxRange": 4750,
+          "ballisticTable": [
+            {
+              "range": 500,
+              "elevation": 45,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 1000,
+              "elevation": 94,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 1500,
+              "elevation": 142,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 2000,
+              "elevation": 192,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 2500,
+              "elevation": 252,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 3000,
+              "elevation": 313,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 3500,
+              "elevation": 384,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 4000,
+              "elevation": 485,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 4500,
+              "elevation": 596,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 4750,
+              "elevation": 800,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            }
+          ]
+        },
+        {
+          "id": "d30_he_high_angle",
+          "name": "D-30 HE (High)",
+          "type": "HE",
+          "variant": "high_angle",
+          "minRange": 800,
+          "maxRange": 4750,
+          "ballisticTable": [
+            {
+              "range": 800,
+              "elevation": 1511,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 1000,
+              "elevation": 1492,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 1500,
+              "elevation": 1444,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 2000,
+              "elevation": 1383,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 2500,
+              "elevation": 1314,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 3000,
+              "elevation": 1253,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 3500,
+              "elevation": 1173,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 4000,
+              "elevation": 1067,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 4500,
+              "elevation": 953,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 4750,
+              "elevation": 800,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "systemType": "howitzer",
+      "id": "M119",
+      "name": "M119 105mm Howitzer",
+      "caliber": 105,
+      "milSystem": {
+        "name": "NATO",
+        "milsPerCircle": 6400,
+        "milsPerDegree": 17.7778
+      },
+      "projectileTypes": [
+        {
+          "id": "m119_he_low_angle",
+          "name": "M119 HE (Low)",
+          "type": "HE",
+          "variant": "low_angle",
+          "minRange": 500,
+          "maxRange": 4750,
+          "ballisticTable": [
+            {
+              "range": 500,
+              "elevation": 45,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 1000,
+              "elevation": 94,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 1500,
+              "elevation": 142,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 2000,
+              "elevation": 192,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 2500,
+              "elevation": 252,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 3000,
+              "elevation": 313,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 3500,
+              "elevation": 384,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 4000,
+              "elevation": 485,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 4500,
+              "elevation": 596,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 4750,
+              "elevation": 800,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            }
+          ]
+        },
+        {
+          "id": "m119_he_high_angle",
+          "name": "M119 HE (High)",
+          "type": "HE",
+          "variant": "high_angle",
+          "minRange": 800,
+          "maxRange": 4750,
+          "ballisticTable": [
+            {
+              "range": 800,
+              "elevation": 1511,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 1000,
+              "elevation": 1492,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 1500,
+              "elevation": 1444,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 2000,
+              "elevation": 1383,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 2500,
+              "elevation": 1314,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 3000,
+              "elevation": 1253,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 3500,
+              "elevation": 1173,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 4000,
+              "elevation": 1067,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 4500,
+              "elevation": 953,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            },
+            {
+              "range": 4750,
+              "elevation": 800,
+              "tof": null,
+              "windDrift100m": null,
+              "angleOfFall": null,
+              "dElev": null,
+              "tofPer100m": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "systemType": "mlrs",
       "id": "BM21",
       "name": "BM-21 Grad 122mm MLRS",
       "caliber": 122,

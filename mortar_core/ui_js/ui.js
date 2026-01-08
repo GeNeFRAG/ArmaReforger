@@ -826,7 +826,7 @@ function updateMLRSSuggestion(weaponId, currentShellType, distance, inRange, sol
     try {
         const config = BallisticCalculator.getWeaponConfig(weaponId, currentShellType);
         
-        if (config.systemType !== 'mlrs') {
+        if (config.systemType !== 'mlrs' && config.systemType !== 'howitzer') {
             hideRocketSuggestion();
             return;
         }
@@ -857,8 +857,9 @@ function selectOptimalMLRSProjectile(weaponId, distance, preferredType = 'HE') {
     try {
         const config = BallisticCalculator.getWeaponConfig(weaponId, 'HE');
         const weapon = config.weapon;
+        const systemType = config.systemType;
         
-        if (config.systemType !== 'mlrs') return null;
+        if (systemType !== 'mlrs' && systemType !== 'howitzer') return null;
         
         const candidates = weapon.projectileTypes.filter(proj => 
             proj.type === preferredType &&
@@ -868,6 +869,23 @@ function selectOptimalMLRSProjectile(weaponId, distance, preferredType = 'HE') {
         
         if (candidates.length === 0) return null;
         
+        // Howitzer: Prefer high-angle trajectory (plunging fire)
+        // MLRS: Prefer shortest range rocket (most efficient)
+        if (systemType === 'howitzer') {
+            const highAngle = candidates.find(c => c.variant === 'high_angle');
+            if (highAngle) {
+                return {
+                    id: highAngle.id,
+                    name: highAngle.name,
+                    minRange: highAngle.minRange,
+                    maxRange: highAngle.maxRange,
+                    type: highAngle.type,
+                    variant: highAngle.variant
+                };
+            }
+        }
+        
+        // Default: Sort by range (shortest first)
         candidates.sort((a, b) => a.maxRange - b.maxRange);
         
         return {
@@ -875,7 +893,8 @@ function selectOptimalMLRSProjectile(weaponId, distance, preferredType = 'HE') {
             name: candidates[0].name,
             minRange: candidates[0].minRange,
             maxRange: candidates[0].maxRange,
-            type: candidates[0].type
+            type: candidates[0].type,
+            variant: candidates[0].variant
         };
     } catch (error) {
         return null;
@@ -890,6 +909,26 @@ function showRocketSuggestion(optimalRocket) {
     if (!banner) {
         console.warn('[MLRS] Rocket suggestion banner element not found');
         return;
+    }
+    
+    // Get current weapon config to determine system type
+    const weaponId = getValue('mortarType');
+    let systemType = 'mlrs';
+    try {
+        const config = BallisticCalculator.getWeaponConfig(weaponId, getValue('shellType'));
+        systemType = config.systemType;
+    } catch (e) {
+        // Default to mlrs
+    }
+    
+    // Set context-aware title
+    const suggestionTitle = document.getElementById('suggestionTitle');
+    if (suggestionTitle) {
+        if (systemType === 'howitzer') {
+            suggestionTitle.textContent = '💡 Recommended Trajectory';
+        } else {
+            suggestionTitle.textContent = '💡 Recommended Rocket';
+        }
     }
     
     const rangeKm = `${(optimalRocket.minRange / 1000).toFixed(1)}-${(optimalRocket.maxRange / 1000).toFixed(1)}km`;

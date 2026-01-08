@@ -570,7 +570,7 @@ function getWeaponConfig(weaponId, ammoType) {
         if (!ammunition) {
             throw new Error(`Unknown shell type: ${ammoType} for ${weaponId}`);
         }
-    } else if (systemType === 'mlrs') {
+    } else if (systemType === 'mlrs' || systemType === 'howitzer') {
         ammunition = weapon.projectileTypes.find(p => p.id === ammoType || p.type === ammoType);
         if (!ammunition) {
             throw new Error(`Unknown projectile type: ${ammoType} for ${weaponId}`);
@@ -652,7 +652,7 @@ function getAmmunitionOptions(weaponId) {
             name: s.name,
             type: s.type
         }));
-    } else if (systemType === 'mlrs') {
+    } else if (systemType === 'mlrs' || systemType === 'howitzer') {
         return weapon.projectileTypes.map(p => ({
             id: p.id,
             name: p.name,
@@ -923,8 +923,8 @@ function calculateAllTrajectories(input) {
         normalized.ammoType
     );
     
-    // MLRS: Single solution per projectile type (no charge selection)
-    if (systemType === 'mlrs') {
+    // MLRS/Howitzer: Single solution per projectile type (no charge selection)
+    if (systemType === 'mlrs' || systemType === 'howitzer') {
         const solution = calculateForMLRS(ammunition, normalized);
         return [solution];
     }
@@ -1127,8 +1127,8 @@ function calculate(input) {
         normalized.ammoType
     );
     
-    // MLRS: Direct calculation (no charge selection)
-    if (systemType === 'mlrs') {
+    // MLRS/Howitzer: Direct calculation (no charge selection)
+    if (systemType === 'mlrs' || systemType === 'howitzer') {
         return calculateForMLRS(ammunition, normalized);
     }
     

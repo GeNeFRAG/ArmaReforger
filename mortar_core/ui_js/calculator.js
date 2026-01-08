@@ -90,6 +90,26 @@ export function getShellTypesForMortar(weaponId) {
                 });
         }
         
+        // Howitzer: Use projectileTypes, sorted by variant (high angle first, then low angle)
+        if (systemType === 'howitzer') {
+            return weapon.projectileTypes
+                .map(projectile => {
+                    const rangeKm = `${(projectile.minRange / 1000).toFixed(1)}-${(projectile.maxRange / 1000).toFixed(1)}km`;
+                    return {
+                        value: projectile.id,
+                        label: `${projectile.name} (${rangeKm})`,
+                        variant: projectile.variant,
+                        maxRange: projectile.maxRange
+                    };
+                })
+                .sort((a, b) => {
+                    // Sort by variant: high_angle before low_angle
+                    if (a.variant === 'high_angle' && b.variant !== 'high_angle') return -1;
+                    if (a.variant !== 'high_angle' && b.variant === 'high_angle') return 1;
+                    return 0;
+                });
+        }
+        
         // Mortar: Use shellTypes
         return weapon.shellTypes.map(shell => ({
             value: shell.type,
