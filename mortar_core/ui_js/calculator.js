@@ -140,6 +140,21 @@ export async function updateShellTypes() {
     } else if (availableShells.length > 0) {
         shellTypeSelect.value = availableShells[0].value;
     }
+    
+    // Hide FFE container when switching to MLRS systems (only if currently visible)
+    let systemType = 'mortar';
+    try {
+        const config = BallisticCalculator.getWeaponConfig(mortarType, shellTypeSelect.value);
+        systemType = config.systemType;
+    } catch (e) {
+        // Fallback to mortar
+    }
+    
+    const ffeContainer = getElement('ffeContainer', false);
+    if (ffeContainer && systemType === 'mlrs') {
+        const { hideFFEWidget } = await import('./ffe.js');
+        hideFFEWidget();
+    }
 }
 
 /**

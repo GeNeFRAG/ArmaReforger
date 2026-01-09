@@ -167,11 +167,27 @@ export async function addToHistory(weaponPos, targetPos, distance, solutions) {
     const isCorrection = State.isCorrectionApplied() && 
                          (State.getLastCorrectionLR() !== 0 || State.getLastCorrectionAD() !== 0);
     
+    // Check if weapon system or target changed from current history entry
+    let shouldReplaceEntry = false;
+    if (currentHistoryIndex >= 0 && currentHistoryIndex < missionHistory.length) {
+        const originalEntry = missionHistory[currentHistoryIndex];
+        const weaponSystemChanged = originalEntry.mortarType !== entry.mortarType || 
+                                   originalEntry.shellType !== entry.shellType;
+        const targetChanged = Math.abs(originalEntry.targetPos.x - entry.targetPos.x) > 0.1 ||
+                            Math.abs(originalEntry.targetPos.y - entry.targetPos.y) > 0.1 ||
+                            Math.abs(originalEntry.targetPos.z - entry.targetPos.z) > 0.1;
+        const weaponPosChanged = Math.abs(originalEntry.mortarPos.x - entry.mortarPos.x) > 0.1 ||
+                                Math.abs(originalEntry.mortarPos.y - entry.mortarPos.y) > 0.1 ||
+                                Math.abs(originalEntry.mortarPos.z - entry.mortarPos.z) > 0.1;
+        
+        shouldReplaceEntry = !weaponSystemChanged && !targetChanged && !weaponPosChanged;
+    }
+    
     if (isCorrection) {
         missionHistory.unshift(entry);
         if (missionHistory.length > 20) missionHistory.pop();
         currentHistoryIndex = 0;
-    } else if (currentHistoryIndex >= 0 && currentHistoryIndex < missionHistory.length) {
+    } else if (shouldReplaceEntry) {
         const originalEntry = missionHistory[currentHistoryIndex];
         entry.id = originalEntry.id;
         entry.timestamp = originalEntry.timestamp;
@@ -329,13 +345,8 @@ export async function updateHistoryDisplay() {
         let ammoName = ammoId;
         try {
             const weaponConfig = BallisticCalculator.getWeaponConfig(weaponId, ammoId);
-            if (weaponConfig.systemType === 'mlrs') {
-                const projectile = weaponConfig.weapon.projectileTypes.find(p => p.id === ammoId);
-                ammoName = projectile ? projectile.name : ammoId;
-            } else {
-                const shell = weaponConfig.weapon.shells.find(s => s.id === ammoId);
-                ammoName = shell ? shell.name : ammoId;
-            }
+            // For all system types (mortar, mlrs, howitzer), ammunition.name contains the display name
+            ammoName = weaponConfig.ammunition.name || ammoId;
         } catch (e) {
             // Fallback to ID if lookup fails
             ammoName = ammoId;
