@@ -20,17 +20,16 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 ## 🚀 Features
 - ✅ **Pure JavaScript** - No external dependencies
 - ✅ **Framework-agnostic** - Works in Node.js and browsers
-- ✅ **Multiple weapon systems** - Mortars (M252, 2B14) and MLRS (BM-21 Grad)
+- ✅ **Multiple ballistic weapon systems** - Mortars (M252, 2B14), MLRS (BM-21 Grad, Type-62) and Howitzers (D-30, M119)
 - ✅ **Real-time validation** - Instant format and range checking while typing
 - ✅ **Dynamic range validation** - Updates when switching weapons or projectile types
 - ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision
 - ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
-- ✅ **Height correction** - Automatic elevation adjustment with correction factors displayed
-- ✅ **Transparent calculations** - Shows dElev and TOF per 100m correction factors
-- ✅ **Fire correction** - Gun-Target or Observer-Target line adjustments (mortar only)
-- ✅ **Fire for Effect** - Multiple pattern types for mortars (Lateral/Linear sheaf, Circular saturation)
-- ✅ **Automatic charge selection** - Or force specific charge
-- ✅ **MLRS support** - 13 BM-21 Grad rocket types with ranges from 2km to 40km
+- ✅ **Height correction** - Automatic elevation adjustment with correction factors displayed (currently only for Mortars)
+- ✅ **Fire correction** - Gun-Target or Observer-Target line adjustments
+- ✅ **Fire for Effect** - Multiple pattern types for Mortars and Howitzers (Lateral/Linear sheaf, Circular saturation)
+- ✅ **Automatic Mortar charge selection** - Or force specific charge
+- ✅ **Optimal projectile suggestions for MLRS and Howitzers** - Optional user override
 
 ## 📸 Screenshots
 ### Entering Grid coordinates in 10m precision:
@@ -222,11 +221,10 @@ See **[BallisticCalculator-API.md](BallisticCalculator-API.md)** for complete do
 
 All weapon data is dynamically loaded from `ballistic-data.json`:
 
-- **Mortar types** - Automatically populated from data
-- **Shell types** - Available shells per mortar type
+- **Weapon systems** - Automatically populated from data
+- **Ammunition types** - Available shells per mortar type
 - **Mil systems** - Warsaw Pact (6000 mils) vs NATO (6400 mils)
 - **Ballistic tables** - Pre-calculated firing solutions
-
 **Current weapons in database:**
 
 ### Mortars
@@ -240,15 +238,15 @@ All weapon data is dynamically loaded from `ballistic-data.json`:
 
 | Weapon ID | Name | Caliber | Projectile Types | Range |
 |-----------|------|---------|------------------|-------|
-| `BM21_GRAD` | BM-21 Grad | 122mm | 13 rocket variants | 2.8km - 40km |
+| `BM21_GRAD` | BM-21 Grad | 122mm | HE, AP, AT | 1.6km - 16.8km |
+| `TYPE62_MLRS` | Type-62 MLRS | 107mm | HE | 0.5km - 2.2km |
 
-**BM-21 Grad Projectile Types:**
-- **9M22 Series** - HE fragmentation (short/medium/long range)
-- **9M43 Series** - Smoke screening (short/medium/long range)
-- **3M16 Series** - Cluster munitions (medium/long/extra long range)
-- **9M28K Series** - Incendiary cluster (short/medium/long/extra long range)
+### Howitzers
 
-To add new weapons, update `ballistic-data.json` - no code changes required.
+| Weapon ID | Name | Caliber | Shell Types | Range |
+|-----------|------|---------|-------------|-------|
+| `D30` | D-30 | 122mm | HE | 0.8km - 4.8km |
+| `M119` | M119 | 105mm | HE | 0.8km - 4.8km |
 
 ## 🛠️ Development
 
@@ -325,6 +323,11 @@ mortar_core/
 - **Node.js:** 12+
 
 ## 📝 Changelog
+
+### v2.6.0 - WZ_Turrets Integration (January 2026)
+**New Features:**
+- ✅ DM-30 and M119 support with two ballistic curves for high or low angle shots
+- ✅ Type-62 MLRS support with two ballistic curves for high or low angle shots
 
 ### v2.4.0 - MLRS Integration (January 2026)
 

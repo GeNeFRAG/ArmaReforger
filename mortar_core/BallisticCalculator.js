@@ -1115,7 +1115,7 @@ function calculateForCharge(charge, input) {
  *   distance: 1250,
  *   heightDifference: -45,
  *   bearing: 67.5,
- *   mortarId: "2B14",
+ *   weaponId: "2B14",
  *   shellType: "HE"
  * });
  */
