@@ -2822,7 +2822,7 @@
       "projectileTypes": [
         {
           "id": "type63_he_low_angle",
-          "name": "Type-63 HE (Low)",
+          "name": "Type-63 HE Low Angle",
           "type": "HE",
           "variant": "low_angle",
           "minRange": 500,
@@ -2867,7 +2867,7 @@
         },
         {
           "id": "type63_he_high_angle",
-          "name": "Type-63 HE (High)",
+          "name": "Type-63 HE High Angle",
           "type": "HE",
           "variant": "high_angle",
           "minRange": 1750,
@@ -2904,7 +2904,7 @@
       "projectileTypes": [
         {
           "id": "d30_he_low_angle",
-          "name": "D-30 HE (Low)",
+          "name": "D-30 HE Low Angle",
           "type": "HE",
           "variant": "low_angle",
           "minRange": 500,
@@ -3004,7 +3004,7 @@
         },
         {
           "id": "d30_he_high_angle",
-          "name": "D-30 HE (High)",
+          "name": "D-30 HE High Angle",
           "type": "HE",
           "variant": "high_angle",
           "minRange": 800,
@@ -3329,7 +3329,7 @@
       },
       "projectileTypes": [
         {
-          "id": "9M22_he_frag_full_range",
+          "id": "9M22_122mm_he",
           "name": "9M22 122mm HE",
           "type": "HE",
           "variant": "standard",
@@ -3773,7 +3773,7 @@
           ]
         },
         {
-          "id": "9M22_he_frag_short_range",
+          "id": "9M22_122mm_he_large_braking_ring",
           "name": "9M22 122mm HE Large brake ring",
           "type": "HE",
           "variant": "large_braking_ring",
@@ -3916,7 +3916,7 @@
           ]
         },
         {
-          "id": "9M22_he_frag_medium_range",
+          "id": "9M22_122mm_he_small_braking_ring",
           "name": "9M22 122mm HE Small brake ring",
           "type": "HE",
           "variant": "small_braking_ring",
@@ -4129,7 +4129,7 @@
           ]
         },
         {
-          "id": "9M43_smoke_full_range",
+          "id": "9M43_122mm_smoke",
           "name": "9M43 122mm Smoke",
           "type": "smoke",
           "variant": "standard",
@@ -4573,7 +4573,7 @@
           ]
         },
         {
-          "id": "9M43_smoke_short_range",
+          "id": "9M43_122mm_smoke_large_braking_ring",
           "name": "9M43 122m Smoke Large brake ring",
           "type": "smoke",
           "variant": "large_braking_ring",
@@ -4716,7 +4716,7 @@
           ]
         },
         {
-          "id": "9M43_smoke_medium_range",
+          "id": "9M43_122mm_smoke_small_braking_ring",
           "name": "9M43 122mm Smoke Small brake ring",
           "type": "smoke",
           "variant": "small_braking_ring",
@@ -4929,7 +4929,7 @@
           ]
         },
         {
-          "id": "3M16_ap_long_range",
+          "id": "3M16_ap_remote_mines",
           "name": "3M16 AP Remote Mines",
           "type": "AP",
           "variant": "standard",
@@ -5280,9 +5280,9 @@
               "angleOfFall": null
             }
           ]
-        }, 
+        },
         {
-          "id": "3M16_ap_short_range",
+          "id": "3M16_ap_remote_mines_large_braking_ring",
           "name": "3M16 AP Remote Mines Large brake ring",
           "type": "AP",
           "variant": "large_braking_ring",
@@ -5411,7 +5411,7 @@
           ]
         },
         {
-          "id": "3M16_ap_medium_range",
+          "id": "3M16_ap_remote_mines_small_braking_ring",
           "name": "3M16 AP Remote Mines Small brake ring",
           "type": "AP",
           "variant": "small_braking_ring",
@@ -5603,7 +5603,7 @@
           ]
         },
         {
-          "id": "9M28K_at_standard",
+          "id": "9M28K_at_remote_mines",
           "name": "9M28K AT Remote Mines",
           "type": "AT",
           "variant": "standard",
@@ -5949,7 +5949,7 @@
           ]
         },
         {
-          "id": "9M28K_at_short_range",
+          "id": "9M28K_at_remote_mines_large_braking_ring",
           "name": "9M28K AT Remote Mines Large brake ring",
           "type": "AT",
           "variant": "large_braking_ring",
@@ -6078,7 +6078,7 @@
           ]
         },
         {
-          "id": "9M28K_at_medium_range",
+          "id": "9M28K_at_remote_mines_small_braking_ring",
           "name": "9M28K AT Remote Mines Short brake ring",
           "type": "AT",
           "variant": "small_braking_ring_short",
