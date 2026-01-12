@@ -294,37 +294,28 @@ export function clearFieldHighlighting(input) {
 }
 
 /**
- * Update or create range indicator showing distance and in-range status
+ * Update range indicator showing distance and in-range status
+ * Element is now pre-rendered in HTML to prevent CLS
  */
 function updateRangeIndicator(inRange, distance, solution) {
-    let rangeIndicator = getElement('rangeIndicator', false);
-    
-    if (!rangeIndicator) {
-        rangeIndicator = document.createElement('div');
-        rangeIndicator.id = 'rangeIndicator';
-        rangeIndicator.style.cssText = 'margin: 10px 0; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; transition: all 0.3s; text-align: center;';
-        
-        const targetZField = getElement('targetZ', false);
-        if (targetZField && targetZField.parentElement) {
-            targetZField.parentElement.insertAdjacentElement('afterend', rangeIndicator);
-        } else {
-            console.error('[updateRangeIndicator] Could not find targetZ field or parent!');
-            return;
-        }
-    }
+    const rangeIndicator = getElement('rangeIndicator', false);
+    if (!rangeIndicator) return;
     
     if (inRange && solution) {
+        rangeIndicator.style.display = 'block';
         rangeIndicator.style.background = COLORS.successBg;
         rangeIndicator.style.border = `1px solid ${COLORS.successBorder}`;
         rangeIndicator.style.color = COLORS.successText;
         rangeIndicator.innerHTML = `✓ In Range: ${distance.toFixed(0)}m (${solution.minRange}m - ${solution.maxRange}m)`;
     } else if (solution && solution.minRange && solution.maxRange) {
         const tooClose = distance < solution.minRange;
+        rangeIndicator.style.display = 'block';
         rangeIndicator.style.background = COLORS.errorBg;
         rangeIndicator.style.border = `1px solid ${COLORS.errorBorder}`;
         rangeIndicator.style.color = COLORS.errorText;
         rangeIndicator.innerHTML = `⚠ Out of Range: ${distance.toFixed(0)}m (valid: ${solution.minRange}m - ${solution.maxRange}m) - Target is ${tooClose ? 'too close' : 'too far'}`;
     } else {
+        rangeIndicator.style.display = 'block';
         rangeIndicator.style.background = COLORS.errorBg;
         rangeIndicator.style.border = `1px solid ${COLORS.errorBorder}`;
         rangeIndicator.style.color = COLORS.errorText;
@@ -951,8 +942,6 @@ function showRocketSuggestion(optimalRocket) {
         
         // Force layout recalculation (critical for iOS/Chrome mobile)
         void banner.offsetHeight;
-        
-        console.log('[MLRS] Showing suggestion:', optimalRocket.name, rangeKm);
     });
 }
 
