@@ -216,7 +216,11 @@ def generate_tiles(image, map_name, max_zoom, output_dir, map_size=None):
                 
                 # Warn about completely black/empty tiles (padding areas)
                 extrema = tile.getextrema()
-                is_black = all(min_val == 0 and max_val == 0 for min_val, max_val in extrema)
+                # getextrema() returns a tuple of (min, max) for grayscale or list of tuples for RGB
+                if isinstance(extrema[0], tuple):
+                    is_black = all(min_val == 0 and max_val == 0 for min_val, max_val in extrema)
+                else:
+                    is_black = extrema[0] == 0 and extrema[1] == 0
                 if is_black:
                     print(f"  ⊗ Black/empty tile at zoom {zoom}, x={col}, y={row}")
                 
