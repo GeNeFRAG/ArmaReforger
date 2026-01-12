@@ -141,7 +141,7 @@ Comprehensive ballistics database with dynamic loading:
 
 **MLRS**
 - **BM-21 Grad** (Soviet 122mm)- 12 ammo types (HE, AP and AT) with different max. distance configurations
-- **Type-63** (Chines 107mm) - 2 ammo types: HE High Angle and HE Low Angle
+- **Type-63** (Chinese 107mm) - 2 ammo types: HE High Angle and HE Low Angle
 
 ## Documentation
 
