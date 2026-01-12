@@ -1,8 +1,8 @@
 # Arma Reforger Tools & Resources
 
-**Live Mortar Calculator:** [https://armamortars.org](https://armamortars.org) **v1.6.0**
+**Live Arma Reforger Ballistic Mission Planner:** [https://armamortars.org](https://armamortars.org)
 
-Comprehensive toolset for Arma Reforger server management, map resources, and artillery calculations with grid coordinate support, real-time validation, and Forward Observer mode.
+Comprehensive toolset for Arma Reforger server management, map resources, and ballistic calculations.
 
 ## Project Structure
 
@@ -12,11 +12,11 @@ ArmaReforger/
 │   ├── all_arma_maps.json  # 23 maps configuration
 │   ├── height_data/        # Elevation data (R2-hosted)
 │   └── README.md
-├── mortar_core/            # Artillery ballistics
-│   ├── MortarCalculator.js # Core calculation engine
-│   ├── ballistic-data.json # Weapon ballistics database
-│   ├── index.html          # Web calculator
-│   ├── ui_js/              # UI modules
+├── mortar_core/               # Artillery ballistics
+│   ├── BallisticCalculator.js # Core calculation engine
+│   ├── ballistic-data.json    # Weapon ballistics database
+│   ├── index.html             # Web calculator
+│   ├── ui_js/                 # UI modules
 │   └── README.md
 └── server_tools/           # Server management utilities
     ├── mod_manager.py
@@ -50,11 +50,12 @@ if 'height_data' in everon['resources']:
 ```
 
 ### Mortar Core
-Calculate artillery fire solutions with grid coordinates, Forward Observer mode, and fire corrections:
+Calculate ballistic fire missions:
 
-**Web Calculator:** [armamortars.org](https://armamortars.org)
+**Arma Reforger Ballistic Mission Planner:** [armamortars.org](https://armamortars.org)
 
 **Features:**
+- 🎯 Supports Arma Reforger Mortars, Artillery and MLRS weapon systems
 - 👁️ Forward Observer (FO) Mode - corrections from observer's perspective
 - 🎯 Separate X/Y grid inputs with real-time validation
 - 🔥 Fire correction system (Gun-Target or Observer-Target line)
@@ -62,18 +63,18 @@ Calculate artillery fire solutions with grid coordinates, Forward Observer mode,
 - 📐 Input validation with range checking (-500 to +500m corrections)
 
 ```javascript
-const MortarCalculator = require('./MortarCalculator');
+const BallisticCalculator = require('./BallisticCalculator');
 
 // Load ballistic data from JSON
-await MortarCalculator.loadBallisticData('./ballistic-data.json');
+await BallisticCalculator.loadBallisticData('./ballistic-data.json');
 
 // Get all available mortars
-const mortars = MortarCalculator.getAllMortarTypes();
+const mortars = BallisticCalculator.getAllMortarTypes();
 // [{id: "RUS", name: "Russian 82mm Mortar", caliber: 82}, ...]
 
 // Using grid coordinates (3-digit or 4-digit)
-const solution = MortarCalculator.calculate(
-    MortarCalculator.prepareInput(
+const solution = BallisticCalculator.calculate(
+    BallisticCalculator.prepareInput(
         { grid: "047/069", z: 15 },  // Mortar position
         { grid: "085/105", z: 25 },  // Target position
         "US",
@@ -82,7 +83,7 @@ const solution = MortarCalculator.calculate(
 );
 
 // Or using traditional meters
-const solution2 = MortarCalculator.calculate({
+const solution2 = BallisticCalculator.calculate({
     distance: 1500,
     heightDifference: 0,
     bearing: 45,
@@ -125,21 +126,22 @@ Everon, Arland, Kolguev, Anizay, Bad Orb, Belleau Wood, Fallujah, Gogland, Khanh
 - **Dimensions:** From 2,900m × 2,900m (Novka) to 17,150m × 17,150m (Nizla, Saigon)
 - **CDN-hosted:** Fast global access via Cloudflare R2
 
-### Artillery Systems
+### Ballistic Weapon Systems
 Comprehensive ballistics database with dynamic loading:
 
-**Mortars:**
-- **2B14** (Russian 82mm) - 5 charge levels, HE/SMOKE/ILLUM shells, Warsaw Pact (6000 mils)
+**Weapons:**
+
+**Mortars**
+- **2B14** (Soviet 82mm) - 5 charge levels, HE/SMOKE/ILLUM shells, Warsaw Pact (6000 mils)
 - **M252** (US 81mm) - 5 charge levels, HE shells, NATO (6400 mils)
 
-**Features:**
-- Pre-calculated firing tables for every 50m increment
-- Height correction for elevated/depressed targets
-- Automatic charge selection for optimal accuracy
-- Multiple trajectory solutions per target
-- Dynamic mil system conversion (6000 vs 6400)
+**Howitzers**
+- **DM-30** (Soviet 122mm) -  2 ammo types: HE High Angle and HE Low Angle
+- **M119** (US 105mm) -  2 ammo types: HE High Angle and HE Low Angle
 
-**Extensible:** Add new weapons by updating `ballistic-data.json` - no code changes required.
+**MLRS**
+- **BM-21 Grad** (Soviet 122mm)- 12 ammo types (HE, AP and AT) with different max. distance configurations
+- **Type-63** (Chines 107mm) - 2 ammo types: HE High Angle and HE Low Angle
 
 ## Documentation
 
