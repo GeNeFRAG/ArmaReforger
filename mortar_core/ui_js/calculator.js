@@ -8,7 +8,7 @@
  */
 
 import { COLORS, BTN_STYLES, MISSION_CARD_STYLES } from './constants.js';
-import { createInfoBanner } from './utils.js';
+import { createInfoBanner, setDisplay } from './utils.js';
 import * as State from './state.js';
 import { getElement, getValue, isChecked } from './dom-cache.js';
 import * as CoordManager from './coord-manager.js';
@@ -543,10 +543,10 @@ export async function calculateSolution() {
             clearPositionHighlighting('target');
         }
         
-        // Clear range indicator (dynamic element, force refresh)
+        // Clear range indicator
         const rangeIndicator = getElement('rangeIndicator', false, true);
         if (rangeIndicator) {
-            rangeIndicator.remove();
+            setDisplay(rangeIndicator, false);
         }
         
         const weaponPos = dependencies.parsePositionFromUI('mortar');
@@ -826,11 +826,11 @@ async function updateFireCorrectionWidget(solutions) {
     if (!widget) return;
     
     if (!solutions || solutions.length === 0) {
-        widget.style.display = 'none';
+        setDisplay(widget, false);
         return;
     }
     
-    widget.style.display = 'block';
+    setDisplay(widget, true);
     
     // Update charge display
     const chargeDisplay = getElement('selectedChargeDisplay', false, true);

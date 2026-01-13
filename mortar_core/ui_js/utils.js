@@ -71,11 +71,17 @@ export function populateSelect(select, items, valueKey, textKey) {
 
 /**
  * Set element display style
+ * Uses cls-hidden class to prevent CLS by reserving layout space
  * @param {HTMLElement} element - Element to show/hide
  * @param {boolean} visible - True to show, false to hide
  */
 export function setDisplay(element, visible) {
     if (element) {
-        element.style.display = visible ? 'block' : 'none';
+        if (visible) {
+            element.classList.remove('cls-hidden');
+            element.style.display = '';
+        } else {
+            element.classList.add('cls-hidden');
+        }
     }
 }

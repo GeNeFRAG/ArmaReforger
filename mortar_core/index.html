@@ -75,15 +75,19 @@
         }
         
         /* CLS Prevention: Reserve space for dynamic content */
-        #loading,
         #app {
-            min-height: 800px;
+            min-height: 600px;
+            position: relative;
+            left: 0;
+            right: 0;
+            width: 100%;
         }
         
         #loading {
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 40px 0;
         }
         
         #rocketSuggestion {
@@ -140,6 +144,10 @@
             border: 1px solid #3a4a45;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             margin-bottom: 20px;
+            width: 100%;
+            max-width: 100%;
+            position: relative;
+            transform: none;
         }
         .form-group {
             margin-bottom: 20px;
@@ -228,11 +236,15 @@
             padding: 20px;
             margin-top: 20px;
             border-radius: 4px;
-            display: none;
+            visibility: hidden;
+            opacity: 0;
             border: 1px solid #3a4a45;
+            min-height: 450px;
+            transition: opacity 0.2s ease;
         }
         .result.active {
-            display: block;
+            visibility: visible;
+            opacity: 1;
         }
         .result.success {
             background: rgba(35, 45, 42, 0.85);
@@ -294,6 +306,8 @@
             padding: 15px;
             background: rgba(107, 142, 35, 0.1);
             border-radius: 8px;
+            width: 100%;
+            max-width: 100%;
         }
         .toggle-buttons {
             display: flex;
@@ -335,6 +349,20 @@
             margin-bottom: 20px;
             max-height: 300px;
             overflow-y: auto;
+            width: 100%;
+            max-width: 100%;
+            transition: opacity 0.2s ease, height 0.2s ease;
+        }
+        .history-panel.cls-hidden {
+            opacity: 0;
+            height: 0 !important;
+            min-height: 0 !important;
+            max-height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: 0 !important;
+            pointer-events: none;
+            overflow: hidden;
         }
         .history-item {
             background: rgba(20, 25, 22, 0.8);
@@ -413,15 +441,62 @@
         .observer-input-grid {
             font-family: monospace;
         }
+        #ffeContainer {
+            transition: opacity 0.2s ease, height 0.2s ease;
+            overflow: hidden;
+        }
+        #ffeContainer.cls-hidden {
+            opacity: 0;
+            height: 0 !important;
+            min-height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: 0 !important;
+            pointer-events: none;
+        }
+        
+        #fireCorrectionWidget {
+            transition: opacity 0.2s ease, height 0.2s ease;
+            overflow: hidden;
+        }
+        #fireCorrectionWidget.cls-hidden {
+            opacity: 0;
+            height: 0 !important;
+            min-height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: 0 !important;
+            pointer-events: none;
+        }
+        
+        .cls-hidden {
+            opacity: 0 !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: 0 !important;
+            overflow: hidden !important;
+            pointer-events: none !important;
+        }
+        
         #rocketSuggestion {
             display: none;
             position: relative;
             z-index: 10;
+            min-height: auto;
         }
         #rocketSuggestion.show {
             display: block !important;
             -webkit-animation: slideDown 0.3s ease;
             animation: slideDown 0.3s ease;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        #rocketSuggestion[style*="display: block"] {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
         @media (max-width: 600px) {
             .row {
@@ -466,7 +541,7 @@
     
     <div id="app" style="display: none;">
         <!-- History Panel -->
-        <div id="historyPanel" class="history-panel" style="display: none;">
+        <div id="historyPanel" class="history-panel cls-hidden">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2 style="margin: 0;">📜 Mission History</h2>
                 <button class="clear-history-btn" id="clearHistoryBtn">Clear All</button>
@@ -593,10 +668,10 @@
             </div>
             
             <!-- Range Indicator (pre-rendered to prevent CLS) -->
-            <div id="rangeIndicator" style="display: none; margin: 10px 0; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; text-align: center;"></div>
+            <div id="rangeIndicator" class="cls-hidden" style="margin: 10px 0; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; text-align: center;"></div>
             
             <!-- Rocket Selection Suggestion Banner -->
-            <div id="rocketSuggestion" style="display: none; margin-top: 10px; padding: 10px; background: linear-gradient(135deg, rgba(143, 188, 30, 0.15) 0%, rgba(107, 142, 35, 0.15) 100%); border: 1px solid rgba(143, 188, 30, 0.4); border-radius: 4px;">
+            <div id="rocketSuggestion" class="cls-hidden" style="margin-top: 10px; padding: 10px; background: linear-gradient(135deg, rgba(143, 188, 30, 0.15) 0%, rgba(107, 142, 35, 0.15) 100%); border: 1px solid rgba(143, 188, 30, 0.4); border-radius: 4px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                     <div style="flex: 1;">
                         <div id="suggestionTitle" style="color: #8fbc1e; font-size: 12px; font-weight: 600; margin-bottom: 3px;">💡 Recommendation</div>
@@ -622,7 +697,7 @@
         <div id="output" class="result"></div>
         
         <!-- Fire for Effect Container -->
-        <div id="ffeContainer" style="display: none; background: linear-gradient(135deg, rgba(55, 45, 70, 0.95) 0%, rgba(45, 35, 60, 0.95) 100%); padding: 15px; border-radius: 4px; margin-top: 10px; border: 1px solid rgba(143, 105, 188, 0.3);">
+        <div id="ffeContainer" class="cls-hidden" style="background: linear-gradient(135deg, rgba(55, 45, 70, 0.95) 0%, rgba(45, 35, 60, 0.95) 100%); padding: 15px; border-radius: 4px; margin-top: 10px; border: 1px solid rgba(143, 105, 188, 0.3);">
             <!-- FFE Mode Toggle -->
             <div id="ffeToggleContainer" style="margin-bottom: 15px;">
                 <label style="display: flex; align-items: center; cursor: pointer; color: #d4c8e0; font-size: 13px; font-weight: 600;">
@@ -688,7 +763,7 @@
         </div>
         
         <!-- Fire Correction Widget (Static) -->
-        <div id="fireCorrectionWidget" style="display: none; background: linear-gradient(135deg, rgba(40, 55, 45, 0.95) 0%, rgba(30, 45, 35, 0.95) 100%); padding: 15px; border-radius: 4px; margin-top: 10px; border: 1px solid rgba(107, 142, 35, 0.3);">
+        <div id="fireCorrectionWidget" class="cls-hidden" style="background: linear-gradient(135deg, rgba(40, 55, 45, 0.95) 0%, rgba(30, 45, 35, 0.95) 100%); padding: 15px; border-radius: 4px; margin-top: 10px; border: 1px solid rgba(107, 142, 35, 0.3);">
             <h3 id="fireCorrectionHeader" style="margin: 0 0 10px 0; font-size: 16px; color: #c8d4a0;">🔄 Adjust Fire: Gun-Target (GT) line</h3>
             <div>
                 
@@ -761,18 +836,19 @@
             </div>
         </div>
     </div>
+    
     </main>
     
-    <!-- Footer -->
+    <!-- Footer - Outside main and app containers to ensure visibility at all times -->
     <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
-        <p>© 2025 ArmaMortars.org | OpenSource Arma Reforger Ballistic Calculator v2.6.2</p>
-        <p>
+        <p style="margin: 10px 0;">© 2025 ArmaMortars.org | OpenSource Arma Reforger Ballistic Calculator v2.6.2</p>
+        <p style="margin: 10px 0;">
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
             | 
             <a href="https://github.com/GeNeFRAG/ArmaReforger/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">📄 MIT License</a>
         </p>
-        <p>
-            <a href="http://discord.gg/Gb8Nt92J3m" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;"><img src="FIST_Discord.webp" alt="F.I.S.T Discord" width="16" height="16" style="height: 16px; width: 16px; vertical-align: middle;">F.I.S.T Discord</a>
+        <p style="margin: 10px 0;">
+            <a href="http://discord.gg/Gb8Nt92J3m" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;"><img src="FIST_Discord.webp" alt="F.I.S.T Discord" width="16" height="16" style="height: 16px; width: 16px; vertical-align: middle; display: inline-block;">F.I.S.T Discord</a>
         </p>
     </footer>
     

@@ -302,20 +302,20 @@ function updateRangeIndicator(inRange, distance, solution) {
     if (!rangeIndicator) return;
     
     if (inRange && solution) {
-        rangeIndicator.style.display = 'block';
+        setDisplay(rangeIndicator, true);
         rangeIndicator.style.background = COLORS.successBg;
         rangeIndicator.style.border = `1px solid ${COLORS.successBorder}`;
         rangeIndicator.style.color = COLORS.successText;
         rangeIndicator.innerHTML = `✓ In Range: ${distance.toFixed(0)}m (${solution.minRange}m - ${solution.maxRange}m)`;
     } else if (solution && solution.minRange && solution.maxRange) {
         const tooClose = distance < solution.minRange;
-        rangeIndicator.style.display = 'block';
+        setDisplay(rangeIndicator, true);
         rangeIndicator.style.background = COLORS.errorBg;
         rangeIndicator.style.border = `1px solid ${COLORS.errorBorder}`;
         rangeIndicator.style.color = COLORS.errorText;
         rangeIndicator.innerHTML = `⚠ Out of Range: ${distance.toFixed(0)}m (valid: ${solution.minRange}m - ${solution.maxRange}m) - Target is ${tooClose ? 'too close' : 'too far'}`;
     } else {
-        rangeIndicator.style.display = 'block';
+        setDisplay(rangeIndicator, true);
         rangeIndicator.style.background = COLORS.errorBg;
         rangeIndicator.style.border = `1px solid ${COLORS.errorBorder}`;
         rangeIndicator.style.color = COLORS.errorText;
@@ -342,7 +342,7 @@ function clearRangeValidation() {
     
     const rangeIndicator = getElement('rangeIndicator', false);
     if (rangeIndicator) {
-        rangeIndicator.remove();
+        setDisplay(rangeIndicator, false);
     }
 }
 
@@ -931,16 +931,18 @@ function showRocketSuggestion(optimalRocket) {
     
     banner.dataset.suggestedId = optimalRocket.id;
     
-    // iOS Chrome fix: Remove display property first, then set
-    banner.style.removeProperty('display');
-    
-    // Force iOS/Chrome to acknowledge the change
+    // Use RAF to ensure DOM is ready and apply the show class
     window.requestAnimationFrame(() => {
-        banner.style.display = 'block';
-        banner.style.visibility = 'visible';
-        banner.style.opacity = '1';
+        // Remove any hiding classes first
+        banner.classList.remove('cls-hidden');
+        // Add the show class for animation
+        banner.classList.add('show');
+        // Ensure inline styles are cleared to avoid conflicts
+        banner.style.display = '';
+        banner.style.visibility = '';
+        banner.style.opacity = '';
         
-        // Force layout recalculation (critical for iOS/Chrome mobile)
+        // Force layout recalculation (critical for mobile browsers)
         void banner.offsetHeight;
     });
 }
@@ -952,9 +954,12 @@ function hideRocketSuggestion() {
     const banner = getElement('rocketSuggestion', false);
     if (banner) {
         window.requestAnimationFrame(() => {
-            banner.style.display = 'none';
-            banner.style.visibility = 'hidden';
-            banner.style.opacity = '0';
+            banner.classList.remove('show');
+            banner.classList.add('cls-hidden');
+            // Clear inline styles
+            banner.style.display = '';
+            banner.style.visibility = '';
+            banner.style.opacity = '';
         });
         delete banner.dataset.suggestedId;
     }
