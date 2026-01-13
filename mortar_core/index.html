@@ -68,6 +68,9 @@
             background-attachment: fixed;
         }
         body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
             max-width: 900px;
             margin: 0 auto;
@@ -78,12 +81,19 @@
             text-rendering: optimizeLegibility;
         }
         
+        /* Flexbox Layout: main container grows to fill space */
+        main {
+            display: flex;
+            flex-direction: column;
+        }
+        
         /* CLS Prevention: Reserve space for dynamic content */
         #app {
             position: relative;
             left: 0;
             right: 0;
             width: 100%;
+            min-height: 1166px;
         }
         
         #loading {
@@ -91,20 +101,36 @@
             align-items: center;
             justify-content: center;
             padding: 40px 0;
+            min-height: 1166px;
+            height: 100%;
         }
         
         #rocketSuggestion {
-            min-height: 60px;
             transform: translateZ(0);
             will-change: transform;
         }
+        #rocketSuggestion:not(.cls-hidden) {
+            min-height: 60px;
+        }
         
-        #rangeIndicator {
+        #rangeIndicator:not(.cls-hidden) {
             min-height: 40px;
         }
         
-        .result {
+        .result:not(.cls-hidden) {
             min-height: 200px;
+        }
+        
+        #historyPanel:not(.cls-hidden) {
+            min-height: 100px;
+        }
+        
+        #ffeContainer:not(.cls-hidden) {
+            min-height: 150px;
+        }
+        
+        #fireCorrectionWidget:not(.cls-hidden) {
+            min-height: 180px;
         }
         .header {
             display: flex;
@@ -845,7 +871,7 @@
     </main>
     
     <!-- Footer - Outside main and app containers to ensure visibility at all times -->
-    <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45; min-height: 120px;">
+    <footer style="text-align: center; padding: 20px; margin-top: 20px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
         <p style="margin: 10px 0;">© 2025 ArmaMortars.org | OpenSource Arma Reforger Ballistic Calculator v2.6.2</p>
         <p style="margin: 10px 0;">
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
