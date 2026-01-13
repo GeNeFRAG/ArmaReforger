@@ -62,21 +62,24 @@
         * {
             box-sizing: border-box;
         }
+        html {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1f1e 0%, #2a3532 100%);
+            background-attachment: fixed;
+        }
         body {
             font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
             max-width: 900px;
             margin: 0 auto;
             padding: 20px;
-            background: linear-gradient(135deg, #1a1f1e 0%, #2a3532 100%);
+            background: transparent;
             color: #e8e8e8;
-            min-height: 100vh;
             -webkit-font-smoothing: antialiased;
             text-rendering: optimizeLegibility;
         }
         
         /* CLS Prevention: Reserve space for dynamic content */
         #app {
-            min-height: 600px;
             position: relative;
             left: 0;
             right: 0;
@@ -470,6 +473,8 @@
         }
         
         .cls-hidden {
+            display: none !important;
+            visibility: hidden !important;
             opacity: 0 !important;
             height: 0 !important;
             min-height: 0 !important;
@@ -840,7 +845,7 @@
     </main>
     
     <!-- Footer - Outside main and app containers to ensure visibility at all times -->
-    <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
+    <footer style="text-align: center; padding: 20px; margin-top: 40px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45; min-height: 120px;">
         <p style="margin: 10px 0;">© 2025 ArmaMortars.org | OpenSource Arma Reforger Ballistic Calculator v2.6.2</p>
         <p style="margin: 10px 0;">
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
