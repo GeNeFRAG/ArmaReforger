@@ -220,8 +220,9 @@ export function validateCoordinateRange(input) {
 
 /**
  * Check if all required inputs are valid
+ * @param {boolean} skipHeavy - Skip heavy ballistic calculations (use cached result)
  */
-function isFormValid() {
+function isFormValid(skipHeavy = false) {
     try {
         if (!State.isBallisticDataLoaded()) {
             return false;
@@ -232,6 +233,11 @@ function isFormValid() {
         
         if (!weaponPos || !targetPos) {
             return false;
+        }
+        
+        // Lightweight check: just verify all fields are present
+        if (skipHeavy) {
+            return true;
         }
         
         const mortarId = getValue('mortarType');
@@ -254,7 +260,7 @@ function updateCalculateButtonState() {
         return;
     }
     
-    const valid = isFormValid();
+    const valid = isFormValid(true);
     calculateBtn.disabled = !valid;
     calculateBtn.style.opacity = valid ? '1' : '0.5';
     calculateBtn.style.cursor = valid ? 'pointer' : 'not-allowed';
@@ -666,7 +672,7 @@ export function initUI() {
         });
     }
     
-    debouncedValidateCoordinateRange = debounce(validateCoordinateRange, 300);
+    debouncedValidateCoordinateRange = debounce(validateCoordinateRange, 500);
     debouncedValidateGridFormat = debounce(validateGridFormat, 300);
     
     ['mortarX', 'mortarY', 'mortarZ', 'targetX', 'targetY', 'targetZ'].forEach(id => {
@@ -674,6 +680,7 @@ export function initUI() {
         if (el) {
             el.addEventListener('input', (e) => {
                 clearTargetCorrectionState(el, id);
+                updateCalculateButtonState();
                 debouncedValidateCoordinateRange(el);
             });
         }
@@ -700,6 +707,7 @@ export function initUI() {
                 debouncedValidateGridFormat(el);
                 
                 if (id.startsWith('mortar') || id.startsWith('target')) {
+                    updateCalculateButtonState();
                     debouncedValidateCoordinateRange(el);
                 }
             });
