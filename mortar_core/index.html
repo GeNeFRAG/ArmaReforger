@@ -244,6 +244,29 @@
             cursor: not-allowed;
             opacity: 0.5;
         }
+        .bug-report-btn {
+            display: inline-block;
+            background: linear-gradient(180deg, #a85050 0%, #903030 100%);
+            color: white;
+            padding: 8px 16px;
+            border: 1px solid #802020;
+            border-radius: 2px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .bug-report-btn:hover {
+            background: linear-gradient(180deg, #b86060 0%, #a85050 100%);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+            transform: translateY(-1px);
+        }
+        .bug-report-btn:active {
+            transform: translateY(0);
+        }
         .btn-press {
             transition: all 0.15s ease;
         }
@@ -867,6 +890,14 @@
     
     <!-- Footer - Outside main and app containers to ensure visibility at all times -->
     <footer style="text-align: center; padding: 20px; margin-top: 20px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
+        <p style="margin: 15px 0;">
+            <a href="https://github.com/GeNeFRAG/ArmaReforger/issues/new?labels=bug&title=%5BBUG%5D%20&body=%23%23%20What%27s%20broken%3F%0A%0A%0A%23%23%20How%20did%20it%20happen%3F%0A1.%20%0A2.%20%0A3.%20%0A%0A%23%23%20What%20weapon%2Fmap%20were%20you%20using%3F%0A" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="bug-report-btn">
+                🐛 Report Bug
+            </a>
+        </p>
         <p style="margin: 10px 0;">© 2025 ArmaMortars.org | OpenSource Arma Reforger Ballistic Calculator v2.6.2</p>
         <p style="margin: 10px 0;">
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
