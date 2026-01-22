@@ -31,6 +31,9 @@
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     
+    <!-- Preload critical resources for LCP -->
+    <link rel="preload" as="image" href="arma-reforger-logo.png" fetchpriority="high">
+    
     <!-- Theme Color -->
     <meta name="theme-color" content="#6b8e23">
     
@@ -135,6 +138,8 @@
             margin-bottom: 25px;
             padding-bottom: 15px;
             border-bottom: 3px solid #6b8e23;
+            /* LCP optimization */
+            contain: layout style;
         }
         .logo {
             width: 80px;
@@ -150,6 +155,11 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             font-size: 1.8em;
             text-align: center;
+            /* LCP optimization */
+            contain: layout style paint;
+            font-display: swap;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
         }
         h2 {
             color: #b8c7a0;
@@ -620,7 +630,7 @@
 <body>
     <!-- Main Header -->
     <header class="header">
-        <img src="arma-reforger-logo.png" alt="Arma Reforger Logo - Mortar & Artillery Calculator" class="logo" width="80" height="80">
+        <img src="arma-reforger-logo.png" alt="Arma Reforger Logo - Mortar & Artillery Calculator" class="logo" width="80" height="80" fetchpriority="high">
         <h1>Arma Reforger Mortar & Artillery Calculator</h1>
     </header>
     
