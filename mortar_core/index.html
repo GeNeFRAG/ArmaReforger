@@ -311,6 +311,9 @@
             gap: 15px;
             margin-top: 15px;
         }
+        .solution-grid.weapons {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
         .solution-item {
             background: rgba(20, 25, 22, 0.8);
             padding: 14px;
@@ -329,6 +332,43 @@
             font-size: 22px;
             color: #e8f4d0;
             font-weight: bold;
+        }
+        .solution-item.weapon-mortar {
+            border-left: 3px solid #8fbc1e;
+        }
+        .solution-item.weapon-howitzer {
+            border-left: 3px solid #d4a06b;
+        }
+        .solution-item.weapon-mlrs {
+            border-left: 3px solid #d46b6b;
+        }
+        .solution-item .weapon-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        .solution-item.weapon-mortar .weapon-title {
+            color: #8fbc1e;
+        }
+        .solution-item.weapon-howitzer .weapon-title {
+            color: #d4a06b;
+        }
+        .solution-item.weapon-mlrs .weapon-title {
+            color: #d46b6b;
+        }
+        .solution-item .weapon-list {
+            color: #d8e8c8;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .weapon-list a {
+            color: #a8d8f0;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .weapon-list a:hover {
+            color: #c8f0ff;
+            text-decoration: underline;
         }
         .info {
             background: rgba(60, 80, 95, 0.3);
@@ -589,6 +629,34 @@
     <div id="loading" role="status" aria-live="polite">Loading ballistic data...</div>
     
     <div id="app" style="display: none;">
+        <!-- Supported Weapon Systems -->
+        <div class="container">
+            <h2 style="margin-top: 0;">🎯 Supported Weapon Systems</h2>
+            <div class="solution-grid weapons">
+                <div class="solution-item weapon-mortar">
+                    <div class="weapon-title">💣 MORTARS</div>
+                    <div class="weapon-list">
+                        • <a href="https://en.wikipedia.org/wiki/M252_mortar" target="_blank" rel="noopener">US M252 (81mm)</a><br>
+                        • <a href="https://en.wikipedia.org/wiki/2B14_Podnos" target="_blank" rel="noopener">Soviet 2B14 (82mm)</a>
+                    </div>
+                </div>
+                <div class="solution-item weapon-howitzer">
+                    <div class="weapon-title">🔫 HOWITZERS</div>
+                    <div class="weapon-list">
+                         • <a href="https://en.wikipedia.org/wiki/M119_howitzer" target="_blank" rel="noopener">US M119 (105mm)</a><br>
+                         • <a href="https://en.wikipedia.org/wiki/122_mm_howitzer_2A18_(D-30)" target="_blank" rel="noopener">Soviet D-30 (122mm)</a>
+                    </div>
+                </div>
+                <div class="solution-item weapon-mlrs">
+                    <div class="weapon-title">🚀 MLRS</div>
+                    <div class="weapon-list">
+                        • <a href="https://en.wikipedia.org/wiki/BM-21_Grad" target="_blank" rel="noopener">BM-21 Grad (122mm)</a><br>
+                        • <a href="https://en.wikipedia.org/wiki/Type_63_multiple_rocket_launcher" target="_blank" rel="noopener">Type-63 (107mm)</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- History Panel -->
         <div id="historyPanel" class="history-panel cls-hidden">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -898,7 +966,7 @@
                 🐛 Report Bug
             </a>
         </p>
-        <p style="margin: 10px 0;">© 2025 ArmaMortars.org | OpenSource Arma Reforger Ballistic Calculator v2.6.3</p>
+        <p style="margin: 10px 0;">© 2026 ArmaMortars.org | OpenSource Arma Reforger Ballistic Calculator v2.6.4</p>
         <p style="margin: 10px 0;">
             <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
             | 
@@ -909,7 +977,7 @@
         </p>
     </footer>
     
-    <script src="BallisticCalculator.js?v=2.6.3"></script>
+    <script src="BallisticCalculator.js?v=2.6.4"></script>
     <script type="module" src="ui_js/main.js"></script>
 </body>
 </html>
