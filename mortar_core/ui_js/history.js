@@ -1,7 +1,7 @@
 /**
  * History Management Module
  * Handles mission history storage, retrieval, and display
- * Version: 2.4.0
+ * Version: 2.5.0
  * 
  * CRITICAL: Always deep copy position objects to prevent mutation
  * Architecture: Uses dependency injection to avoid circular dependencies
@@ -29,7 +29,6 @@ function sanitizeHTML(str) {
 // Mission history storage
 export const missionHistory = [];
 export let currentHistoryIndex = -1;
-export let isLoadingFromHistory = false;
 
 // Injected dependencies (set via init)
 let dependencies = {
@@ -91,7 +90,7 @@ export async function captureCurrentInputs() {
  * Deep copies all position objects to prevent cross-contamination
  */
 export async function addToHistory(weaponPos, targetPos, distance, solutions) {
-    if (isLoadingFromHistory) {
+    if (State.isLoadingFromHistory()) {
         return;
     }
     
@@ -209,7 +208,7 @@ export async function loadFromHistory(index) {
     
     const entry = missionHistory[index];
     currentHistoryIndex = index;
-    isLoadingFromHistory = true;
+    State.setLoadingFromHistory(true);
     
     const targetMode = entry.inputMode || 'grid';
     const currentMode = CoordManager.getMode();
@@ -265,7 +264,7 @@ export async function loadFromHistory(index) {
     await updateHistoryDisplay();
     
     setTimeout(() => {
-        isLoadingFromHistory = false;
+        State.setLoadingFromHistory(false);
     }, 100);
 }
 

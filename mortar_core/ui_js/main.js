@@ -15,6 +15,7 @@ import * as FFE from './ffe.js';
 import * as Calculator from './calculator.js';
 import * as History from './history.js';
 import * as Corrections from './corrections.js';
+import * as Share from './share.js';
 import { setDisplay, populateSelect } from './utils.js';
 import * as DOMCache from './dom-cache.js';
 import * as CoordManager from './coord-manager.js';
@@ -74,6 +75,57 @@ function wireDependencies() {
 }
 
 /**
+ * Setup share feature event listeners
+ */
+function setupShareListeners() {
+    const shareBtn = DOMCache.getElement('shareBtn');
+    const closeModalBtn = DOMCache.getElement('closeShareModalBtn');
+    const closeModalBtn2 = document.getElementById('closeShareModalBtn2');
+    const copyURLBtn = DOMCache.getElement('copyURLBtn');
+    const loadPasteBtn = DOMCache.getElement('loadPasteBtn');
+    
+    if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+            Share.showShareModal();
+        });
+    }
+    
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            Share.hideShareModal();
+        });
+    }
+    
+    if (closeModalBtn2) {
+        closeModalBtn2.addEventListener('click', () => {
+            Share.hideShareModal();
+        });
+    }
+    
+    if (copyURLBtn) {
+        copyURLBtn.addEventListener('click', () => {
+            Share.handleCopyURL();
+        });
+    }
+    
+    if (loadPasteBtn) {
+        loadPasteBtn.addEventListener('click', () => {
+            Share.handleLoadFromPaste();
+        });
+    }
+    
+    // Close modal when clicking outside
+    const shareModal = DOMCache.getElement('shareModal');
+    if (shareModal) {
+        shareModal.addEventListener('click', (e) => {
+            if (e.target === shareModal) {
+                Share.hideShareModal();
+            }
+        });
+    }
+}
+
+/**
  * Load ballistic data and initialize application
  */
 async function init() {
@@ -97,6 +149,10 @@ async function init() {
         Calculator.setupCalculatorListeners();
         Corrections.setupCorrectionListeners();
         Corrections.setupDynamicListeners(); // Setup correction input listeners
+        setupShareListeners();
+        
+        // Check URL for shared session (auto-load on page load)
+        Share.checkURLForSharedSession();
         
     } catch (error) {
         loading.innerHTML = `
@@ -193,6 +249,7 @@ function exposeUtilsForDebugging() {
     window.DOMCache = DOMCache;
     window.CoordManager = CoordManager;
     window.State = State;
+    window.Share = Share;
 }
 
 /**

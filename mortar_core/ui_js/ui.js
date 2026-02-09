@@ -1,7 +1,7 @@
 /**
  * UI Management Module
  * Handles DOM interactions, event listeners, input validation
- * Version: 2.5.0
+ * Version: 2.6.0
  * 
  * Architecture: Uses dependency injection for calculator functions
  */
@@ -153,7 +153,7 @@ export function validateCoordinateRange(input) {
         }
     }
     
-    if (!State.isBallisticDataLoaded() || window.isLoadingFromHistory) {
+    if (!State.isBallisticDataLoaded() || State.isLoadingFromHistory()) {
         updateCalculateButtonState();
         return;
     }
@@ -455,6 +455,9 @@ export function performReset() {
     const output = getElement('output');
     output.className = 'result';
     output.innerHTML = '<p>Configure your mortar and target positions, then click Calculate.</p>';
+    
+    // Disable share button
+    // Share button is always enabled (used for both sharing and importing)
     
     // Hide fire correction widget
     const widget = getElement('fireCorrectionWidget', false);
@@ -807,7 +810,7 @@ function setupUIListeners() {
     // Retrigger suggestion check when user manually changes selection
     const shellTypeSelect = getElement('shellType');
     shellTypeSelect.addEventListener('change', () => {
-        if (!window.isLoadingFromHistory) {
+        if (!State.isLoadingFromHistory()) {
             validateCoordinateRange();
         }
     });
@@ -817,7 +820,8 @@ function setupUIListeners() {
  * Update MLRS rocket suggestion based on distance
  */
 function updateMLRSSuggestion(weaponId, currentShellType, distance, inRange, solutions) {
-    if (window.isLoadingFromHistory) {
+    // Don't show suggestions when loading from history or shared sessions
+    if (State.isLoadingFromHistory() || State.isLoadingFromSharedSession()) {
         hideRocketSuggestion();
         return;
     }

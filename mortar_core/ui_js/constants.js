@@ -1,7 +1,7 @@
 /**
  * Application Constants
  * Centralized configuration values for UI, styling, and data structures
- * Version: 1.7.0
+ * Version: 1.8.0
  */
 
 // Input field ID mappings
@@ -86,5 +86,25 @@ export const DYNAMIC_ELEMENTS = [
     /^.*-error$/,           // Field error divs (mortarX-error, etc.)
     /^otBearingValue$/,     // Observer bearing values
     /^gtBearingValue$/,
-    /^angleDiffValue$/
+    /^angleDiffValue$/,
+    // Share modal elements
+    'shareModal',
+    'shareURLField',
+    'sharePasteField',
+    'shareErrorMessage',
+    'copyURLBtn',
+    'loadPasteBtn',
+    'closeShareModalBtn',
+    'shareBtn'
 ];
+
+// Share feature constants
+export const SHARE_CONSTANTS = {
+    version: 1,
+    defaultWeapon: 'us_m252_81mm',
+    maxURLLength: 2000,
+    maxCoordinate: 50000,
+    maxElevation: 10000,
+    minElevation: -1000,
+    maxCorrection: 500
+};

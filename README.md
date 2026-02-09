@@ -56,7 +56,8 @@ Calculate ballistic fire missions:
 
 **Features:**
 - 🎯 Supports Arma Reforger Mortars, Artillery and MLRS weapon systems
-- 👁️ Forward Observer (FO) Mode - corrections from observer's perspective
+- � Session sharing - Share fire missions via URL with squad members (NEW in v2.7.0)
+- �👁️ Forward Observer (FO) Mode - corrections from observer's perspective
 - 🎯 Separate X/Y grid inputs with real-time validation
 - 🔥 Fire correction system (Gun-Target or Observer-Target line)
 - 💥 Fire for Effect patterns (Lateral/Linear sheaf, Circular saturation)

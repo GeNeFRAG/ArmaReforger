@@ -21,6 +21,7 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 - ✅ **Pure JavaScript** - No external dependencies
 - ✅ **Framework-agnostic** - Works in Node.js and browsers
 - ✅ **Multiple ballistic weapon systems** - Mortars (M252, 2B14), MLRS (BM-21 Grad, Type-62) and Howitzers (D-30, M119)
+- ✅ **Session sharing** - Share fire missions via URL with squad members (NEW in v2.7.0)
 - ✅ **Real-time validation** - Instant format and range checking while typing
 - ✅ **Dynamic range validation** - Updates when switching weapons or projectile types
 - ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision
@@ -300,7 +301,7 @@ console.log(`MLRS: Elevation ${mlrsSolution.elevation} mils, TOF ${mlrsSolution.
 ```
 mortar_core/
 ├── index.html              # Web calculator UI
-├── BallisticCalculator.js     # Core calculation engine
+├── BallisticCalculator.js  # Core calculation engine
 ├── ballistic-data.json     # Weapon ballistics database
 ├── ui_js/                  # UI modules (ES6)
 │   ├── main.js            # Application initialization
@@ -308,8 +309,9 @@ mortar_core/
 │   ├── corrections.js     # Fire correction system
 │   ├── coord-manager.js   # Coordinate handling
 │   ├── history.js         # Mission history
+│   ├── share.js           # Session sharing (v2.7.0)
 │   ├── ui.js              # UI helpers and validation
-│   ├── state.js           # Calculation state (v2.3.2: corrections, charges only)
+│   ├── state.js           # Global state management
 │   ├── dom-cache.js       # DOM element caching
 │   ├── ffe.js             # Fire for Effect patterns
 │   ├── utils.js           # Utility functions
@@ -323,6 +325,30 @@ mortar_core/
 - **Node.js:** 12+
 
 ## 📝 Changelog
+
+### v2.7.0 - Session Sharing (February 2026)
+**New Features:**
+- ✅ **Share fire missions via URL** - Generate shareable links for squad coordination
+- ✅ **Import from URL** - Paste shared links to load mission data instantly
+- ✅ **FO-friendly workflow** - Share inputs before calculation for forward observer use case
+- ✅ **Complete session capture** - Includes positions, weapon, shell type, corrections, FFE, and observer data
+- ✅ **Compact URL format** - Base64-encoded JSON with abbreviated keys
+- ✅ **Clipboard integration** - One-click copy with modern API and legacy fallback
+- ✅ **Automatic validation** - Multi-layer checks for data integrity and range limits
+- ✅ **Grid/meters mode support** - Preserves coordinate format across sharing
+
+**Architecture Improvements:**
+- ✅ Centralized state management - All state now in `state.js` (DRY refactor)
+- ✅ Eliminated duplicate constants - Single source of truth in `constants.js`
+- ✅ Consistent display utilities - Using `setDisplay()` throughout
+- ✅ Fixed `isLoadingFromHistory` bug - Was checking wrong variable scope
+
+**Module Updates:**
+- `share.js` v1.1.0 - Session sharing implementation
+- `state.js` v2.5.0 - Added FO mode and loading flags
+- `history.js` v2.5.0 - Uses state management
+- `ui.js` v2.6.0 - Integrated share feature
+- `constants.js` v1.8.0 - Added SHARE_CONSTANTS
 
 ### v2.6.0 - WZ_Turrets Integration (January 2026)
 **New Features:**

@@ -2,7 +2,7 @@
  * Global State Management
  * Centralizes window.* state properties to prevent cross-module bugs
  * CRITICAL: Always prioritize this state over DOM state
- * Version: 2.4.0
+ * Version: 2.5.0
  */
 
 // State object - single source of truth
@@ -18,7 +18,11 @@ const state = {
     lastInput: null,
     lastSolutions: null,
     lastSolution: null,
-    isClearingCorrectionFields: false
+    isClearingCorrectionFields: false,
+    foModeEnabled: false,
+    lastObserverPos: null,
+    isLoadingFromSharedSession: false,
+    isLoadingFromHistory: false
 };
 
 // Getters
@@ -70,7 +74,21 @@ export function isClearingCorrectionFields() {
     return state.isClearingCorrectionFields;
 }
 
-// Setters
+export function isFoModeEnabled() {
+    return state.foModeEnabled;
+}
+
+export function getLastObserverPos() {
+    return state.lastObserverPos;
+}
+
+export function isLoadingFromSharedSession() {
+    return state.isLoadingFromSharedSession;
+}
+
+export function isLoadingFromHistory() {
+    return state.isLoadingFromHistory;
+}
 
 // Setters
 export function setBallisticDataLoaded(value) {
@@ -95,6 +113,22 @@ export function setOriginalTargetPos(value) {
 
 export function setSelectedCharge(value) {
     state.selectedCharge = value;
+}
+
+export function setFoModeEnabled(value) {
+    state.foModeEnabled = value;
+}
+
+export function setLastObserverPos(value) {
+    state.lastObserverPos = value;
+}
+
+export function setLoadingFromSharedSession(value) {
+    state.isLoadingFromSharedSession = value;
+}
+
+export function setLoadingFromHistory(value) {
+    state.isLoadingFromHistory = value;
 }
 
 export function setPreviousCharge(value) {
@@ -133,6 +167,10 @@ export function syncToWindow() {
     window.previousCharge = state.previousCharge;
     window.originalOptimalCharge = state.originalOptimalCharge;
     window.lastInput = state.lastInput;
+    window.foModeEnabled = state.foModeEnabled;
+    window.lastObserverPos = state.lastObserverPos;
+    window.isLoadingFromSharedSession = state.isLoadingFromSharedSession;
+    window.isLoadingFromHistory = state.isLoadingFromHistory;
 }
 
 // Reset correction state
