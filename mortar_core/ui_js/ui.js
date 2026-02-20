@@ -546,6 +546,21 @@ export function toggleFOControls(checkbox) {
     }
     
     if (isChecked) {
+        // Set observer mode active class based on current coordinate mode
+        const observerGridMode = getElement('observerGridMode', false, true);
+        const observerMetersMode = getElement('observerMetersMode', false, true);
+        const gridModeActive = getElement('toggleGrid', false)?.classList.contains('active');
+        
+        if (observerGridMode && observerMetersMode) {
+            if (gridModeActive) {
+                observerGridMode.classList.add('active');
+                observerMetersMode.classList.remove('active');
+            } else {
+                observerMetersMode.classList.add('active');
+                observerGridMode.classList.remove('active');
+            }
+        }
+        
         // Don't restore observer coordinates - preserve user input
         // Only trigger bearing display update
         setTimeout(() => updateOTBearingDisplay(), 50);
@@ -578,6 +593,18 @@ export function showOutputError(title, message) {
  */
 export function clearOutput() {
     const output = getElement('output');
+    
+    // Preserve widget and ffe container before clearing - they may be inside output
+    const widget = document.getElementById('fireCorrectionWidget');
+    const ffeContainer = document.getElementById('ffeContainer');
+    
+    if (widget && widget.parentNode === output) {
+        document.body.appendChild(widget);
+    }
+    if (ffeContainer && ffeContainer.parentNode === output) {
+        document.body.appendChild(ffeContainer);
+    }
+    
     output.className = '';
     output.innerHTML = '';
 }
