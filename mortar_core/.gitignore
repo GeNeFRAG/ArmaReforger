@@ -22,7 +22,7 @@ ios/App/App.xcworkspace/xcuserdata/
 .DS_Store
 Thumbs.db
 
-_bmad/
+_bmad
 _bmad-output/
-.claude/
-.opencode/
+.claude
+.opencode
