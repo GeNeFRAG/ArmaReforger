@@ -1,0 +1,156 @@
+/*
+ * Mobile-specific CSS overrides for Capacitor app
+ * Loaded AFTER the inline styles in index.html
+ * Handles safe areas (notch/dynamic island), touch targets, and mobile UX
+ */
+
+/* Safe area insets for notched devices (iPhone X+, Android punch-hole) */
+body {
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+}
+
+/* Prevent text selection and callout on long press (native app feel) */
+* {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* Allow text selection in input fields */
+input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* Minimum touch target size (Apple HIG: 44pt, Material: 48dp) */
+button, select, input[type="checkbox"], .btn-press {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Larger input fields for easier mobile typing */
+input[type="text"], input[type="number"], select {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+    padding: 12px 10px !important;
+}
+
+/* Grid coordinate inputs: comfortable touch targets */
+.grid-input {
+    min-height: 44px;
+}
+
+/* Remove hover effects (no hover on mobile) */
+@media (hover: none) {
+    button:hover, .btn-press:hover {
+        filter: none;
+    }
+}
+
+/* Smoother scrolling */
+html {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* Fix position:fixed elements for keyboard avoidance */
+footer {
+    padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
+}
+
+/* Optimize mission cards for mobile readability */
+@media (max-width: 480px) {
+    body {
+        padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+        font-size: 14px;
+    }
+
+    h1 {
+        font-size: 1.3em !important;
+    }
+
+    /* Stack grid inputs vertically on narrow screens */
+    .coord-row {
+        flex-direction: column;
+    }
+}
+
+/* Capacitor status bar overlap prevention */
+body {
+    padding-top: env(safe-area-inset-top, 0px) !important;
+}
+
+/* iOS specific - add extra padding above safe area */
+@supports (-webkit-touch-callout: none) {
+    body {
+        padding-top: calc(env(safe-area-inset-top, 44px) + 30px) !important;
+    }
+}
+
+/* Android */
+.capacitor-android body {
+    padding-top: max(20px, env(safe-area-inset-top)) !important;
+}
+
+/* Fix button alignment - ensure equal sizing and proper spacing */
+#calculate,
+#reset,
+#shareBtn {
+    flex: 1 1 0 !important;
+    min-height: 48px !important;
+    font-size: 12px !important;
+    padding: 8px 6px !important;
+    white-space: normal !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1.2 !important;
+}
+
+/* Fix checkbox sizing for mobile */
+input[type="checkbox"] {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    margin-right: 10px !important;
+    flex-shrink: 0 !important;
+}
+
+/* Better checkbox label layout */
+label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    cursor: pointer !important;
+}
+
+/* Input field alignment and sizing */
+input[type="number"],
+input[type="text"] {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Helper text styling for mobile */
+small {
+    font-size: 10px !important;
+    line-height: 1.3 !important;
+    word-wrap: break-word !important;
+}
+
+/* Fire correction widget: force equal grid columns and prevent label wrapping */
+#fireCorrectionWidget div[style*="display: grid"] {
+    grid-template-columns: 1fr 1fr !important;
+}
+
+#fireCorrectionWidget label {
+    display: block !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}

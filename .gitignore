@@ -11,3 +11,5 @@ __pycache__/
 !mortar_core/FIST_Discord.webp
 maps_core/height_data/
 /helper_scripts
+plans/**
+specs/**
