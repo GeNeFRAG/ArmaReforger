@@ -26,3 +26,5 @@ _bmad
 _bmad-output/
 .claude
 .opencode
+playwright-report
+test-results
