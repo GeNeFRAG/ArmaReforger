@@ -25,6 +25,10 @@ let dependencies = {
     setCurrentHistoryIndex: null
 };
 
+// Track pending setupDynamicListeners timeout to prevent race conditions
+// This prevents multiple overlapping setTimeout calls when calculations happen in quick succession
+let pendingListenerSetupTimeout = null;
+
 /**
  * Initialize calculator with dependencies
  * @param {Object} deps - Dependency injection container
@@ -719,7 +723,16 @@ export async function calculateSolution() {
                 }
             });
             
-            const widget = getElement('fireCorrectionWidget', false);
+            // CRITICAL: Force fresh DOM lookup (not cached) to get the actual current widget
+            // The widget may have been moved into output by previous calculation
+            const widget = document.getElementById('fireCorrectionWidget');
+            
+            // CRITICAL: Move widget out of output before setting innerHTML
+            // If widget is inside output (from previous calculation), innerHTML = destroys it
+            if (widget && widget.parentNode === output) {
+                // Temporarily move widget to body to preserve it
+                document.body.appendChild(widget);
+            }
             
             const alternativeSection = solutions.length > 1 ? `
                 <button class="btn-press" id="toggleAltBtn" style="width: 100%; padding: 10px; margin-top: 20px; background: ${COLORS.gradientGray}; border: 1px solid ${COLORS.borderGray}; border-radius: 4px; color: ${COLORS.textPrimary}; font-weight: 600; cursor: pointer; font-size: 13px;">
@@ -780,8 +793,13 @@ export async function calculateSolution() {
             // Don't restore observer coordinates - preserve user input
             
             // Set up event listeners for correction/observer inputs
-            setTimeout(() => {
+            // Cancel any pending setup to prevent race conditions with fill() events
+            if (pendingListenerSetupTimeout) {
+                clearTimeout(pendingListenerSetupTimeout);
+            }
+            pendingListenerSetupTimeout = setTimeout(() => {
                 setupDynamicListeners();
+                pendingListenerSetupTimeout = null;
             }, 50);
         } else {
             const solution = solutions[0];

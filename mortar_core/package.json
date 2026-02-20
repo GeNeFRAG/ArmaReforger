@@ -1,0 +1,19 @@
+{
+  "name": "arma-mortar-calculator",
+  "version": "2.7.0",
+  "description": "Ballistic calculator for Arma Reforger mortars, MLRS, and howitzers",
+  "scripts": {
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "test:e2e": "npm run docker:up && playwright test; npm run docker:down",
+    "test:e2e:headed": "npm run docker:up && playwright test --headed; npm run docker:down",
+    "test:e2e:ui": "npm run docker:up && playwright test --ui",
+    "test:e2e:chromium": "playwright test --project=chromium"
+  },
+  "keywords": ["arma-reforger", "mortar", "ballistic-calculator"],
+  "author": "ArmaMortars.org",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}
