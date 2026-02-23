@@ -1,7 +1,7 @@
 /**
  * History Management Module
  * Handles mission history storage, retrieval, and display
- * Version: 2.5.0
+ * Version: 2.6.0
  * 
  * CRITICAL: Always deep copy position objects to prevent mutation
  * Architecture: Uses dependency injection to avoid circular dependencies
@@ -29,6 +29,59 @@ function sanitizeHTML(str) {
 // Mission history storage
 export const missionHistory = [];
 export let currentHistoryIndex = -1;
+
+// localStorage persistence
+const STORAGE_KEY = 'mortar_app_history';
+
+function saveHistoryToStorage() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(missionHistory));
+    } catch (e) {
+        if (e.name === 'QuotaExceededError') {
+            console.warn('localStorage full, history not saved');
+        } else if (e.name === 'SecurityError') {
+            console.warn('localStorage unavailable');
+        } else {
+            console.error('Failed to save history:', e);
+        }
+    }
+}
+
+function loadHistoryFromStorage() {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return [];
+        const entries = JSON.parse(stored);
+        // Reconstruct Date objects from ISO strings
+        return entries.map(entry => ({
+            ...entry,
+            timestamp: new Date(entry.timestamp)
+        }));
+    } catch (e) {
+        console.warn('History data corrupted, starting fresh:', e.message);
+        localStorage.removeItem(STORAGE_KEY);
+        return [];
+    }
+}
+
+function clearHistoryFromStorage() {
+    try {
+        localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+        console.warn('Failed to clear localStorage:', e.message);
+    }
+}
+
+/**
+ * Restore history from localStorage on app startup
+ */
+export async function restoreHistoryFromStorage() {
+    const entries = loadHistoryFromStorage();
+    if (entries.length > 0) {
+        missionHistory.push(...entries);
+        await updateHistoryDisplay();
+    }
+}
 
 // Injected dependencies (set via init)
 let dependencies = {
@@ -198,6 +251,7 @@ export async function addToHistory(weaponPos, targetPos, distance, solutions) {
     }
     
     await updateHistoryDisplay();
+    saveHistoryToStorage();
 }
 
 /**
@@ -450,6 +504,7 @@ export async function clearHistory() {
     missionHistory.length = 0;
     currentHistoryIndex = -1;
     await updateHistoryDisplay();
+    clearHistoryFromStorage();
 }
 
 /**
@@ -467,6 +522,7 @@ export async function deleteFromHistory(index, event) {
     }
     
     await updateHistoryDisplay();
+    saveHistoryToStorage();
 }
 
 /**
