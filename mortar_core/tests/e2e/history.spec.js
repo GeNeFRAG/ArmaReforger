@@ -390,34 +390,154 @@ test.describe('Mission History', () => {
   // PERSISTENCE TESTS
   // ============================================================================
 
-  test.skip('should persist history across page refresh', async ({ page }) => {
-    // NOTE: Persistence feature is not implemented in the app.
-    // History is stored in component state (JavaScript array) and is cleared on page refresh.
-    // To enable: implement localStorage or sessionStorage persistence in the UI component.
-    // This test is intentionally skipped as it documents a known feature gap.
-    
-    // Setup
-    const coords = VALID_COORDS.mortar_short;
+  test.describe('localStorage Persistence', () => {
+    test.beforeEach(async ({ page }) => {
+      // Clear localStorage before each persistence test to ensure isolation
+      // Note: Parent beforeEach already navigated, so we clear and reload
+      await page.evaluate(() => localStorage.removeItem('mortar_app_history'));
+      await page.reload();
+      await page.waitForSelector('#app', { state: 'visible' });
+    });
 
-    // Execute - Calculate
-    await calculatorPage.selectWeapon('2B14');
-    await calculatorPage.enterGridCoords(
-      { x: coords.gun.gridX, y: coords.gun.gridY, z: coords.gun.z },
-      { x: coords.target.gridX, y: coords.target.gridY, z: coords.target.z }
-    );
-    await calculatorPage.calculate();
+    test('should persist history across page refresh', async ({ page }) => {
+      // Setup
+      const coords = VALID_COORDS.mortar_short;
 
-    // Get history count before refresh
-    const historyItemsBeforeRefresh = await page.locator('#historyList .history-item').count();
-    expect(historyItemsBeforeRefresh).toBe(1);
+      // Execute - Calculate
+      await calculatorPage.selectWeapon('2B14');
+      await calculatorPage.enterGridCoords(
+        { x: coords.gun.gridX, y: coords.gun.gridY, z: coords.gun.z },
+        { x: coords.target.gridX, y: coords.target.gridY, z: coords.target.z }
+      );
+      await calculatorPage.calculate();
 
-    // Refresh page
-    await page.reload();
-    await calculatorPage.goto();
+      // Get history count before refresh
+      const historyItemsBeforeRefresh = await page.locator('#historyList .history-item').count();
+      expect(historyItemsBeforeRefresh).toBe(1);
 
-    // Verify - history should still be there after refresh (NOT IMPLEMENTED)
-    const historyItemsAfterRefresh = await page.locator('#historyList .history-item').count();
-    expect(historyItemsAfterRefresh).toBe(1);
+      // Verify localStorage has the entry
+      const storedBefore = await page.evaluate(() => localStorage.getItem('mortar_app_history'));
+      expect(storedBefore).toBeTruthy();
+      const parsedBefore = JSON.parse(storedBefore);
+      expect(parsedBefore).toHaveLength(1);
+
+      // Refresh page
+      await page.reload();
+      await page.waitForSelector('#app', { state: 'visible' });
+
+      // Verify - history should still be there after refresh
+      const historyItemsAfterRefresh = await page.locator('#historyList .history-item').count();
+      expect(historyItemsAfterRefresh).toBe(1);
+    });
+
+    test('should persist deletion across page refresh', async ({ page }) => {
+      // Setup
+      const coords1 = VALID_COORDS.mortar_short;
+      const coords2 = VALID_COORDS.howitzer_medium;
+
+      // Add two entries
+      await calculatorPage.selectWeapon('2B14');
+      await calculatorPage.enterGridCoords(
+        { x: coords1.gun.gridX, y: coords1.gun.gridY, z: coords1.gun.z },
+        { x: coords1.target.gridX, y: coords1.target.gridY, z: coords1.target.z }
+      );
+      await calculatorPage.calculate();
+
+      await calculatorPage.clear();
+      await calculatorPage.selectWeapon('D30');
+      await calculatorPage.enterGridCoords(
+        { x: coords2.gun.gridX, y: coords2.gun.gridY, z: coords2.gun.z },
+        { x: coords2.target.gridX, y: coords2.target.gridY, z: coords2.target.z }
+      );
+      await calculatorPage.calculate();
+
+      // Verify 2 items before deletion
+      await expect(page.locator('#historyList .history-item')).toHaveCount(2);
+
+      // Delete the first item (most recent D30)
+      const deleteBtn = page.locator('#historyList .history-delete').first();
+      await deleteBtn.click();
+      await page.waitForTimeout(300);
+
+      // Verify 1 item after deletion
+      await expect(page.locator('#historyList .history-item')).toHaveCount(1);
+
+      // Refresh page
+      await page.reload();
+      await page.waitForSelector('#app', { state: 'visible' });
+
+      // Verify - deletion persisted (only 1 item, the 2B14)
+      const historyItems = page.locator('#historyList .history-item');
+      await expect(historyItems).toHaveCount(1);
+      const remainingText = await historyItems.first().textContent();
+      expect(remainingText).toMatch(/2B14|mortar/i);
+    });
+
+    test('should persist clear all across page refresh', async ({ page }) => {
+      // Setup
+      const coords = VALID_COORDS.mortar_short;
+
+      // Add entry
+      await calculatorPage.selectWeapon('2B14');
+      await calculatorPage.enterGridCoords(
+        { x: coords.gun.gridX, y: coords.gun.gridY, z: coords.gun.z },
+        { x: coords.target.gridX, y: coords.target.gridY, z: coords.target.z }
+      );
+      await calculatorPage.calculate();
+      await calculatorPage.waitForResult('success');
+
+      // Clear all
+      await calculatorPage.clearHistory();
+      await page.waitForTimeout(300);
+
+      // Verify localStorage is cleared
+      const storedAfterClear = await page.evaluate(() => localStorage.getItem('mortar_app_history'));
+      expect(storedAfterClear).toBeNull();
+
+      // Refresh page
+      await page.reload();
+      await page.waitForSelector('#app', { state: 'visible' });
+
+      // Verify - history panel should be hidden (no entries)
+      const historyPanel = page.locator('#historyPanel');
+      const isHidden = await historyPanel.evaluate(el => el.classList.contains('cls-hidden'));
+      expect(isHidden).toBe(true);
+    });
+
+    test('should store correct JSON structure in localStorage', async ({ page }) => {
+      // Setup
+      const coords = VALID_COORDS.mortar_short;
+      const customLabel = 'TEST_MISSION_STORAGE';
+
+      // Add entry with custom label
+      await page.locator('#missionLabel').fill(customLabel);
+      await calculatorPage.selectWeapon('2B14');
+      await calculatorPage.enterGridCoords(
+        { x: coords.gun.gridX, y: coords.gun.gridY, z: coords.gun.z },
+        { x: coords.target.gridX, y: coords.target.gridY, z: coords.target.z }
+      );
+      await calculatorPage.calculate();
+
+      // Verify localStorage structure
+      const stored = await page.evaluate(() => localStorage.getItem('mortar_app_history'));
+      expect(stored).toBeTruthy();
+      
+      const parsed = JSON.parse(stored);
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed).toHaveLength(1);
+      
+      const entry = parsed[0];
+      expect(entry).toHaveProperty('id');
+      expect(entry).toHaveProperty('timestamp');
+      expect(entry).toHaveProperty('mortarType');
+      expect(entry).toHaveProperty('mortarPos');
+      expect(entry).toHaveProperty('targetPos');
+      expect(entry.missionLabel).toBe(customLabel);
+      
+      // Timestamp should be ISO string
+      expect(typeof entry.timestamp).toBe('string');
+      expect(new Date(entry.timestamp).toISOString()).toBe(entry.timestamp);
+    });
   });
 
   // ============================================================================

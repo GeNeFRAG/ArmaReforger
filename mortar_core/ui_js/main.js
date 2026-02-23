@@ -1,7 +1,7 @@
 /**
  * Main Bootstrap Module
  * Initializes all modules and wires dependencies using Dependency Injection
- * Version: 1.8.0
+ * Version: 1.9.0
  * 
  * Architecture: Mediator Pattern
  * - This module acts as the central coordinator
@@ -146,6 +146,7 @@ async function init() {
         UI.initUI();
         FFE.initFFE();
         History.setupHistoryListeners();
+        await History.restoreHistoryFromStorage();
         Calculator.setupCalculatorListeners();
         Corrections.setupCorrectionListeners();
         Corrections.setupDynamicListeners(); // Setup correction input listeners

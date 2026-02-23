@@ -21,7 +21,8 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 - ✅ **Pure JavaScript** - No external dependencies
 - ✅ **Framework-agnostic** - Works in Node.js and browsers
 - ✅ **Multiple ballistic weapon systems** - Mortars (M252, 2B14), MLRS (BM-21 Grad, Type-62) and Howitzers (D-30, M119)
-- ✅ **Session sharing** - Share fire missions via URL with squad members (NEW in v2.7.0)
+- ✅ **Session sharing** - Share fire missions via URL with squad members
+- ✅ **Persistent history** - Mission history survives browser refresh via localStorage (NEW in v2.8.0)
 - ✅ **Real-time validation** - Instant format and range checking while typing
 - ✅ **Dynamic range validation** - Updates when switching weapons or projectile types
 - ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision
@@ -325,6 +326,18 @@ mortar_core/
 - **Node.js:** 12+
 
 ## 📝 Changelog
+
+### v2.8.0 - Persistent Mission History (February 2026)
+**New Features:**
+- ✅ **localStorage persistence** - Mission history survives browser refresh
+- ✅ **Auto-save on every change** - Add, delete, and clear operations persist automatically
+- ✅ **Graceful error handling** - Quota exceeded or private browsing falls back to in-memory
+- ✅ **Date reconstruction** - Timestamps preserved correctly across sessions
+- ✅ **Core Web Vitals tests** - New e2e test suite for LCP, INP, and CLS metrics
+
+**Module Updates:**
+- `history.js` v2.6.0 - Added localStorage persistence functions
+- `main.js` v1.9.0 - Calls `restoreHistoryFromStorage()` on init
 
 ### v2.7.0 - Session Sharing (February 2026)
 **New Features:**

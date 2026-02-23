@@ -1,6 +1,6 @@
 {
   "name": "arma-mortar-calculator",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "description": "Ballistic calculator for Arma Reforger mortars, MLRS, and howitzers",
   "scripts": {
     "docker:up": "docker-compose up -d",
