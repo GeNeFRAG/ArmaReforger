@@ -66,12 +66,12 @@
     </header>
     
     <!-- New Feature Banner -->
-    <div style="background: linear-gradient(135deg, rgba(107, 142, 35, 0.25) 0%, rgba(107, 142, 35, 0.15) 100%); border: 2px solid #6b8e23; border-radius: 6px; padding: 15px 20px; margin: 20px auto; max-width: 900px; box-shadow: 0 4px 12px rgba(107, 142, 35, 0.2);">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <div style="font-size: 32px; line-height: 1;">🔗</div>
-            <div style="flex: 1;">
-                <div style="color: #8fbc1e; font-weight: bold; font-size: 16px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">✨ New Feature: Session Sharing</div>
-                <div style="color: #c8d4a0; font-size: 14px; line-height: 1.5;">Share fire missions with your squad! Click the <strong style="color: #8fbc1e;">🔗 Share</strong> button to generate a shareable link or paste a link to import mission data instantly.</div>
+    <div class="feature-banner">
+        <div class="feature-banner-inner">
+            <div class="feature-banner-icon">🔗</div>
+            <div class="feature-banner-content">
+                <div class="feature-banner-title">✨ New Feature: Session Sharing</div>
+                <div class="feature-banner-text">Share fire missions with your squad! Click the <strong>🔗 Share</strong> button to generate a shareable link or paste a link to import mission data instantly.</div>
             </div>
         </div>
     </div>
@@ -80,10 +80,10 @@
     <main>
     <div id="loading" role="status" aria-live="polite">Loading ballistic data...</div>
     
-    <div id="app" style="display: none;">
+    <div id="app" class="cls-hidden">
         <!-- Supported Weapon Systems -->
         <div class="container">
-            <h2 style="margin-top: 0;">🎯 Supported Weapon Systems</h2>
+            <h2 class="no-margin-top">🎯 Supported Weapon Systems</h2>
             <div class="solution-grid weapons">
                 <div class="solution-item weapon-mortar">
                     <div class="weapon-title">💣 MORTARS</div>
@@ -111,15 +111,15 @@
         
         <!-- History Panel -->
         <div id="historyPanel" class="history-panel cls-hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2 style="margin: 0;">📜 Mission History</h2>
+            <div class="history-header-flex">
+                <h2 class="no-margin">📜 Mission History</h2>
                 <button class="clear-history-btn" id="clearHistoryBtn">Clear All</button>
             </div>
             <div id="historyList"></div>
         </div>
         
         <div class="toggle-container">
-            <span style="font-weight: 500; color: #b8c7a0; text-align: center;">Coordinate Input:</span>
+            <span class="toggle-label">Coordinate Input:</span>
             <div class="toggle-buttons">
                 <div class="toggle-option active" id="toggleGrid" data-mode="grid">
                     🎯 Grid (047/069)
@@ -164,7 +164,7 @@
                                 <input type="text" id="mortarGridY" placeholder="069 or 0695" maxlength="4" inputmode="numeric" pattern="[0-9]*">
                             </div>
                         </div>
-                        <small style="color: #999; display: block; margin-top: -15px;">3-digit (100m squares) or 4-digit (10m precision)</small>
+                        <small class="coord-hint">3-digit (100m squares) or 4-digit (10m precision)</small>
                     </div>
                 </div>
                 
@@ -181,7 +181,7 @@
                                 <input type="number" id="mortarY" placeholder="7049" step="0.1" min="0" max="99999.9" inputmode="decimal">
                             </div>
                         </div>
-                        <small style="color: #999; display: block; margin-top: -15px;">Map coordinates in meters (e.g., 4800.5, 7049.0)</small>
+                        <small class="coord-hint">Map coordinates in meters (e.g., 4800.5, 7049.0)</small>
                     </div>
                 </div>
                 
@@ -205,7 +205,7 @@
                                 <input type="text" id="targetGridY" placeholder="105 or 1050" maxlength="4" inputmode="numeric" pattern="[0-9]*">
                             </div>
                         </div>
-                        <small style="color: #999; display: block; margin-top: -15px;">3-digit (100m squares) or 4-digit (10m precision)</small>
+                        <small class="coord-hint">3-digit (100m squares) or 4-digit (10m precision)</small>
                     </div>
                 </div>
                 
@@ -222,7 +222,7 @@
                                 <input type="number" id="targetY" placeholder="5516" step="0.1" min="0" max="99999.9" inputmode="decimal">
                             </div>
                         </div>
-                        <small style="color: #999; display: block; margin-top: -15px;">Map coordinates in meters (e.g., 4696.0, 5516.0)</small>
+                        <small class="coord-hint">Map coordinates in meters (e.g., 4696.0, 5516.0)</small>
                     </div>
                 </div>
                 
@@ -237,65 +237,65 @@
             </div>
             
             <!-- Range Indicator (pre-rendered to prevent CLS) -->
-            <div id="rangeIndicator" class="cls-hidden" style="margin: 10px 0; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; text-align: center;"></div>
+            <div id="rangeIndicator" class="range-indicator cls-hidden"></div>
             
             <!-- Rocket Selection Suggestion Banner -->
-            <div id="rocketSuggestion" class="cls-hidden" style="margin-top: 10px; padding: 10px; background: linear-gradient(135deg, rgba(143, 188, 30, 0.15) 0%, rgba(107, 142, 35, 0.15) 100%); border: 1px solid rgba(143, 188, 30, 0.4); border-radius: 4px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                    <div style="flex: 1;">
-                        <div id="suggestionTitle" style="color: #8fbc1e; font-size: 12px; font-weight: 600; margin-bottom: 3px;">💡 Recommendation</div>
-                        <div id="suggestionText" style="color: #c8d4a0; font-size: 11px;"></div>
+            <div id="rocketSuggestion" class="suggestion-banner cls-hidden">
+                <div class="suggestion-inner">
+                    <div class="suggestion-content">
+                        <div id="suggestionTitle" class="suggestion-title">💡 Recommendation</div>
+                        <div id="suggestionText" class="suggestion-text"></div>
                     </div>
-                    <div class="suggestion-buttons" style="display: flex; gap: 6px;">
-                        <button type="button" id="acceptSuggestion" class="btn-press" style="padding: 8px 12px; background: linear-gradient(180deg, #8fbc1e 0%, #7aaa1a 100%); border: 1px solid #9fcc2e; border-radius: 3px; color: white; font-weight: 600; cursor: pointer; font-size: 11px; white-space: nowrap; margin: 0; width: auto;">
+                    <div class="suggestion-buttons">
+                        <button type="button" id="acceptSuggestion" class="btn-press suggestion-btn-accept">
                             Use This
                         </button>
-                        <button type="button" id="dismissSuggestion" style="padding: 8px 12px; background: rgba(100, 100, 100, 0.3); border: 1px solid rgba(150, 150, 150, 0.4); border-radius: 3px; color: #aaa; font-weight: 600; cursor: pointer; font-size: 11px; white-space: nowrap; margin: 0; width: auto;">
+                        <button type="button" id="dismissSuggestion" class="suggestion-btn-dismiss">
                             Dismiss
                         </button>
                     </div>
                 </div>
             </div>
             
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button id="calculate" class="btn-press" style="flex: 3;">Compute Fire Mission</button>
-                <button id="reset" class="btn-press" style="flex: 1; background: linear-gradient(180deg, #666 0%, #555 100%);">Reset</button>
-                <button id="shareBtn" class="btn-press" style="flex: 1; background: linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%); border: 1px solid #8fbc1e;">📤 Share</button>
+            <div class="btn-row">
+                <button id="calculate" class="btn-press btn-primary-wide">Compute Fire Mission</button>
+                <button id="reset" class="btn-press btn-secondary-flex">Reset</button>
+                <button id="shareBtn" class="btn-press btn-share">📤 Share</button>
             </div>
         </div>
         
         <div id="output" class="result"></div>
         
         <!-- Fire for Effect Container -->
-        <div id="ffeContainer" class="cls-hidden" style="background: linear-gradient(135deg, rgba(55, 45, 70, 0.95) 0%, rgba(45, 35, 60, 0.95) 100%); padding: 15px; border-radius: 4px; margin-top: 10px; border: 1px solid rgba(143, 105, 188, 0.3);">
+        <div id="ffeContainer" class="ffe-container cls-hidden">
             <!-- FFE Mode Toggle -->
-            <div id="ffeToggleContainer" style="margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; cursor: pointer; color: #d4c8e0; font-size: 13px; font-weight: 600;">
-                    <input type="checkbox" id="ffeEnabled" style="margin-right: 8px; width: 16px; height: 16px; cursor: pointer;">
+            <div id="ffeToggleContainer" class="ffe-form-group">
+                <label class="ffe-toggle-label">
+                    <input type="checkbox" id="ffeEnabled">
                     <span>💥 Enable Fire for Effect Pattern</span>
                 </label>
             </div>
             
             <!-- Fire for Effect Widget (Dynamic) -->
-            <div id="ffeWidget" style="display: none;">
-                <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #d4c8e0;">💥 Fire for Effect Pattern</h3>
+            <div id="ffeWidget" class="ffe-widget" style="display: none;">
+                <h3>💥 Fire for Effect Pattern</h3>
                 
-                <div class="info" style="margin-bottom: 12px; background: rgba(60, 50, 80, 0.4); border-color: rgba(143, 105, 188, 0.3);">
+                <div class="info info-ffe mb-12">
                     🎯 Generate multi-round salvo patterns. <strong>Lateral sheaf</strong> for width coverage, <strong>linear sheaf</strong> for depth penetration, <strong>circular pattern</strong> for 360° saturation.
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                    <div>
-                        <label style="display: block; color: #c8b8d8; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Sheaf Type</label>
-                        <select id="ffePattern" style="width: 100%; padding: 8px; background: rgba(20, 15, 25, 0.8); border: 1px solid #5a4a62; border-radius: 3px; color: #d4c8e0; font-size: 13px;">
+                <div class="ffe-form-grid">
+                    <div class="ffe-form-group">
+                        <label for="ffePattern">Sheaf Type</label>
+                        <select id="ffePattern" class="ffe-select">
                             <option value="perpendicular">Lateral Sheaf (Width)</option>
                             <option value="along-bearing">Linear Sheaf (Depth)</option>
                             <option value="circular">Circular Pattern</option>
                         </select>
                     </div>
-                    <div>
-                        <label style="display: block; color: #c8b8d8; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Rounds per Salvo</label>
-                        <select id="ffeRounds" style="width: 100%; padding: 8px; background: rgba(20, 15, 25, 0.8); border: 1px solid #5a4a62; border-radius: 3px; color: #d4c8e0; font-size: 13px;">
+                    <div class="ffe-form-group">
+                        <label for="ffeRounds">Rounds per Salvo</label>
+                        <select id="ffeRounds" class="ffe-select">
                             <option value="3">3 Rounds</option>
                             <option value="4">4 Rounds</option>
                             <option value="5" selected>5 Rounds</option>
@@ -310,45 +310,45 @@
                     </div>
                 </div>
                 
-                <div id="ffeSpacingGroup" style="margin-bottom: 10px;">
-                    <label style="display: block; color: #c8b8d8; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Round Interval (meters)</label>
-                    <input type="number" id="ffeSpacing" placeholder="50" value="50" min="10" max="500" step="10" style="width: 100%; padding: 8px; background: rgba(20, 15, 25, 0.8); border: 1px solid #5a4a62; border-radius: 3px; color: #d4c8e0; font-size: 13px;">
-                    <small style="color: #a89fb8; display: block; margin-top: 3px; font-size: 11px;">Spacing between impact points (10-500m)</small>
+                <div id="ffeSpacingGroup" class="ffe-form-group">
+                    <label for="ffeSpacing">Round Interval (meters)</label>
+                    <input type="number" id="ffeSpacing" class="ffe-input" placeholder="50" value="50" min="10" max="500" step="10">
+                    <small>Spacing between impact points (10-500m)</small>
                 </div>
                 
-                <div id="ffeRadiusGroup" style="display: none; margin-bottom: 10px;">
-                    <label style="display: block; color: #c8b8d8; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Circle Radius (meters)</label>
-                    <input type="number" id="ffeRadius" placeholder="100" value="100" min="20" max="500" step="10" style="width: 100%; padding: 8px; background: rgba(20, 15, 25, 0.8); border: 1px solid #5a4a62; border-radius: 3px; color: #d4c8e0; font-size: 13px;">
-                    <small style="color: #a89fb8; display: block; margin-top: 3px; font-size: 11px;">Distance from center to impact points (20-500m)</small>
+                <div id="ffeRadiusGroup" class="ffe-form-group" style="display: none;">
+                    <label for="ffeRadius">Circle Radius (meters)</label>
+                    <input type="number" id="ffeRadius" class="ffe-input" placeholder="100" value="100" min="20" max="500" step="10">
+                    <small>Distance from center to impact points (20-500m)</small>
                 </div>
                 
-                <button id="generateFFE" class="btn-press" style="width: 100%; padding: 10px; margin-top: 5px; background: linear-gradient(180deg, #8f69bc 0%, #7a58a8 100%); border: 1px solid #9f79cc; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                <button id="generateFFE" class="btn-press ffe-btn">
                     Generate FFE Pattern
                 </button>
                 
-                <button id="showBaseSolution" class="btn-press" style="display: none; width: 100%; padding: 10px; margin-top: 10px; background: linear-gradient(180deg, #666 0%, #555 100%); border: 1px solid #777; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                <button id="showBaseSolution" class="btn-press ffe-btn-secondary" style="display: none;">
                     ← Show Base Solution
                 </button>
             </div>
         </div>
         
         <!-- Fire Correction Widget (Static) -->
-        <div id="fireCorrectionWidget" class="cls-hidden" style="background: linear-gradient(135deg, rgba(40, 55, 45, 0.95) 0%, rgba(30, 45, 35, 0.95) 100%); padding: 15px; border-radius: 4px; margin-top: 10px; border: 1px solid rgba(107, 142, 35, 0.3);">
-            <h3 id="fireCorrectionHeader" style="margin: 0 0 10px 0; font-size: 16px; color: #c8d4a0;">🔄 Adjust Fire: Gun-Target (GT) line</h3>
+        <div id="fireCorrectionWidget" class="correction-widget cls-hidden">
+            <h3 id="fireCorrectionHeader">🔄 Adjust Fire: Gun-Target (GT) line</h3>
             <div>
                 
                 <!-- FO Mode Toggle -->
-                <div style="margin-bottom: 12px;">
-                    <div style="display: flex; align-items: center; color: #a8b898; font-size: 13px; cursor: pointer;">
-                        <input type="checkbox" id="foEnabled" style="margin-right: 8px; width: auto; height: auto;">
+                <div class="mb-12">
+                    <div class="correction-toggle">
+                        <input type="checkbox" id="foEnabled">
                         <span id="foToggleLabel">🔭 Use Observer-Target (OT) line</span>
                     </div>
                 </div>
                 
                 <!-- Observer Position Inputs -->
-                <div id="foControls" style="display: none; margin-bottom: 12px; padding: 10px; background: rgba(15, 20, 17, 0.9); border-radius: 3px; border: 1px solid #2a3532;">
+                <div id="foControls" class="correction-fo-controls cls-hidden">
                     <div id="observerGridMode" class="coord-mode">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                        <div class="correction-form-grid correction-grid-sm">
                             <div>
                                 <label class="observer-label">FO Grid X</label>
                                 <input type="text" id="observerGridX" placeholder="060" maxlength="4" inputmode="numeric" pattern="[0-9]*" class="observer-input observer-input-grid" onkeydown="if(event.key === 'Enter') event.preventDefault();">
@@ -361,7 +361,7 @@
                     </div>
                     
                     <div id="observerMetersMode" class="coord-mode">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                        <div class="correction-form-grid correction-grid-sm">
                             <div>
                                 <label class="observer-label">FO X (meters)</label>
                                 <input type="number" id="observerX" placeholder="6000" step="0.1" min="0" max="99999.9" class="observer-input" onkeydown="if(event.key === 'Enter') event.preventDefault();">
@@ -373,34 +373,30 @@
                         </div>
                     </div>
                     
-                    <div id="otBearingDisplay" style="margin-top: 8px; padding: 6px; background: rgba(40, 55, 45, 0.8); border-radius: 3px; display: none;">
-                        <div style="color: #8fbc1e; font-size: 11px;">
-                            🧭 <strong>OT:</strong> <span id="otBearingValue">-</span>° | <strong>GT:</strong> <span id="gtBearingValue">-</span>° | <strong>Δ:</strong> <span id="angleDiffValue">-</span>°
-                        </div>
+                    <div id="otBearingDisplay" class="correction-bearing-display" style="display: none;">
+                        🧭 <strong>OT:</strong> <span id="otBearingValue">-</span>° | <strong>GT:</strong> <span id="gtBearingValue">-</span>° | <strong>Δ:</strong> <span id="angleDiffValue">-</span>°
                     </div>
-                    <div id="observerWarning" style="margin-top: 8px; padding: 6px; background: rgba(168, 80, 80, 0.2); border: 1px solid #a85050; border-radius: 3px; display: none;">
-                        <div style="color: #ff6b6b; font-size: 11px;">
-                            ⚠️ Please enter observer coordinates to use OT mode
-                        </div>
+                    <div id="observerWarning" class="correction-warning cls-hidden">
+                        ⚠️ Please enter observer coordinates to use OT mode
                     </div>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                    <div>
-                        <label style="display: block; color: #a8b898; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Left/Right (meters)</label>
-                        <input type="text" inputmode="text" id="correctionLR" data-min="-500" data-max="500" onkeydown="if(event.key === 'Enter') event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9\-+]/g, '').replace(/(?!^)[\-+]/g, '');" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
-                        <small style="color: #999; display: block; margin-top: 3px; font-size: 11px;">Right: +, Left: − (Range: -500 to +500m)</small>
+                <div class="correction-form-grid">
+                    <div class="correction-form-group">
+                        <label for="correctionLR">Left/Right (meters)</label>
+                        <input type="text" inputmode="text" id="correctionLR" class="correction-input" data-min="-500" data-max="500" onkeydown="if(event.key === 'Enter') event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9\-+]/g, '').replace(/(?!^)[\-+]/g, '');">
+                        <small>Right: +, Left: − (Range: -500 to +500m)</small>
                     </div>
-                    <div>
-                        <label style="display: block; color: #a8b898; font-size: 13px; margin-bottom: 5px; font-weight: 600;">Add/Drop (meters)</label>
-                        <input type="text" inputmode="text" id="correctionAD" data-min="-500" data-max="500" onkeydown="if(event.key === 'Enter') event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9\-+]/g, '').replace(/(?!^)[\-+]/g, '');" style="width: 100%; padding: 8px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 3px; color: #c8d4a0; font-size: 13px;">
-                        <small style="color: #999; display: block; margin-top: 3px; font-size: 11px;">Add: +, Drop: − (Range: -500 to +500m)</small>
+                    <div class="correction-form-group">
+                        <label for="correctionAD">Add/Drop (meters)</label>
+                        <input type="text" inputmode="text" id="correctionAD" class="correction-input" data-min="-500" data-max="500" onkeydown="if(event.key === 'Enter') event.preventDefault();" oninput="this.value = this.value.replace(/[^0-9\-+]/g, '').replace(/(?!^)[\-+]/g, '');">
+                        <small>Add: +, Drop: − (Range: -500 to +500m)</small>
                     </div>
                 </div>
-                <button id="applyCorrection" disabled style="width: 100%; padding: 10px; margin-top: 5px; background: linear-gradient(180deg, #555 0%, #444 100%); border: 1px solid #8fbc1e; border-radius: 4px; color: white; font-weight: 600; cursor: not-allowed; font-size: 13px; transition: all 0.15s ease; opacity: 0.5;">
+                <button id="applyCorrection" class="correction-btn" disabled>
                     Apply Fire Correction
                 </button>
-                <button id="undoCorrection" class="btn-press" style="display: none; width: 100%; padding: 10px; margin-top: 10px; background: linear-gradient(180deg, #d94a4a 0%, #c93a3a 100%); border: 1px solid #ff6b6b; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                <button id="undoCorrection" class="btn-press correction-btn-undo" style="display: none;">
                     ↶ Undo Correction - Restore Original Target
                 </button>
             </div>
@@ -410,48 +406,48 @@
     </main>
     
     <!-- Share Session Modal -->
-    <div id="shareModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); z-index: 10000; align-items: center; justify-content: center;">
-        <div style="background: rgba(20, 25, 22, 0.98); border: 2px solid #6b8e23; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);">
+    <div id="shareModal" class="share-modal-overlay">
+        <div class="share-modal">
             <!-- Modal Header -->
-            <div style="background: linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%); padding: 15px 20px; border-bottom: 1px solid #8fbc1e; display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="margin: 0; color: white; font-size: 18px; font-weight: 700;">📤 Share Fire Mission</h2>
-                <button id="closeShareModalBtn" class="btn-press" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.3); color: white; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold;">✕</button>
+            <div class="share-modal-header">
+                <h2>📤 Share Fire Mission</h2>
+                <button id="closeShareModalBtn" class="btn-press share-modal-close">✕</button>
             </div>
             
             <!-- Modal Body -->
-            <div style="padding: 20px;">
+            <div class="share-modal-body">
                 <!-- Error Message Container -->
-                <div id="shareErrorMessage" style="display: none; background: rgba(200, 80, 80, 0.15); border: 1px solid rgba(200, 80, 80, 0.4); border-radius: 4px; padding: 12px; margin-bottom: 15px; color: #ff6b6b; font-size: 13px;"></div>
+                <div id="shareErrorMessage" class="share-modal-error cls-hidden"></div>
                 
                 <!-- Share Link Section -->
-                <div id="shareLinkSection" style="display: none; margin-bottom: 25px;">
-                    <h3 style="color: #c8d4a0; font-size: 15px; margin: 0 0 10px 0; font-weight: 600;">Share Link</h3>
-                    <p style="color: #95a585; font-size: 12px; margin: 0 0 10px 0;">Copy this link and send it to your squad. Anyone with the link can load this fire mission.</p>
+                <div id="shareLinkSection" class="share-modal-section mb-25" style="display: none;">
+                    <h3>Share Link</h3>
+                    <p>Copy this link and send it to your squad. Anyone with the link can load this fire mission.</p>
                     
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <input type="text" id="shareURLField" readonly placeholder="Share URL will appear here..." style="flex: 1; min-width: 250px; padding: 10px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 4px; color: #c8d4a0; font-size: 12px; font-family: monospace; user-select: all;">
-                        <button id="copyURLBtn" class="btn-press" style="padding: 10px 15px; background: linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%); border: 1px solid #8fbc1e; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px; white-space: nowrap;">📋 Copy</button>
+                    <div class="share-modal-input-group">
+                        <input type="text" id="shareURLField" class="share-modal-input" readonly placeholder="Share URL will appear here...">
+                        <button id="copyURLBtn" class="btn-press btn-copy">📋 Copy</button>
                     </div>
                 </div>
                 
-                <div id="shareDivider" style="display: none; border-top: 1px solid #3a4a45; margin: 20px 0;"></div>
+                <div id="shareDivider" class="share-modal-divider cls-hidden"></div>
                 
                 <!-- Load from Paste Section -->
-                <div>
-                    <h3 style="color: #c8d4a0; font-size: 15px; margin: 0 0 10px 0; font-weight: 600;">Load Shared Mission</h3>
-                    <p style="color: #95a585; font-size: 12px; margin: 0 0 10px 0;">Paste a share link or JSON data to load a fire mission from a squad member.</p>
+                <div class="share-modal-section">
+                    <h3>Load Shared Mission</h3>
+                    <p>Paste a share link or JSON data to load a fire mission from a squad member.</p>
                     
-                    <textarea id="sharePasteField" placeholder="Paste share link or JSON data here..." style="width: 100%; min-height: 100px; padding: 10px; background: rgba(20, 25, 22, 0.8); border: 1px solid #4a5a52; border-radius: 4px; color: #c8d4a0; font-size: 12px; font-family: monospace; resize: vertical; margin-bottom: 10px;"></textarea>
+                    <textarea id="sharePasteField" class="share-modal-textarea" placeholder="Paste share link or JSON data here..."></textarea>
                     
-                    <button id="loadPasteBtn" class="btn-press" style="width: 100%; padding: 10px; background: linear-gradient(180deg, #6b8e23 0%, #5a7a1c 100%); border: 1px solid #8fbc1e; border-radius: 4px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;">
+                    <button id="loadPasteBtn" class="btn-press w-full">
                         ⬇ Load Mission
                     </button>
                 </div>
             </div>
             
             <!-- Modal Footer -->
-            <div style="background: rgba(20, 25, 22, 0.6); padding: 15px 20px; border-top: 1px solid #3a4a45; text-align: right;">
-                <button id="closeShareModalBtn2" class="btn-press" style="padding: 8px 20px; background: linear-gradient(180deg, #555 0%, #444 100%); border: 1px solid #666; border-radius: 4px; color: #c8d4a0; font-weight: 600; cursor: pointer; font-size: 13px;">
+            <div class="share-modal-footer">
+                <button id="closeShareModalBtn2" class="btn-press share-modal-footer-btn">
                     Close
                 </button>
             </div>
@@ -459,8 +455,8 @@
     </div>
     
     <!-- Footer - Outside main and app containers to ensure visibility at all times -->
-    <footer style="text-align: center; padding: 20px; margin-top: 20px; color: #95a585; font-size: 12px; border-top: 1px solid #3a4a45;">
-        <p style="margin: 15px 0;">
+    <footer class="footer">
+        <p>
             <a href="https://github.com/GeNeFRAG/ArmaReforger/issues/new?labels=bug&title=%5BBUG%5D%20&body=%23%23%20What%27s%20broken%3F%0A%0A%0A%23%23%20How%20did%20it%20happen%3F%0A1.%20%0A2.%20%0A3.%20%0A%0A%23%23%20What%20weapon%2Fmap%20were%20you%20using%3F%0A" 
                target="_blank" 
                rel="noopener noreferrer" 
@@ -468,14 +464,14 @@
                 🐛 Report Bug
             </a>
         </p>
-        <p style="margin: 10px 0;">© 2026 ArmaMortars.org | OpenSource Arma Reforger Ballistic Calculator v2.8.0</p>
-        <p style="margin: 10px 0;">
-            <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">⭐ View on GitHub</a>
+        <p>© 2026 ArmaMortars.org | OpenSource Arma Reforger Ballistic Calculator v2.9.0</p>
+        <p>
+            <a href="https://github.com/GeNeFRAG/ArmaReforger/tree/main/mortar_core/" target="_blank" rel="noopener noreferrer">⭐ View on GitHub</a>
             | 
-            <a href="https://github.com/GeNeFRAG/ArmaReforger/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none;">📄 MIT License</a>
+            <a href="https://github.com/GeNeFRAG/ArmaReforger/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">📄 MIT License</a>
         </p>
-        <p style="margin: 10px 0;">
-            <a href="http://discord.gg/Gb8Nt92J3m" target="_blank" rel="noopener noreferrer" style="color: #8fbc1e; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;"><img src="FIST_Discord.webp" alt="F.I.S.T Discord" width="16" height="16" style="height: 16px; width: 16px; vertical-align: middle; display: inline-block;">F.I.S.T Discord</a>
+        <p>
+            <a href="http://discord.gg/Gb8Nt92J3m" target="_blank" rel="noopener noreferrer" class="footer-discord"><img src="FIST_Discord.webp" alt="F.I.S.T Discord" width="16" height="16">F.I.S.T Discord</a>
         </p>
     </footer>
     
