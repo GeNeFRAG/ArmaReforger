@@ -28,3 +28,4 @@ _bmad-output/
 .opencode
 playwright-report
 test-results
+logs
