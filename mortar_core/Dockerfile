@@ -2,6 +2,7 @@ FROM nginx:alpine
 
 # Copy static files to nginx html directory
 COPY index.html /usr/share/nginx/html/
+COPY styles.css /usr/share/nginx/html/
 COPY BallisticCalculator.js /usr/share/nginx/html/
 COPY ballistic-data.json /usr/share/nginx/html/
 COPY ui_js/ /usr/share/nginx/html/ui_js/
