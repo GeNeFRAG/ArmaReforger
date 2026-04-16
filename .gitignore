@@ -14,3 +14,6 @@ maps_core/height_data/
 logs
 docs
 _bmad*
+.opencode
+.claude
+docs
