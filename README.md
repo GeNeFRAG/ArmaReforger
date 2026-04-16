@@ -10,18 +10,16 @@ Comprehensive toolset for Arma Reforger server management, map resources, and ba
 ArmaReforger/
 ├── maps_core/              # Map metadata and elevation data
 │   ├── all_arma_maps.json  # 23 maps configuration
-│   ├── height_data/        # Elevation data (R2-hosted)
-│   └── README.md
+│   └── height_data/        # Elevation data (R2-hosted)
 ├── mortar_core/               # Artillery ballistics
 │   ├── BallisticCalculator.js # Core calculation engine
 │   ├── ballistic-data.json    # Weapon ballistics database
 │   ├── index.html             # Web calculator
-│   ├── ui_js/                 # UI modules
-│   └── README.md
+│   └── ui_js/                 # UI modules
 └── server_tools/           # Server management utilities
     ├── mod_manager.py
     ├── extract_mods_workshop.py
-    └── README.md
+    └── deep_clone_server.py
 ```
 
 ## Quick Start
@@ -55,9 +53,9 @@ Calculate ballistic fire missions:
 **Arma Reforger Ballistic Mission Planner:** [armamortars.org](https://armamortars.org)
 
 **Features:**
-- 🎯 Supports Arma Reforger Mortars, Artillery and MLRS weapon systems
-- � Session sharing - Share fire missions via URL with squad members (NEW in v2.7.0)
-- �👁️ Forward Observer (FO) Mode - corrections from observer's perspective
+- 🎯 Supports Arma Reforger Mortars, Howitzers and MLRS weapon systems
+- 🔗 Session sharing - Share fire missions via URL with squad members
+- 👁️ Forward Observer (FO) Mode - corrections from observer's perspective
 - 🎯 Separate X/Y grid inputs with real-time validation
 - 🔥 Fire correction system (Gun-Target or Observer-Target line)
 - 💥 Fire for Effect patterns (Lateral/Linear sheaf, Circular saturation)
@@ -71,14 +69,14 @@ await BallisticCalculator.loadBallisticData('./ballistic-data.json');
 
 // Get all available mortars
 const mortars = BallisticCalculator.getAllMortarTypes();
-// [{id: "RUS", name: "Russian 82mm Mortar", caliber: 82}, ...]
+// [{id: "2B14", name: "Soviet 2B14 82mm Mortar", caliber: 82}, ...]
 
 // Using grid coordinates (3-digit or 4-digit)
 const solution = BallisticCalculator.calculate(
     BallisticCalculator.prepareInput(
         { grid: "047/069", z: 15 },  // Mortar position
         { grid: "085/105", z: 25 },  // Target position
-        "US",
+        "M252",
         "HE"
     )
 );
@@ -88,7 +86,7 @@ const solution2 = BallisticCalculator.calculate({
     distance: 1500,
     heightDifference: 0,
     bearing: 45,
-    mortarId: "RUS",
+    weaponId: "2B14",
     shellType: "HE"
 });
 
@@ -134,19 +132,17 @@ Comprehensive ballistics database with dynamic loading:
 
 **Mortars**
 - **2B14** (Soviet 82mm) - 5 charge levels, HE/SMOKE/ILLUM shells, Warsaw Pact (6000 mils)
-- **M252** (US 81mm) - 5 charge levels, HE shells, NATO (6400 mils)
+- **M252** (US 81mm) - 5 charge levels, HE/ILLUM/SMOKE shells, NATO (6400 mils)
 
-**Howitzers**
-- **DM-30** (Soviet 122mm) -  2 ammo types: HE High Angle and HE Low Angle
-- **M119** (US 105mm) -  2 ammo types: HE High Angle and HE Low Angle
+**Howitzers** (WarZone mod)
+- **D-30** (122mm) - 2 ammo types: HE High Angle and HE Low Angle
+- **M119** (105mm) - 2 ammo types: HE High Angle and HE Low Angle
 
 **MLRS**
-- **BM-21 Grad** (Soviet 122mm)- 12 ammo types (HE, AP and AT) with different max. distance configurations
-- **Type-63** (Chinese 107mm) - 2 ammo types: HE High Angle and HE Low Angle
+- **Integrity BM-21 Grad** (122mm) - 3 ammo types (HE with different braking ring configurations)
+- **SH BM-21 Grad** (122mm) - 1 ammo type (HE)
+- **Type-63** (WarZone mod, 107mm) - 2 ammo types: HE High Angle and HE Low Angle
 
 ## Documentation
 
-- [Maps Core](maps_core/README.md) - Map metadata and elevation data
-- [Mortar Core](mortar_core/README.md) - Artillery ballistics and web calculator
-- [MortarCalculator API](mortar_core/MortarCalculator-API.md) - Complete API reference for developers
-- [Server Tools](server_tools/README.md) - Mod management utilities
+- [BallisticCalculator API](BallisticCalculator-API.md) - Complete API reference for developers
