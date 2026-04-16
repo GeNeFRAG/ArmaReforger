@@ -58,15 +58,14 @@ test.describe('Fire Corrections', () => {
     const correctedOutput = await page.locator('#output').textContent();
     expect(correctedOutput).not.toBe(originalOutput);
 
-    // Verify correction inputs are cleared to "0" after apply
-    const lrInput = page.locator('#correctionLR');
-    const adInput = page.locator('#correctionAD');
-    expect(await lrInput.inputValue()).toBe('0');
-    expect(await adInput.inputValue()).toBe('0');
+    // Verify correction inputs are cleared after apply (use auto-retrying
+    // assertion — the async applyFireCorrection clears inputs after
+    // calculateSolution returns, which is after #output.success appears)
+    await expect(page.locator('#correctionLR')).toHaveValue('0', { timeout: 5000 });
+    await expect(page.locator('#correctionAD')).toHaveValue('0', { timeout: 5000 });
   });
 
   test('should apply left correction to azimuth', async ({ page }) => {
-    // TODO: Needs investigation - apply button state management
     // Get original output before correction
     const originalOutput = await page.locator('#output').textContent();
 
@@ -81,15 +80,12 @@ test.describe('Fire Corrections', () => {
     const correctedOutput = await page.locator('#output').textContent();
     expect(correctedOutput).not.toBe(originalOutput);
 
-    // Verify correction inputs are cleared to "0" after apply
-    const lrInput = page.locator('#correctionLR');
-    const adInput = page.locator('#correctionAD');
-    expect(await lrInput.inputValue()).toBe('0');
-    expect(await adInput.inputValue()).toBe('0');
+    // Verify correction inputs are cleared after apply
+    await expect(page.locator('#correctionLR')).toHaveValue('0', { timeout: 5000 });
+    await expect(page.locator('#correctionAD')).toHaveValue('0', { timeout: 5000 });
   });
 
   test('should apply add correction to elevation', async ({ page }) => {
-    // TODO: Needs investigation - apply button state management
     // Get original output before correction
     const originalOutput = await page.locator('#output').textContent();
 
@@ -100,15 +96,12 @@ test.describe('Fire Corrections', () => {
     const correctedOutput = await page.locator('#output').textContent();
     expect(correctedOutput).not.toBe(originalOutput);
 
-    // Verify correction inputs are cleared to "0" after apply
-    const lrInput = page.locator('#correctionLR');
-    const adInput = page.locator('#correctionAD');
-    expect(await lrInput.inputValue()).toBe('0');
-    expect(await adInput.inputValue()).toBe('0');
+    // Verify correction inputs are cleared after apply
+    await expect(page.locator('#correctionLR')).toHaveValue('0', { timeout: 5000 });
+    await expect(page.locator('#correctionAD')).toHaveValue('0', { timeout: 5000 });
   });
 
   test('should apply drop correction to elevation', async ({ page }) => {
-    // TODO: Needs investigation - apply button state management
     // Get original output before correction
     const originalOutput = await page.locator('#output').textContent();
 
@@ -119,15 +112,12 @@ test.describe('Fire Corrections', () => {
     const correctedOutput = await page.locator('#output').textContent();
     expect(correctedOutput).not.toBe(originalOutput);
 
-    // Verify correction inputs are cleared to "0" after apply
-    const lrInput = page.locator('#correctionLR');
-    const adInput = page.locator('#correctionAD');
-    expect(await lrInput.inputValue()).toBe('0');
-    expect(await adInput.inputValue()).toBe('0');
+    // Verify correction inputs are cleared after apply
+    await expect(page.locator('#correctionLR')).toHaveValue('0', { timeout: 5000 });
+    await expect(page.locator('#correctionAD')).toHaveValue('0', { timeout: 5000 });
   });
 
   test('should combine left/right and add/drop corrections', async ({ page }) => {
-    // TODO: Needs investigation - apply button state management
     // Get original output before correction
     const originalOutput = await page.locator('#output').textContent();
 
@@ -138,11 +128,9 @@ test.describe('Fire Corrections', () => {
     const correctedOutput = await page.locator('#output').textContent();
     expect(correctedOutput).not.toBe(originalOutput);
 
-    // Verify correction inputs are cleared to "0" after apply
-    const lrInput = page.locator('#correctionLR');
-    const adInput = page.locator('#correctionAD');
-    expect(await lrInput.inputValue()).toBe('0');
-    expect(await adInput.inputValue()).toBe('0');
+    // Verify correction inputs are cleared after apply
+    await expect(page.locator('#correctionLR')).toHaveValue('0', { timeout: 5000 });
+    await expect(page.locator('#correctionAD')).toHaveValue('0', { timeout: 5000 });
   });
 
   // ==========================================================================
