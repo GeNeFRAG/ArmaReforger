@@ -1,14 +1,16 @@
-# CLAUDE.md
+# AGENT.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents when working with code in this repository.
 
 ## Project Overview
 
-ArmaReforger is a ballistic mission planner for Arma Reforger (live at armamortars.org). It has three modules:
+This repository contains independent tools for Arma Reforger:
 
-- **mortar_core/** - The primary component: a pure vanilla JavaScript web app (zero production dependencies) with a framework-agnostic ballistic calculator engine (`BallisticCalculator.js`) and an ES6 module-based UI (`ui_js/`). Served via Nginx in Docker.
+- **mortar_core/** - The armamortars.org web app (live at armamortars.org). Pure vanilla JavaScript ballistic mission planner (zero production dependencies) with a framework-agnostic calculation engine (`BallisticCalculator.js`) and an ES6 module-based UI (`ui_js/`). Served via Nginx in Docker.
 - **maps_core/** - Map metadata (`all_arma_maps.json` for 23 maps) and elevation data (`height_data/`). Includes a Python tile generator and JS map viewer.
 - **server_tools/** - Python scripts for Arma Reforger server management (mod extraction, server comparison, config cloning). Requires `requests` and `beautifulsoup4`.
+
+These are separate, independent tools that happen to live in the same repo.
 
 ## Build & Test Commands
 
