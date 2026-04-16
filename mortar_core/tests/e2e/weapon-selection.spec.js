@@ -84,8 +84,8 @@ test.describe('Weapon Selection', () => {
     const mortarTypeSelect = page.locator('#mortarType');
     const shellTypeSelect = page.locator('#shellType');
     
-    // Select BM-21 MLRS
-    await mortarTypeSelect.selectOption('BM21');
+    // Select Integrity BM-21 MLRS
+    await mortarTypeSelect.selectOption('INTEGRITY_BM21');
     
     // Wait for projectile options to be populated
     await page.waitForTimeout(300);

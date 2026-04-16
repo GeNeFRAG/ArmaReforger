@@ -1,7 +1,7 @@
 /**
  * Calculator Module
  * Main calculation logic, solution generation, and mission management
- * Version: 2.4.0
+ * Version: 2.5.0
  * 
  * Architecture: Uses dependency injection to avoid circular dependencies
  * Dependencies are injected via init() function
@@ -72,7 +72,7 @@ export function getShellTypesForMortar(weaponId) {
         
         // MLRS: Use projectileTypes, grouped by rocket model (9M22, 9M43, etc) and sorted by range
         if (systemType === 'mlrs') {
-            const modelOrder = { '9M22': 1, '9M43': 2, '3M16': 3, '9M28K': 4 };
+            const modelOrder = { '9M22': 1, '9M22M': 1, '9M43': 2, '3M16': 3, '9M28K': 4 };
             return weapon.projectileTypes
                 .map(projectile => {
                     const rangeKm = `${(projectile.minRange / 1000).toFixed(1)}-${(projectile.maxRange / 1000).toFixed(1)}km`;

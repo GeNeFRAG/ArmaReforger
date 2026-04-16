@@ -138,11 +138,11 @@ test.describe('Ballistic Calculations', () => {
   test('should calculate solution for BM-21 at long range', async ({ page }) => {
     // MLRS uses meters mode with different range requirements (3000-20000m)
     const coords = VALID_COORDS.mlrs_long;
-    const expectedResults = EXPECTED_RESULTS.mlrs_long_BM21;
+    const expectedResults = EXPECTED_RESULTS.mlrs_long_INTEGRITY_BM21;
 
     // Execute - switch to meters mode first, then select weapon
     await calculatorPage.toggleToMetersMode();
-    await calculatorPage.selectWeapon('BM21');
+    await calculatorPage.selectWeapon('INTEGRITY_BM21');
     
     // Wait for shell types to update after weapon selection
     await page.waitForTimeout(200);
@@ -173,7 +173,7 @@ test.describe('Ballistic Calculations', () => {
 
     // Execute - switch to meters mode first, then select weapon
     await calculatorPage.toggleToMetersMode();
-    await calculatorPage.selectWeapon('BM21');
+    await calculatorPage.selectWeapon('INTEGRITY_BM21');
     
     // Wait for shell types to update after weapon selection
     await page.waitForTimeout(200);
@@ -510,7 +510,7 @@ test.describe('Ballistic Calculations', () => {
 
     // Execute - switch to meters mode first, then select weapon
     await calculatorPage.toggleToMetersMode();
-    await calculatorPage.selectWeapon('BM21');
+    await calculatorPage.selectWeapon('INTEGRITY_BM21');
     
     // Wait for shell types to update after weapon selection
     await page.waitForTimeout(200);

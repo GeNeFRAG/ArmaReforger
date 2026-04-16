@@ -1,7 +1,7 @@
 /**
  * Arma Reforger Ballistic Calculator
  * Framework-agnostic calculation engine for mortar and MLRS weapon systems
- * Version: 2.4.0
+ * Version: 2.5.0
  * 
  * Features:
  * - Precision ballistic calculations for mortar and MLRS fire missions
@@ -548,7 +548,7 @@ async function loadBallisticData(dataSource) {
 
 /**
  * Get weapon configuration (unified for mortars and MLRS)
- * @param {string} weaponId - Weapon ID (e.g., "2B14", "M252", "BM21")
+ * @param {string} weaponId - Weapon ID (e.g., "2B14", "M252", "INTEGRITY_BM21", "SH_BM21")
  * @param {string} ammoType - Ammunition type (e.g., "HE", "9M22_he_frag_full_range")
  * @returns {Object} {weapon: Object, ammunition: Object, systemType: string}
  */
@@ -796,7 +796,7 @@ function calculateAzimuthMils(bearingDegrees, mortarType) {
 
 /**
  * Get mil system configuration for a weapon
- * @param {string} weaponId - Weapon ID (e.g., "2B14", "M252", "BM21")
+ * @param {string} weaponId - Weapon ID (e.g., "2B14", "M252", "INTEGRITY_BM21", "SH_BM21")
  * @returns {Object} Mil system configuration
  */
 function getMilSystemConfig(weaponId) {
@@ -1207,7 +1207,7 @@ function calculate(input) {
  * Generate trajectory points for visualization
  * @param {Array<FiringSolution>} solutions - Array of firing solutions
  * @param {number} distance - Horizontal distance in meters
- * @param {string} mortarType - Weapon ID for mil conversion (e.g., "2B14", "M252", "BM21")
+ * @param {string} mortarType - Weapon ID for mil conversion (e.g., "2B14", "M252", "INTEGRITY_BM21", "SH_BM21")
  * @returns {Array<Object>} Array of trajectory series with {charge, elevDeg, tof, points: [{x, y}], color}
  */
 function generateTrajectoryPoints(solutions, distance, mortarType) {

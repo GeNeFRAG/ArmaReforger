@@ -20,9 +20,9 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 ## 🚀 Features
 - ✅ **Pure JavaScript** - No external dependencies
 - ✅ **Framework-agnostic** - Works in Node.js and browsers
-- ✅ **Multiple ballistic weapon systems** - Mortars (M252, 2B14), MLRS (BM-21 Grad, Type-62) and Howitzers (D-30, M119)
+- ✅ **Multiple ballistic weapon systems** - Mortars (M252, 2B14), MLRS (SH BM-21, Integrity BM-21, Type-63) and Howitzers (D-30, M119)
 - ✅ **Session sharing** - Share fire missions via URL with squad members
-- ✅ **Persistent history** - Mission history survives browser refresh via localStorage (NEW in v2.8.0)
+- ✅ **Persistent history** - Mission history survives browser refresh via localStorage
 - ✅ **Real-time validation** - Instant format and range checking while typing
 - ✅ **Dynamic range validation** - Updates when switching weapons or projectile types
 - ✅ **Grid coordinates** - 3-digit (100m) and 4-digit (10m) precision
@@ -240,15 +240,16 @@ All weapon data is dynamically loaded from `ballistic-data.json`:
 
 | Weapon ID | Name | Caliber | Projectile Types | Range |
 |-----------|------|---------|------------------|-------|
-| `BM21_GRAD` | BM-21 Grad | 122mm | HE, AP, AT | 1.6km - 16.8km |
-| `TYPE62_MLRS` | Type-62 MLRS | 107mm | HE | 0.5km - 2.2km |
+| `SH_BM21` | [SH BM-21 Grad](https://reforger.armaplatform.com/workshop/6854D8DBA436768F-SH-BM21) | 122mm | HE | 0.2km - 5.8km |
+| `INTEGRITY_BM21` | [Integrity BM-21 Grad](https://reforger.armaplatform.com/workshop/68DA62B40A976334-Integrity-BM-21Grad) | 122mm | HE (3 charge levels) | 0.4km - 8.0km |
+| `TYPE63` | [Type-63](https://reforger.armaplatform.com/workshop/611ABE2F73802440-WZTurrets) | 107mm | HE | 0.5km - 2.25km |
 
 ### Howitzers
 
 | Weapon ID | Name | Caliber | Shell Types | Range |
 |-----------|------|---------|-------------|-------|
-| `D30` | D-30 | 122mm | HE | 0.8km - 4.8km |
-| `M119` | M119 | 105mm | HE | 0.8km - 4.8km |
+| `D30` | [D-30](https://reforger.armaplatform.com/workshop/611ABE2F73802440-WZTurrets) | 122mm | HE | 0.8km - 4.8km |
+| `M119` | [M119](https://reforger.armaplatform.com/workshop/611ABE2F73802440-WZTurrets) | 105mm | HE | 0.8km - 4.8km |
 
 ## 🛠️ Development
 
@@ -286,13 +287,13 @@ const mortarSolution = BallisticCalculator.calculate({
 
 console.log(`Mortar: Charge ${mortarSolution.charge}, Elevation ${mortarSolution.elevation} mils`);
 
-// MLRS calculation
+// MLRS calculation (SH BM-21)
 const mlrsSolution = BallisticCalculator.calculate({
-    distance: 12000,
+    distance: 3000,
     heightDifference: 50,
     bearing: 180,
-    weaponId: "BM21_GRAD",
-    shellType: "9M22_he_frag_medium_range"
+    weaponId: "SH_BM21",
+    shellType: "sh_122mm_he"
 });
 
 console.log(`MLRS: Elevation ${mlrsSolution.elevation} mils, TOF ${mlrsSolution.timeOfFlight}s`);
@@ -326,6 +327,24 @@ mortar_core/
 - **Node.js:** 12+
 
 ## 📝 Changelog
+
+### v2.9.0 - BM-21 Mod Support Rework (April 2026)
+**Breaking Changes:**
+- Replaced single `BM21` weapon ID with two mod-specific weapon systems
+- Old `BM21` weapon ID is no longer valid; use `SH_BM21` or `INTEGRITY_BM21`
+
+**New Features:**
+- ✅ **SH BM-21 Grad** - [SpearHead mod](https://reforger.armaplatform.com/workshop/6854D8DBA436768F-SH-BM21) support with 122mm HE (200-5800m)
+- ✅ **Integrity BM-21 Grad** - [Integrity Gaming mod](https://reforger.armaplatform.com/workshop/68DA62B40A976334-Integrity-BM-21Grad) support with 9M22M HE in 3 charge variants (Full, Small brake ring, Large brake ring)
+- ✅ **Weapon dropdown ordering** - Matches supported weapons list (Mortars, Howitzers, MLRS)
+
+**Data Changes:**
+- Removed old BM-21 ballistic data (no longer valid for any current mod)
+- Removed unverified smoke/AP/AT mine projectile types
+- Added verified ballistic tables from both workshop mods
+
+**Fixes:**
+- Closes [#7](https://github.com/GeNeFRAG/ArmaReforger/issues/7) - Add new ammunition for BM-21 mods
 
 ### v2.8.0 - Persistent Mission History (February 2026)
 **New Features:**
@@ -371,8 +390,8 @@ mortar_core/
 ### v2.4.0 - MLRS Integration (January 2026)
 
 **New Features:**
-- ✅ BM-21 Grad MLRS support with 13 projectile types
-- ✅ Projectile dropdown grouped by rocket model (9M22, 9M43, 3M16, 9M28K)
+- ✅ BM-21 Grad MLRS support (replaced in v2.9.0 with mod-specific variants)
+- ✅ Projectile dropdown grouped by rocket model
 - ✅ Range display in projectile dropdown (e.g., "9M22 HE Medium (9800-13200m)")
 - ✅ Dynamic range validation - updates when switching weapons or projectiles
 - ✅ Custom weapon ordering - M252 first, then 2B14, then MLRS systems

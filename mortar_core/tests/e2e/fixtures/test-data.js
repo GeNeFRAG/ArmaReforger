@@ -12,8 +12,12 @@ export const WEAPONS = {
     name: 'US 81mm mortar',
     shellTypes: ['HE']
   },
-  'BM21': {
-    name: 'BM-21 Grad MLRS',
+  'INTEGRITY_BM21': {
+    name: 'Integrity BM-21 Grad MLRS',
+    projectileTypes: ['HE']
+  },
+  'SH_BM21': {
+    name: 'SH BM-21 Grad MLRS',
     projectileTypes: ['HE']
   },
   'TYPE63': {
@@ -62,7 +66,7 @@ export const VALID_COORDS = {
       z: 50
     },
     target: {
-      x: 9000,
+      x: 5000,
       y: 5000,
       z: 45
     }
@@ -103,7 +107,7 @@ export const EXPECTED_RESULTS = {
     elevationMin: 800,
     elevationMax: 1400
   },
-  mlrs_long_BM21: {
+  mlrs_long_INTEGRITY_BM21: {
     inRange: true,
     // MLRS elevation varies by distance and rocket type - widen range to accommodate
     elevationMin: 200,
