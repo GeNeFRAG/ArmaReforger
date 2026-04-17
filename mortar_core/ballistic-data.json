@@ -3367,112 +3367,112 @@
             {
               "range": 1600,
               "elevation": 58,
-              "tof": 4.7,
+              "tof": 5.9,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 2000,
               "elevation": 72,
-              "tof": 5.9,
+              "tof": 7.0,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 2400,
               "elevation": 87,
-              "tof": 7.0,
+              "tof": 8.2,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 2800,
               "elevation": 101,
-              "tof": 8.2,
+              "tof": 9.3,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 3200,
               "elevation": 116,
-              "tof": 9.3,
+              "tof": 10.5,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 3600,
               "elevation": 130,
-              "tof": 10.5,
+              "tof": 11.7,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 4000,
               "elevation": 145,
-              "tof": 11.7,
+              "tof": 12.8,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 4400,
               "elevation": 159,
-              "tof": 12.8,
+              "tof": 14.0,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 4800,
               "elevation": 174,
-              "tof": 14.0,
+              "tof": 15.2,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 5200,
               "elevation": 189,
-              "tof": 15.2,
+              "tof": 16.7,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 5600,
               "elevation": 209,
-              "tof": 16.7,
+              "tof": 18.2,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 6000,
               "elevation": 229,
-              "tof": 18.2,
+              "tof": 19.7,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 6400,
               "elevation": 249,
-              "tof": 19.7,
+              "tof": 21.3,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 6800,
               "elevation": 270,
-              "tof": 21.2,
+              "tof": 22.8,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 7200,
               "elevation": 293,
-              "tof": 22.8,
+              "tof": 24.6,
               "windDrift100m": null,
               "angleOfFall": null
             },
             {
               "range": 7600,
               "elevation": 319,
-              "tof": 24.6,
+              "tof": null,
               "windDrift100m": null,
               "angleOfFall": null
             },
@@ -3486,10 +3486,10 @@
           ]
         },
         {
-          "id": "9M22M_122mm_he_small_braking_ring",
-          "name": "9M22M 122mm HE Small brake ring",
-          "type": "HE",
-          "variant": "small_braking_ring",
+          "id": "9M43_122mm_smoke",
+          "name": "9M43 122mm Smoke",
+          "type": "Smoke",
+          "variant": "standard",
           "minRange": 400,
           "maxRange": 8000,
           "ballisticTable": [
@@ -3643,10 +3643,10 @@
           ]
         },
         {
-          "id": "9M22M_122mm_he_large_braking_ring",
-          "name": "9M22M 122mm HE Large brake ring",
-          "type": "HE",
-          "variant": "large_braking_ring",
+          "id": "3M16_122mm_ap",
+          "name": "3M16 122mm Anti-Personnel",
+          "type": "Cluster",
+          "variant": "standard",
           "minRange": 400,
           "maxRange": 7600,
           "ballisticTable": [

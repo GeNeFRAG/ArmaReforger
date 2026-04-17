@@ -54,7 +54,7 @@ npx playwright test -g "pattern" --project=chromium
 **Supported weapon systems:**
 - Mortars: M252 (US 81mm, NATO 6400 mils), 2B14 (Soviet 82mm, Warsaw Pact 6000 mils)
 - Howitzers: M119 (US 105mm), D-30 (Soviet 122mm) - each with High Angle and Low Angle
-- MLRS: BM-21 Grad variants (SH, Integrity), Type-63 - range-based auto projectile selection
+- MLRS: SH BM-21 Grad (122mm HE), Integrity BM-21 Grad (9M22M HE / 9M43 Smoke / 3M16 AP), Type-63 - range-based auto projectile selection
 
 **UI modules** (`ui_js/`) follow single-responsibility separation:
 - `main.js` - App init and module coordination

@@ -241,7 +241,7 @@ All weapon data is dynamically loaded from `ballistic-data.json`:
 | Weapon ID | Name | Caliber | Projectile Types | Range |
 |-----------|------|---------|------------------|-------|
 | `SH_BM21` | [SH BM-21 Grad](https://reforger.armaplatform.com/workshop/6854D8DBA436768F-SH-BM21) | 122mm | HE | 0.2km - 5.8km |
-| `INTEGRITY_BM21` | [Integrity BM-21 Grad](https://reforger.armaplatform.com/workshop/68DA62B40A976334-Integrity-BM-21Grad) | 122mm | HE (3 charge levels) | 0.4km - 8.0km |
+| `INTEGRITY_BM21` | [Integrity BM-21 Grad](https://reforger.armaplatform.com/workshop/68DA62B40A976334-Integrity-BM-21Grad) | 122mm | 9M22M HE, 9M43 Smoke, 3M16 AP | 0.4km - 8.0km |
 | `TYPE63` | [Type-63](https://reforger.armaplatform.com/workshop/611ABE2F73802440-WZTurrets) | 107mm | HE | 0.5km - 2.25km |
 
 ### Howitzers
@@ -335,7 +335,7 @@ mortar_core/
 
 **New Features:**
 - ✅ **SH BM-21 Grad** - [SpearHead mod](https://reforger.armaplatform.com/workshop/6854D8DBA436768F-SH-BM21) support with 122mm HE (200-5800m)
-- ✅ **Integrity BM-21 Grad** - [Integrity Gaming mod](https://reforger.armaplatform.com/workshop/68DA62B40A976334-Integrity-BM-21Grad) support with 9M22M HE in 3 charge variants (Full, Small brake ring, Large brake ring)
+- ✅ **Integrity BM-21 Grad** - [Integrity Gaming mod](https://reforger.armaplatform.com/workshop/68DA62B40A976334-Integrity-BM-21Grad) support with 3 rocket types: 9M22M HE, 9M43 Smoke, 3M16 Anti-Personnel
 - ✅ **Weapon dropdown ordering** - Matches supported weapons list (Mortars, Howitzers, MLRS)
 
 **Data Changes:**
