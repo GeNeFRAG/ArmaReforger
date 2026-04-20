@@ -300,11 +300,12 @@ function roundPosition(pos) {
 
 /**
  * Generates complete shareable URL with encoded session
+ * Uses canonical root path to ensure consistency regardless of how user accessed the site
  * @throws {Error} If URL would exceed maximum length
  */
 export function generateShareURL(sessionData) {
     const encoded = encodeSession(sessionData);
-    const url = `${window.location.origin}${window.location.pathname}#share=${encoded}`;
+    const url = `${window.location.origin}/#share=${encoded}`;
     
     if (url.length > SHARE_CONSTANTS.maxURLLength) {
         throw new Error(`Share link exceeds maximum length (${url.length} > ${SHARE_CONSTANTS.maxURLLength}). Try removing mission label or FFE pattern.`);
