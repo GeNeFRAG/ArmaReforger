@@ -53,7 +53,7 @@ async function integrateWithMapEngine(map, engine) {
     };
     
     // Calculate firing solution
-    const input = BallisticCalculator.prepareInput(mortarPos, targetPos, "RUS", "HE");
+    const input = BallisticCalculator.prepareInput(mortarPos, targetPos, "2B14", "HE");
     const solution = BallisticCalculator.calculate(input);
     
     console.log('Mortar Position:', mortarPos);
@@ -108,7 +108,7 @@ function setupMapClickHandler(map, engine) {
             z: targetHeight 
         };
         
-        const input = BallisticCalculator.prepareInput(mortarPos, targetPos, "RUS", "HE");
+        const input = BallisticCalculator.prepareInput(mortarPos, targetPos, "2B14", "HE");
         const solution = BallisticCalculator.calculate(input);
         
         if (solution.inRange) {

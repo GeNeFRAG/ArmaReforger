@@ -14,7 +14,7 @@ async function main() {
     const input = BallisticCalculator.prepareInput(
         mortarPos, 
         targetPos, 
-        "RUS", 
+        "2B14",
         "HE"
     );
     

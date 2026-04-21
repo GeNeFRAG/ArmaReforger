@@ -18,7 +18,7 @@ async function main() {
     const targetPos = { x: 4696, y: 5516, z: 64 };
     
     // Prepare input
-    const input = BallisticCalculator.prepareInput(mortarPos, targetPos, "RUS", "HE");
+    const input = BallisticCalculator.prepareInput(mortarPos, targetPos, "2B14", "HE");
     
     console.log('Calculating trajectories for:');
     console.log(`  Distance: ${input.distance.toFixed(1)}m`);
@@ -39,7 +39,7 @@ async function main() {
     const trajectoryData = BallisticCalculator.generateTrajectoryPoints(
         solutions, 
         input.distance, 
-        input.mortarType
+        input.weaponId
     );
     
     // Display trajectory data

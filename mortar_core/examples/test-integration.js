@@ -47,7 +47,7 @@ async function testBasicFunctions() {
     // Test 4: Get weapon config for MLRS
     console.log('TEST 4: Get MLRS Weapon Config');
     console.log('─────────────────────────────────────────────────────');
-    const mlrsConfig = BallisticCalculator.getWeaponConfig('BM21', 'HE');
+    const mlrsConfig = BallisticCalculator.getWeaponConfig('INTEGRITY_BM21', 'HE');
     console.log(`Weapon: ${mlrsConfig.weapon.name}`);
     console.log(`System Type: ${mlrsConfig.systemType}`);
     console.log(`Projectile: ${mlrsConfig.ammunition.name}`);
@@ -86,7 +86,7 @@ async function testBasicFunctions() {
     const targetPos2 = { x: 9000, y: 5000, z: 45 };
     
     const mlrsInput = BallisticCalculator.prepareInput(
-        mlrsPos, targetPos2, 'BM21', 'HE'
+        mlrsPos, targetPos2, 'INTEGRITY_BM21', 'HE'
     );
     console.log(`Distance: ${mlrsInput.distance.toFixed(1)}m`);
     console.log(`Height Diff: ${mlrsInput.heightDifference}m`);
@@ -133,7 +133,7 @@ async function testBasicFunctions() {
     console.log('─────────────────────────────────────────────────────');
     const rusMils = BallisticCalculator.getMilSystemConfig('2B14');
     const usMils = BallisticCalculator.getMilSystemConfig('M252');
-    const gradMils = BallisticCalculator.getMilSystemConfig('BM21');
+    const gradMils = BallisticCalculator.getMilSystemConfig('INTEGRITY_BM21');
     
     console.log(`2B14 Mortar: ${rusMils.name} - ${rusMils.milsPerCircle} mils/circle`);
     console.log(`M252 Mortar: ${usMils.name} - ${usMils.milsPerCircle} mils/circle`);
@@ -156,7 +156,7 @@ async function testBasicFunctions() {
     
     // MLRS: too close
     const closeTarget = { x: 1100, y: 1100, z: 50 };
-    const closeInput = BallisticCalculator.prepareInput(mlrsPos, closeTarget, 'BM21', 'HE');
+    const closeInput = BallisticCalculator.prepareInput(mlrsPos, closeTarget, 'INTEGRITY_BM21', 'HE');
     const closeSolution = BallisticCalculator.calculate(closeInput);
     console.log(`MLRS @ ${closeInput.distance.toFixed(0)}m: ${closeSolution.inRange ? 'IN RANGE' : 'OUT OF RANGE ✓'}`);
     if (!closeSolution.inRange) {
