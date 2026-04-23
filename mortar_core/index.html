@@ -130,12 +130,12 @@
         <div class="toggle-container">
             <span class="toggle-label">Coordinate Input:</span>
             <div class="toggle-buttons">
-                <div class="toggle-option active" id="toggleGrid" data-mode="grid">
+                <button type="button" class="toggle-option active" id="toggleGrid" data-mode="grid" aria-pressed="true">
                     🎯 Grid (047/069)
-                </div>
-                <div class="toggle-option" id="toggleMeters" data-mode="meters">
+                </button>
+                <button type="button" class="toggle-option" id="toggleMeters" data-mode="meters" aria-pressed="false">
                     📏 Meters (X/Y)
-                </div>
+                </button>
             </div>
         </div>
         
@@ -267,10 +267,13 @@
             </div>
             
             <div class="btn-row">
-                <button id="calculate" class="btn-press btn-primary-wide">Compute Fire Mission</button>
+                <div class="btn-primary-wide" id="calculateWrapper">
+                    <button id="calculate" class="btn-press">Compute Fire Mission</button>
+                </div>
                 <button id="reset" class="btn-press btn-secondary-flex">Reset</button>
                 <button id="shareBtn" class="btn-press btn-share">📤 Share</button>
             </div>
+            <div id="formStatus" class="form-status form-status-hidden" role="status" aria-live="polite"></div>
         </div>
         
         <div id="output" class="result"></div>
@@ -402,9 +405,11 @@
                         <small>Add: +, Drop: − (Range: -500 to +500m)</small>
                     </div>
                 </div>
-                <button id="applyCorrection" class="correction-btn" disabled>
-                    Apply Fire Correction
-                </button>
+                <div id="applyCorrectionWrapper">
+                    <button id="applyCorrection" class="correction-btn" disabled>
+                        Apply Fire Correction
+                    </button>
+                </div>
                 <button id="undoCorrection" class="btn-press correction-btn-undo" style="display: none;">
                     ↶ Undo Correction - Restore Original Target
                 </button>

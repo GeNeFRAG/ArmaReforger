@@ -50,35 +50,25 @@ export function setMode(mode) {
     const widget = getElement('fireCorrectionWidget', false);
     if (widget) widget.style.display = 'none';
     
-    if (mode === 'grid') {
-        // Update button styling
-        gridBtn?.classList.add('active');
-        metersBtn?.classList.remove('active');
-        
-        // Show/hide field containers
-        if (mortarGridMode) mortarGridMode.style.display = 'block';
-        if (mortarMetersMode) mortarMetersMode.style.display = 'none';
-        if (targetGridMode) targetGridMode.style.display = 'block';
-        if (targetMetersMode) targetMetersMode.style.display = 'none';
-        
-        // Update observer field visibility
-        observerGridMode?.classList.add('active');
-        observerMetersMode?.classList.remove('active');
-    } else {
-        // Update button styling
-        metersBtn?.classList.add('active');
-        gridBtn?.classList.remove('active');
-        
-        // Show/hide field containers
-        if (mortarMetersMode) mortarMetersMode.style.display = 'block';
-        if (mortarGridMode) mortarGridMode.style.display = 'none';
-        if (targetMetersMode) targetMetersMode.style.display = 'block';
-        if (targetGridMode) targetGridMode.style.display = 'none';
-        
-        // Update observer field visibility
-        observerMetersMode?.classList.add('active');
-        observerGridMode?.classList.remove('active');
-    }
+    const isGrid = mode === 'grid';
+
+    // Update toggle button state
+    gridBtn?.classList.toggle('active', isGrid);
+    gridBtn?.setAttribute('aria-pressed', String(isGrid));
+    metersBtn?.classList.toggle('active', !isGrid);
+    metersBtn?.setAttribute('aria-pressed', String(!isGrid));
+
+    // Show/hide field containers via class (clear any lingering inline style first)
+    const panels = [mortarGridMode, mortarMetersMode, targetGridMode, targetMetersMode,
+                    observerGridMode, observerMetersMode];
+    panels.forEach(el => { if (el) el.style.display = ''; });
+
+    mortarGridMode?.classList.toggle('active', isGrid);
+    mortarMetersMode?.classList.toggle('active', !isGrid);
+    targetGridMode?.classList.toggle('active', isGrid);
+    targetMetersMode?.classList.toggle('active', !isGrid);
+    observerGridMode?.classList.toggle('active', isGrid);
+    observerMetersMode?.classList.toggle('active', !isGrid);
 }
 
 /**

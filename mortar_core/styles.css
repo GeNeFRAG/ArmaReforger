@@ -187,6 +187,10 @@ input:focus, select:focus {
     border-color: var(--color-primary);
     background: #323e3a;
 }
+input:focus-visible, select:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+}
 .row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -230,6 +234,7 @@ button:disabled {
     border-color: #3a4540;
     cursor: not-allowed;
     opacity: 0.5;
+    pointer-events: none;
 }
 .bug-report-btn {
     display: inline-block;
@@ -865,6 +870,28 @@ button:disabled {
 .btn-primary-wide {
     flex: 3;
 }
+.btn-primary-wide button {
+    width: 100%;
+    margin-top: 0;
+}
+#applyCorrectionWrapper {
+    width: 100%;
+}
+#applyCorrectionWrapper button {
+    width: 100%;
+    margin-top: 0;
+}
+.form-status {
+    font-size: 13px;
+    color: #a8b898;
+    text-align: center;
+    min-height: 20px;
+    padding: 4px 0;
+    transition: opacity 0.3s;
+}
+.form-status-hidden {
+    opacity: 0;
+}
 .btn-secondary-flex {
     flex: 1;
     background: linear-gradient(180deg, #666 0%, #555 100%);
@@ -933,6 +960,13 @@ button:disabled {
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
+    /* Reset button element defaults that would break the toggle layout */
+    width: auto;
+    margin-top: 0;
+    text-transform: none;
+    letter-spacing: normal;
+    box-shadow: none;
+    color: inherit;
 }
 .toggle-option.active {
     background: var(--color-primary);
@@ -941,6 +975,14 @@ button:disabled {
 }
 .toggle-option:hover:not(.active) {
     background: rgba(255, 255, 255, 0.15);
+}
+.toggle-option:active {
+    transform: translateY(1px);
+    filter: brightness(1.1);
+}
+.toggle-option:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
 }
 .coord-mode {
     display: none;

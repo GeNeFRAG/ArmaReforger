@@ -27,6 +27,9 @@ let dependencies = {
 let debouncedValidateCoordinateRange = null;
 let debouncedValidateGridFormat = null;
 
+// Timer for auto-hiding the form status message
+let formStatusTimer = null;
+
 /**
  * Initialize UI with dependencies
  * @param {Object} deps - Dependency injection container
@@ -252,6 +255,43 @@ function isFormValid(skipHeavy = false) {
 }
 
 /**
+ * Show a transient status message explaining why a button is unavailable
+ */
+function showFormStatus(message) {
+    const statusEl = getElement('formStatus', false);
+    if (!statusEl) return;
+    statusEl.textContent = message;
+    statusEl.classList.remove('form-status-hidden');
+    if (formStatusTimer) clearTimeout(formStatusTimer);
+    formStatusTimer = setTimeout(() => {
+        statusEl.classList.add('form-status-hidden');
+    }, 3000);
+}
+
+/**
+ * Return a human-readable reason why the Calculate button is currently disabled
+ */
+function getCalculateDisabledReason() {
+    const mode = CoordManager.getMode();
+    if (mode === 'grid') {
+        const mx = getElement('mortarGridX', false);
+        const my = getElement('mortarGridY', false);
+        if (!mx?.value?.trim() || !my?.value?.trim()) return 'Enter weapon position grid coordinates first';
+        const tx = getElement('targetGridX', false);
+        const ty = getElement('targetGridY', false);
+        if (!tx?.value?.trim() || !ty?.value?.trim()) return 'Enter target grid coordinates first';
+    } else {
+        const mx = getElement('mortarX', false);
+        const my = getElement('mortarY', false);
+        if (!mx?.value?.trim() || !my?.value?.trim()) return 'Enter weapon position coordinates first';
+        const tx = getElement('targetX', false);
+        const ty = getElement('targetY', false);
+        if (!tx?.value?.trim() || !ty?.value?.trim()) return 'Enter target coordinates first';
+    }
+    return 'Fill in all required fields to compute';
+}
+
+/**
  * Update calculate button enabled/disabled state
  */
 function updateCalculateButtonState() {
@@ -473,12 +513,35 @@ export function performReset() {
 }
 
 /**
- * Set coordinate input mode (grid/meters) - delegates to coord-manager and resets
+ * Set coordinate input mode (grid/meters) - switches panels without wiping user data
  */
 export function setCoordMode(mode) {
     CoordManager.setMode(mode);
-    performReset();
-    
+
+    // Clear field error highlights (they belong to the previous mode's validation)
+    INPUT_IDS.ALL_COORD_FIELDS.forEach(id => {
+        const el = getElement(id, false);
+        if (el) clearFieldHighlighting(el);
+    });
+
+    // Clear output — previous result was computed with the other mode's inputs
+    const output = getElement('output');
+    if (output) {
+        output.className = 'result';
+        output.innerHTML = '<p>Configure your mortar and target positions, then click Calculate.</p>';
+    }
+
+    // Hide FFE widget (result-specific)
+    const ffeWidget = getElement('ffeWidget', false);
+    if (ffeWidget) ffeWidget.style.display = 'none';
+    resetFFEWidget();
+
+    // Reset computation state so corrections/FFE don't use stale data
+    State.resetAllState();
+
+    // Clear range validation indicator
+    clearRangeValidation();
+
     // Re-attach meter validation listeners to ensure they work after mode switch
     if (mode === 'meters' && debouncedValidateCoordinateRange) {
         INPUT_IDS.METER_FIELDS.forEach(id => {
@@ -493,7 +556,7 @@ export function setCoordMode(mode) {
             }
         });
     }
-    
+
     updateCalculateButtonState();
 }
 
@@ -675,17 +738,6 @@ export function initUI() {
         });
     }
     
-    if (toggleGrid) {
-        toggleGrid.addEventListener('click', () => {
-            setCoordMode('grid');
-        });
-    }
-    if (toggleMeters) {
-        toggleMeters.addEventListener('click', () => {
-            setCoordMode('meters');
-        });
-    }
-    
     const mortarTypeSelect = getElement('mortarType', false);
     if (mortarTypeSelect && dependencies.updateShellTypes) {
         mortarTypeSelect.addEventListener('change', async () => {
@@ -787,6 +839,22 @@ function setupUIListeners() {
         });
     }
     
+    // Disabled-button click hints
+    const calculateWrapper = getElement('calculateWrapper', false);
+    if (calculateWrapper) {
+        calculateWrapper.addEventListener('click', () => {
+            const btn = getElement('calculate', false);
+            if (btn && btn.disabled) showFormStatus(getCalculateDisabledReason());
+        });
+    }
+    const applyCorrectionWrapper = getElement('applyCorrectionWrapper', false);
+    if (applyCorrectionWrapper) {
+        applyCorrectionWrapper.addEventListener('click', () => {
+            const btn = getElement('applyCorrection', false);
+            if (btn && btn.disabled) showFormStatus('Compute a fire mission first to enable Apply Correction');
+        });
+    }
+
     // FO mode toggle
     const foEnabled = getElement('foEnabled', false);
     const foToggleLabel = getElement('foToggleLabel', false);
