@@ -328,6 +328,19 @@ mortar_core/
 
 ## 📝 Changelog
 
+### v2.11.0 - Dead-Click UX Fixes (April 2026)
+**Improvements:**
+- ✅ **Coord-mode toggle** - Converted from non-interactive divs to `<button>` elements with `aria-pressed`, `:active` press feedback, and `:focus-visible` keyboard ring
+- ✅ **Data preservation on mode switch** - Switching Grid ↔ Meters no longer wipes entered coordinates; values are restored when switching back
+- ✅ **Disabled-button hints** - Clicking a disabled Compute or Apply Correction button now surfaces an `aria-live` status message explaining the blocker, auto-clearing after 3 s
+- ✅ **Unified panel visibility** - All coordinate panels (mortar, target, observer) now use class-based `.active` toggling; eliminates stale inline-style conflicts
+- ✅ **Button row alignment** - Fixed Compute Fire Mission button height misalignment caused by wrapper div margin inconsistency
+- ✅ **Focus-visible outlines** - Inputs and selects now show a 2 px accent outline for keyboard users without affecting mouse users
+
+**Fixes:**
+- Removed duplicate coord-mode toggle click listeners (double reset per tap)
+- `pointer-events: none` on `button:disabled` so wrapper div correctly intercepts dead clicks
+
 ### v2.9.0 - BM-21 Mod Support Rework (April 2026)
 **Breaking Changes:**
 - Replaced single `BM21` weapon ID with two mod-specific weapon systems

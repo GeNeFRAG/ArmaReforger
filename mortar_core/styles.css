@@ -866,11 +866,17 @@ button:disabled {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    align-items: stretch;
+}
+.btn-row > * {
+    margin-top: 0;
 }
 .btn-primary-wide {
     flex: 3;
+    display: flex;
 }
 .btn-primary-wide button {
+    flex: 1;
     width: 100%;
     margin-top: 0;
 }
