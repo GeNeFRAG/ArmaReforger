@@ -1152,4 +1152,41 @@ button:disabled {
         padding: 10px 15px !important;
         font-size: 12px !important;
     }
+
+    /* Active coord-mode panel — card treatment */
+    .coord-mode.active {
+        border: 1px solid var(--color-border-light);
+        border-radius: var(--radius-sm);
+        padding: 10px;
+        background: rgba(107, 142, 35, 0.06);
+        margin-bottom: 8px;
+    }
+    .coord-mode.active label {
+        font-size: 14px;
+    }
+    .coord-mode.active input {
+        font-size: 16px;
+        padding: 12px 10px;
+        min-height: 44px;
+    }
+
+    /* Compute Fire Mission — primary action emphasis */
+    #calculate {
+        min-height: 56px;
+        font-size: 18px;
+        border: 2px solid var(--color-accent);
+        box-shadow: 0 4px 12px rgba(107, 142, 35, 0.4);
+    }
+    #calculate:hover {
+        box-shadow: 0 6px 16px rgba(107, 142, 35, 0.55);
+    }
+    #calculate:focus-visible {
+        box-shadow: 0 6px 16px rgba(107, 142, 35, 0.55);
+    }
+
+    /* Form-status hint legibility */
+    .form-status {
+        font-size: 14px;
+        min-height: 24px;
+    }
 }
