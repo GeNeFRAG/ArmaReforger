@@ -30,6 +30,9 @@ let debouncedValidateGridFormat = null;
 // Timer for auto-hiding the form status message
 let formStatusTimer = null;
 
+// Cache of the most recent heavy range-check result (null = unknown/pending, true/false = last result)
+let lastRangeCheckInRange = null;
+
 /**
  * Initialize UI with dependencies
  * @param {Object} deps - Dependency injection container
@@ -166,6 +169,7 @@ export function validateCoordinateRange(input) {
         const targetPos = CoordManager.parsePosition('target', true);
         
         if (!mortarPos || !targetPos) {
+            lastRangeCheckInRange = null;
             clearRangeValidation();
             updateCalculateButtonState();
             return;
@@ -179,7 +183,8 @@ export function validateCoordinateRange(input) {
         const distance = prepInput.distance;
         
         const inRange = solutions.length > 0 && solutions[0].inRange;
-        
+        lastRangeCheckInRange = inRange;
+
         clearOutput();
         
         const mode = CoordManager.getMode();
@@ -216,6 +221,7 @@ export function validateCoordinateRange(input) {
                 highlightField(input, cleanMsg, COLORS.errorText);
             }
         }
+        lastRangeCheckInRange = null;
         clearRangeValidation();
         updateCalculateButtonState();
     }
@@ -288,6 +294,7 @@ function getCalculateDisabledReason() {
         const ty = getElement('targetY', false);
         if (!tx?.value?.trim() || !ty?.value?.trim()) return 'Enter target coordinates first';
     }
+    if (lastRangeCheckInRange === false) return 'Target is out of range for the selected weapon';
     return 'Fill in all required fields to compute';
 }
 
@@ -300,7 +307,7 @@ function updateCalculateButtonState() {
         return;
     }
     
-    const valid = isFormValid(true);
+    const valid = isFormValid(true) && lastRangeCheckInRange !== false;
     calculateBtn.disabled = !valid;
     calculateBtn.style.opacity = valid ? '1' : '0.5';
     calculateBtn.style.cursor = valid ? 'pointer' : 'not-allowed';
@@ -489,8 +496,9 @@ export function performReset() {
     resetHistoryIndex();
     
     // Clear range validation
+    lastRangeCheckInRange = null;
     clearRangeValidation();
-    
+
     // Reset output
     const output = getElement('output');
     output.className = 'result';
@@ -540,6 +548,7 @@ export function setCoordMode(mode) {
     State.resetAllState();
 
     // Clear range validation indicator
+    lastRangeCheckInRange = null;
     clearRangeValidation();
 
     // Re-attach meter validation listeners to ensure they work after mode switch
@@ -762,6 +771,7 @@ export function initUI() {
         if (el) {
             el.addEventListener('input', (e) => {
                 clearTargetCorrectionState(el, id);
+                lastRangeCheckInRange = null;
                 updateCalculateButtonState();
                 debouncedValidateCoordinateRange(el);
             });
@@ -789,6 +799,7 @@ export function initUI() {
                 debouncedValidateGridFormat(el);
                 
                 if (id.startsWith('mortar') || id.startsWith('target')) {
+                    lastRangeCheckInRange = null;
                     updateCalculateButtonState();
                     debouncedValidateCoordinateRange(el);
                 }

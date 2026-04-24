@@ -295,6 +295,31 @@ test.describe('Ballistic Calculations', () => {
     }
   });
 
+  test('should grey out Calculate button when target is out of range', async ({ page }) => {
+    const calculateBtn = page.locator('#calculate');
+
+    await calculatorPage.selectWeapon('M252');
+    await calculatorPage.enterGridCoords(
+      { gridX: '050', gridY: '050', z: 0 },
+      { gridX: '055', gridY: '055', z: 0 }
+    );
+    await page.waitForTimeout(700);
+    await expect(calculateBtn).toBeEnabled();
+
+    // Move target far out of range
+    await page.locator('#targetGridX').fill('099');
+    await page.locator('#targetGridY').fill('099');
+    await page.waitForTimeout(700);
+    await expect(calculateBtn).toBeDisabled();
+    await expect(page.locator('#rangeIndicator')).toContainText(/out of range/i);
+
+    // Move target back in range
+    await page.locator('#targetGridX').fill('055');
+    await page.locator('#targetGridY').fill('055');
+    await page.waitForTimeout(700);
+    await expect(calculateBtn).toBeEnabled();
+  });
+
   test('should handle height differences correctly', async ({ page }) => {
     // Setup - Significant height difference between gun and target
     const coords = {
