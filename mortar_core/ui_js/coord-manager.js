@@ -203,7 +203,7 @@ export function setPosition(prefix, position) {
         setValue(`${prefix}Y`, position.y.toFixed(1));
     }
     
-    if (position.z !== undefined) {
+    if (position.z !== undefined && position.z !== null) {
         setValue(`${prefix}Z`, position.z.toFixed(1));
     }
 }

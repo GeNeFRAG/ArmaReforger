@@ -277,10 +277,10 @@ export async function loadFromHistory(index) {
         // Use stored grid values (preserves 3-4 digit format)
         setValue('mortarGridX', entry.mortarGridValues.x);
         setValue('mortarGridY', entry.mortarGridValues.y);
-        setValue('mortarZ', entry.mortarPos.z.toFixed(1));
+        setValue('mortarZ', (entry.mortarPos.z ?? 0).toFixed(1));
         setValue('targetGridX', entry.targetGridValues.x);
         setValue('targetGridY', entry.targetGridValues.y);
-        setValue('targetZ', entry.targetPos.z.toFixed(1));
+        setValue('targetZ', (entry.targetPos.z ?? 0).toFixed(1));
     } else {
         // Fallback or meters mode
         dependencies.setPositionInputs(entry.mortarPos, entry.targetPos);

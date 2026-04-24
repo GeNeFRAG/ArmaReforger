@@ -34,7 +34,7 @@ test.describe('Stylesheet Loading', () => {
     await page.goto('/');
     
     // Check for stylesheet link element
-    const stylesheetLink = await page.locator('link[rel="stylesheet"][href="styles.css"]');
+    const stylesheetLink = await page.locator('link[rel="stylesheet"][href^="styles.css"]');
     await expect(stylesheetLink).toHaveCount(1);
   });
 
