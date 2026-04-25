@@ -26,6 +26,7 @@ let dependencies = {
 // Debounced validation functions (created in initUI, accessible module-wide)
 let debouncedValidateCoordinateRange = null;
 let debouncedValidateGridFormat = null;
+let debouncedUpdateOTBearingDisplay = null;
 
 // Timer for auto-hiding the form status message
 let formStatusTimer = null;
@@ -263,7 +264,7 @@ function isFormValid(skipHeavy = false) {
 /**
  * Show a transient status message explaining why a button is unavailable
  */
-function showFormStatus(message) {
+export function showFormStatus(message) {
     const statusEl = getElement('formStatus', false);
     if (!statusEl) return;
     statusEl.textContent = message;
@@ -765,6 +766,7 @@ export function initUI() {
     
     debouncedValidateCoordinateRange = debounce(validateCoordinateRange, 500);
     debouncedValidateGridFormat = debounce(validateGridFormat, 300);
+    debouncedUpdateOTBearingDisplay = debounce(() => Corrections.updateOTBearingDisplay(), 200);
     
     ['mortarX', 'mortarY', 'mortarZ', 'targetX', 'targetY', 'targetZ'].forEach(id => {
         const el = getElement(id, false);
@@ -777,7 +779,16 @@ export function initUI() {
             });
         }
     });
-    
+
+    ['observerX', 'observerY'].forEach(id => {
+        const el = getElement(id, false);
+        if (el) {
+            el.addEventListener('input', () => {
+                debouncedUpdateOTBearingDisplay();
+            });
+        }
+    });
+
     ['mortarGridX', 'mortarGridY', 'targetGridX', 'targetGridY', 'observerGridX', 'observerGridY'].forEach(id => {
         const el = getElement(id, false);
         if (el) {
@@ -802,6 +813,8 @@ export function initUI() {
                     lastRangeCheckInRange = null;
                     updateCalculateButtonState();
                     debouncedValidateCoordinateRange(el);
+                } else if (id.startsWith('observer')) {
+                    debouncedUpdateOTBearingDisplay();
                 }
             });
         }

@@ -19,7 +19,8 @@ let dependencies = {
     showOutputError: null,
     calculateSolution: null,
     setPositionInputs: null,
-    setCurrentHistoryIndex: null
+    setCurrentHistoryIndex: null,
+    showStatus: null
 };
 
 /**
@@ -226,7 +227,9 @@ export async function applyFireCorrectionUI() {
             if (!observerPos) {
                 const warning = getElement('observerWarning', false);  // Dynamic
                 if (warning) setDisplay(warning, true);
-                console.error('FO mode enabled but observer coordinates not entered');
+                if (dependencies.showStatus) {
+                    dependencies.showStatus('Enter observer coordinates to use FO mode');
+                }
                 return;
             } else {
                 const warning = getElement('observerWarning', false);  // Dynamic

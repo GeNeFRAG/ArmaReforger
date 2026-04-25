@@ -64,7 +64,8 @@ function wireDependencies() {
         showOutputError: UI.showOutputError,
         setPositionInputs: UI.setPositionInputs,
         calculateSolution: Calculator.calculateSolution,
-        setCurrentHistoryIndex: History.setCurrentHistoryIndex
+        setCurrentHistoryIndex: History.setCurrentHistoryIndex,
+        showStatus: UI.showFormStatus
     });
     
     // FFE dependencies
