@@ -1,7 +1,7 @@
 /**
  * UI Management Module
  * Handles DOM interactions, event listeners, input validation
- * Version: 2.7.0
+ * Version: 2.8.0
  * 
  * Architecture: Uses dependency injection for calculator functions
  */
@@ -185,8 +185,6 @@ export function validateCoordinateRange(input) {
         
         const inRange = solutions.length > 0 && solutions[0].inRange;
         lastRangeCheckInRange = inRange;
-
-        clearOutput();
         
         const mode = CoordManager.getMode();
         const targetFields = mode === 'grid' 
@@ -276,6 +274,38 @@ export function showFormStatus(message) {
 }
 
 /**
+ * Mark the current result card as stale. No-op if no successful result is on screen.
+ */
+export function markResultStale() {
+    if (!State.getLastSolution()) return;
+    const output = getElement('output', false);
+    if (!output || !output.classList.contains('success')) return;
+    output.classList.add('stale');
+    const notice = getElement('resultStaleNotice', false);
+    if (notice) notice.classList.remove('cls-hidden');
+    const calculateBtn = getElement('calculate', false);
+    if (calculateBtn) {
+        calculateBtn.classList.add('stale-btn');
+        calculateBtn.textContent = 'Recalculate Fire Mission';
+    }
+}
+
+/**
+ * Clear the stale-result hint (called on successful recompute and on reset).
+ */
+export function clearResultStale() {
+    const output = getElement('output', false);
+    if (output) output.classList.remove('stale');
+    const notice = getElement('resultStaleNotice', false);
+    if (notice) notice.classList.add('cls-hidden');
+    const calculateBtn = getElement('calculate', false);
+    if (calculateBtn) {
+        calculateBtn.classList.remove('stale-btn');
+        calculateBtn.textContent = 'Compute Fire Mission';
+    }
+}
+
+/**
  * Return a human-readable reason why the Calculate button is currently disabled
  */
 function getCalculateDisabledReason() {
@@ -308,10 +338,17 @@ function updateCalculateButtonState() {
         return;
     }
     
-    const valid = isFormValid(true) && lastRangeCheckInRange !== false;
+    const valid = isFormValid(false);
     calculateBtn.disabled = !valid;
     calculateBtn.style.opacity = valid ? '1' : '0.5';
     calculateBtn.style.cursor = valid ? 'pointer' : 'not-allowed';
+    
+    // When form is invalid, remove the red stale-btn gradient so it doesn't
+    // clash with the disabled grey look, but keep the "Recalculate" text
+    // if a stale result is on screen — the user needs to know the card is outdated.
+    if (!valid) {
+        calculateBtn.classList.remove('stale-btn');
+    }
 }
 
 /**
@@ -501,6 +538,7 @@ export function performReset() {
     clearRangeValidation();
 
     // Reset output
+    clearResultStale();
     const output = getElement('output');
     output.className = 'result';
     output.innerHTML = '<p>Configure your mortar and target positions, then click Calculate.</p>';
@@ -534,6 +572,7 @@ export function setCoordMode(mode) {
     });
 
     // Clear output — previous result was computed with the other mode's inputs
+    clearResultStale();
     const output = getElement('output');
     if (output) {
         output.className = 'result';
@@ -753,6 +792,7 @@ export function initUI() {
         mortarTypeSelect.addEventListener('change', async () => {
             await dependencies.updateShellTypes();
             clearOutput();
+            clearResultStale();
             validateCoordinateRange();
         });
     }
@@ -760,6 +800,7 @@ export function initUI() {
     const shellTypeSelect = getElement('shellType', false);
     if (shellTypeSelect) {
         shellTypeSelect.addEventListener('change', () => {
+            markResultStale();
             validateCoordinateRange();
         });
     }
@@ -774,6 +815,7 @@ export function initUI() {
             el.addEventListener('input', (e) => {
                 clearTargetCorrectionState(el, id);
                 lastRangeCheckInRange = null;
+                markResultStale();
                 updateCalculateButtonState();
                 debouncedValidateCoordinateRange(el);
             });
@@ -811,6 +853,7 @@ export function initUI() {
                 
                 if (id.startsWith('mortar') || id.startsWith('target')) {
                     lastRangeCheckInRange = null;
+                    markResultStale();
                     updateCalculateButtonState();
                     debouncedValidateCoordinateRange(el);
                 } else if (id.startsWith('observer')) {
@@ -930,9 +973,16 @@ function setupUIListeners() {
     const shellTypeSelect = getElement('shellType');
     shellTypeSelect.addEventListener('change', () => {
         if (!State.isLoadingFromHistory()) {
+            markResultStale();
             validateCoordinateRange();
         }
     });
+
+    // FFE toggle: stale if toggled after a result is shown
+    const ffeEnabledEl = document.getElementById('ffeEnabled');
+    if (ffeEnabledEl) {
+        ffeEnabledEl.addEventListener('change', () => markResultStale());
+    }
 }
 
 /**

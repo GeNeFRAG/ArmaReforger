@@ -1,7 +1,7 @@
 /**
  * Arma Reforger Ballistic Calculator
  * Framework-agnostic calculation engine for mortar and MLRS weapon systems
- * Version: 2.5.0
+ * Version: 2.6.0
  * 
  * Features:
  * - Precision ballistic calculations for mortar and MLRS fire missions
@@ -145,18 +145,16 @@ function parseGridToMeters(gridString) {
     const gridX = parts[0];
     const gridY = parts[1];
     
-    if (gridX.length === 3 && gridY.length === 3) {
-        return {
-            x: parseInt(gridX, 10) * 100 + 50,
-            y: parseInt(gridY, 10) * 100 + 50
-        };
-    } else if (gridX.length === 4 && gridY.length === 4) {
-        return {
-            x: parseInt(gridX, 10) * 10,
-            y: parseInt(gridY, 10) * 10
-        };
+    if (gridX.length >= 3 && gridX.length <= 4 && gridY.length >= 3 && gridY.length <= 4) {
+        const xMeters = gridX.length === 3
+            ? parseInt(gridX, 10) * 100 + 50
+            : parseInt(gridX, 10) * 10;
+        const yMeters = gridY.length === 3
+            ? parseInt(gridY, 10) * 100 + 50
+            : parseInt(gridY, 10) * 10;
+        return { x: xMeters, y: yMeters };
     } else {
-        throw new Error('Grid coordinates must be 3 or 4 digits each (e.g., 058/071, 058,071, 0584/0713, or 0584,0713)');
+        throw new Error('Grid coordinates must be 3 or 4 digits each (e.g., 058/071, 0584/0713, or 058/0713)');
     }
 }
 

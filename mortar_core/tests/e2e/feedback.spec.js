@@ -8,6 +8,223 @@ import { test, expect } from '@playwright/test';
 import { CalculatorPage } from './pages/CalculatorPage.js';
 import { VALID_COORDS } from './fixtures/test-data.js';
 
+/**
+ * Append a single character to a field that already has a valid value.
+ * This mirrors how a user edits an existing coord — caret at end, then type.
+ */
+async function appendChar(page, fieldId, char) {
+    await page.locator(`#${fieldId}`).focus();
+    await page.keyboard.press('End');
+    await page.keyboard.type(char);
+}
+
+test.describe('Stale-result hint', () => {
+  let page;
+  let calculator;
+
+  test.beforeEach(async ({ page: testPage }) => {
+    page = testPage;
+    calculator = new CalculatorPage(page);
+    await calculator.goto();
+  });
+
+  test('hint is hidden before first compute', async () => {
+    await page.locator('#mortarGridX').fill(VALID_COORDS.mortar_short.gun.gridX);
+    await expect(page.locator('#resultStaleNotice')).toHaveClass(/cls-hidden/);
+  });
+
+  // Parametrized: test the real-world append-char flow on each of the 4 grid fields.
+  // Previously the test only covered #mortarGridX with a select-all-replace that
+  // never produced transient intermediate lengths the real bug path goes through.
+  for (const fieldId of ['mortarGridX', 'mortarGridY', 'targetGridX', 'targetGridY']) {
+    test(`hint appears when ${fieldId} is appended-to after a successful result`, async () => {
+      await calculator.enterGridCoords(
+        VALID_COORDS.mortar_short.gun,
+        VALID_COORDS.mortar_short.target
+      );
+      await calculator.calculate();
+      await expect(page.locator('#output')).toHaveClass(/success/);
+      await expect(page.locator('#resultStaleNotice')).toHaveClass(/cls-hidden/);
+
+      // Append one char — the field transitions from a valid 3-digit value to
+      // 4 digits. Mixed 3/4-digit grids are valid (each parsed independently).
+      await appendChar(page, fieldId, '0');
+
+      // Wait past the 500ms validation debounce.
+      await page.waitForTimeout(650);
+
+      // Card must stay visible and show the stale hint.
+      await expect(page.locator('#output')).toHaveClass(/active/);
+      await expect(page.locator('#output')).toHaveClass(/success/);
+      await expect(page.locator('#output')).toHaveClass(/stale/);
+      await expect(page.locator('#resultStaleNotice')).not.toHaveClass(/cls-hidden/);
+
+      // Button must reflect stale state.
+      await expect(page.locator('#calculate')).toHaveClass(/stale-btn/);
+      await expect(page.locator('#calculate')).toHaveText('Recalculate Fire Mission');
+    });
+  }
+
+  test('hint clears after recompute', async () => {
+    await calculator.enterGridCoords(
+      VALID_COORDS.mortar_short.gun,
+      VALID_COORDS.mortar_short.target
+    );
+    await calculator.calculate();
+
+    await appendChar(page, 'mortarGridX', '0');
+    await page.waitForTimeout(650);
+    await expect(page.locator('#output')).toHaveClass(/active/);
+    await expect(page.locator('#resultStaleNotice')).not.toHaveClass(/cls-hidden/);
+
+    // Restore the original valid coords and recompute.
+    await calculator.enterGridCoords(
+      VALID_COORDS.mortar_short.gun,
+      VALID_COORDS.mortar_short.target
+    );
+    await calculator.calculate();
+
+    await expect(page.locator('#resultStaleNotice')).toHaveClass(/cls-hidden/);
+    await expect(page.locator('#output')).not.toHaveClass(/stale/);
+    await expect(page.locator('#output')).toHaveClass(/active/);
+
+    // Button must revert to normal state.
+    await expect(page.locator('#calculate')).not.toHaveClass(/stale-btn/);
+    await expect(page.locator('#calculate')).toHaveText('Compute Fire Mission');
+  });
+
+  test('stale state shows red styling on button and card border', async () => {
+    await calculator.enterGridCoords(
+      VALID_COORDS.mortar_short.gun,
+      VALID_COORDS.mortar_short.target
+    );
+    await calculator.calculate();
+    await expect(page.locator('#output')).toHaveClass(/success/);
+
+    // Trigger stale with a valid coord change (replace, not append, to keep 3-digit format)
+    await page.locator('#targetGridX').fill('070');
+    await page.waitForTimeout(650);
+
+    // Button turns red with recalculate text
+    await expect(page.locator('#calculate')).toHaveClass(/stale-btn/);
+    await expect(page.locator('#calculate')).toHaveText('Recalculate Fire Mission');
+
+    // Card border turns red (stale class present)
+    await expect(page.locator('#output')).toHaveClass(/stale/);
+
+    // Stale notice is visible
+    await expect(page.locator('#resultStaleNotice')).toBeVisible();
+    await expect(page.locator('#resultStaleNotice')).not.toHaveClass(/cls-hidden/);
+  });
+
+  test('observer field edits do NOT mark the result stale', async () => {
+    await calculator.enterGridCoords(
+      VALID_COORDS.mortar_short.gun,
+      VALID_COORDS.mortar_short.target
+    );
+    await calculator.calculate();
+    await expect(page.locator('#output')).toHaveClass(/success/);
+
+    // Enable FO mode so observer fields are visible.
+    await page.locator('#foEnabled').check();
+    await page.locator('#observerGridX').fill('060');
+
+    await expect(page.locator('#resultStaleNotice')).toHaveClass(/cls-hidden/);
+    await expect(page.locator('#output')).not.toHaveClass(/stale/);
+  });
+
+  test('weapon change clears output and hides stale notice', async () => {
+    await calculator.enterGridCoords(
+      VALID_COORDS.mortar_short.gun,
+      VALID_COORDS.mortar_short.target
+    );
+    await calculator.calculate();
+    await expect(page.locator('#output')).toHaveClass(/success/);
+
+    await calculator.selectWeapon('2B14');
+
+    await expect(page.locator('#resultStaleNotice')).toHaveClass(/cls-hidden/);
+    await expect(page.locator('#output')).not.toHaveClass(/success/);
+  });
+
+  test('stale + out of range shows disabled recalculate button with stale card', async () => {
+    // Calculate with valid coords first
+    await calculator.enterGridCoords(
+      VALID_COORDS.mortar_short.gun,
+      VALID_COORDS.mortar_short.target
+    );
+    await calculator.calculate();
+    await expect(page.locator('#output')).toHaveClass(/success/);
+
+    // Move target out of range to trigger stale + invalid
+    await page.locator('#targetGridX').fill('999');
+    await page.locator('#targetGridY').fill('999');
+    await page.waitForTimeout(650);
+
+    // Card stays visible with stale class
+    await expect(page.locator('#output')).toHaveClass(/active/);
+    await expect(page.locator('#output')).toHaveClass(/stale/);
+
+    // Stale notice visible
+    await expect(page.locator('#resultStaleNotice')).not.toHaveClass(/cls-hidden/);
+
+    // Button is disabled with recalculate text but no red styling
+    await expect(page.locator('#calculate')).toBeDisabled();
+    await expect(page.locator('#calculate')).toHaveText('Recalculate Fire Mission');
+    await expect(page.locator('#calculate')).not.toHaveClass(/stale-btn/);
+  });
+
+  test('complete UI state lifecycle from fresh to recalculate', async () => {
+    // State 1: Fresh — no calc yet
+    await expect(page.locator('#calculate')).toBeDisabled();
+    await expect(page.locator('#calculate')).toHaveText('Compute Fire Mission');
+    await expect(page.locator('#calculate')).not.toHaveClass(/stale-btn/);
+    await expect(page.locator('#output')).not.toHaveClass(/active/);
+
+    // State 2: Valid coords, ready
+    await calculator.enterGridCoords(
+      VALID_COORDS.mortar_short.gun,
+      VALID_COORDS.mortar_short.target
+    );
+    await page.waitForTimeout(650);
+    await expect(page.locator('#calculate')).toBeEnabled();
+    await expect(page.locator('#calculate')).toHaveText('Compute Fire Mission');
+    await expect(page.locator('#calculate')).not.toHaveClass(/stale-btn/);
+    await expect(page.locator('#output')).not.toHaveClass(/active/);
+
+    // State 3: After calculation
+    await calculator.calculate();
+    await expect(page.locator('#calculate')).toBeEnabled();
+    await expect(page.locator('#calculate')).toHaveText('Compute Fire Mission');
+    await expect(page.locator('#calculate')).not.toHaveClass(/stale-btn/);
+    await expect(page.locator('#output')).toHaveClass(/active/);
+    await expect(page.locator('#output')).toHaveClass(/success/);
+    await expect(page.locator('#output')).not.toHaveClass(/stale/);
+    await expect(page.locator('#resultStaleNotice')).toHaveClass(/cls-hidden/);
+
+    // State 4: Stale + in range (replace with valid 3-digit coord)
+    await page.locator('#targetGridX').fill('070');
+    await page.waitForTimeout(650);
+    await expect(page.locator('#calculate')).toBeEnabled();
+    await expect(page.locator('#calculate')).toHaveText('Recalculate Fire Mission');
+    await expect(page.locator('#calculate')).toHaveClass(/stale-btn/);
+    await expect(page.locator('#output')).toHaveClass(/active/);
+    await expect(page.locator('#output')).toHaveClass(/success/);
+    await expect(page.locator('#output')).toHaveClass(/stale/);
+    await expect(page.locator('#resultStaleNotice')).not.toHaveClass(/cls-hidden/);
+
+    // State 6: After recalculation
+    await calculator.calculate();
+    await expect(page.locator('#calculate')).toBeEnabled();
+    await expect(page.locator('#calculate')).toHaveText('Compute Fire Mission');
+    await expect(page.locator('#calculate')).not.toHaveClass(/stale-btn/);
+    await expect(page.locator('#output')).toHaveClass(/active/);
+    await expect(page.locator('#output')).toHaveClass(/success/);
+    await expect(page.locator('#output')).not.toHaveClass(/stale/);
+    await expect(page.locator('#resultStaleNotice')).toHaveClass(/cls-hidden/);
+  });
+});
+
 test.describe('Feedback on dead clicks', () => {
   let page;
   let calculator;

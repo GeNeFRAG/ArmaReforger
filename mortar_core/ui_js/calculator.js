@@ -1,7 +1,7 @@
 /**
  * Calculator Module
  * Main calculation logic, solution generation, and mission management
- * Version: 2.5.0
+ * Version: 2.6.0
  * 
  * Architecture: Uses dependency injection to avoid circular dependencies
  * Dependencies are injected via init() function
@@ -13,7 +13,7 @@ import * as State from './state.js';
 import { getElement, getValue, isChecked } from './dom-cache.js';
 import * as CoordManager from './coord-manager.js';
 import { setupDynamicListeners } from './corrections.js';
-import { clearPositionHighlighting, toggleAlternativeMissions } from './ui.js';
+import { clearPositionHighlighting, toggleAlternativeMissions, clearResultStale } from './ui.js';
 
 // Injected dependencies (set via init)
 let dependencies = {
@@ -618,6 +618,7 @@ export async function calculateSolution() {
             
             if (sortedFFE.length > 0) {
                 output.className = 'result active success';
+                clearResultStale();
                 
                 let patternDesc, patternParamDesc;
                 if (ffePattern === 'perpendicular') {
@@ -696,7 +697,8 @@ export async function calculateSolution() {
         
         if (solutions.length > 0 && solutions[0].inRange) {
             output.classList.add('success');
-            
+            clearResultStale();
+
             let solutionsHTML = '';
             
             if (State.isCorrectionApplied()) {

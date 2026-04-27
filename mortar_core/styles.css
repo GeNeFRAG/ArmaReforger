@@ -293,6 +293,31 @@ button:disabled {
     background: rgba(35, 45, 42, 0.85);
     border: 2px solid var(--color-error);
 }
+.result-stale-notice {
+    font-size: 13px;
+    color: #ff6b6b;
+    text-align: center;
+    padding: 6px 12px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--color-error);
+    background: rgba(168, 80, 80, 0.1);
+    border-radius: var(--radius-sm);
+}
+#output.stale {
+    opacity: 1;
+    border-color: var(--color-error);
+}
+#output.stale ~ #ffeContainer,
+#output.stale ~ #fireCorrectionWidget {
+    border-color: var(--color-error);
+}
+.stale-btn {
+    background: linear-gradient(180deg, var(--color-error) 0%, #903030 100%) !important;
+    border-color: #802020 !important;
+}
+.stale-btn:hover {
+    background: linear-gradient(180deg, #b86060 0%, var(--color-error) 100%) !important;
+}
 .result h2 {
     margin-top: 0;
     color: #d8e4b0;

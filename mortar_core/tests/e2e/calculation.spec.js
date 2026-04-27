@@ -280,19 +280,13 @@ test.describe('Ballistic Calculations', () => {
       { x: coords.gun.gridX, y: coords.gun.gridY, z: coords.gun.z },
       { x: coords.target.gridX, y: coords.target.gridY, z: coords.target.z }
     );
-    await calculatorPage.calculate();
 
-    // Verify - Either out of range or error state
-    try {
-      await calculatorPage.waitForResult('error', 5000);
-      const errorMessage = await calculatorPage.getErrorMessage();
-      expect(errorMessage).toBeTruthy();
-      expect(errorMessage.toLowerCase()).toMatch(/range|distance|unreachable/i);
-    } catch {
-      // If it doesn't show error, verify the output element exists
-      const outputElement = page.locator('#output');
-      await expect(outputElement).toBeVisible();
-    }
+    // Button should be disabled for out-of-range targets
+    await expect(page.locator('#calculate')).toBeDisabled();
+
+    // Range indicator should show out-of-range message
+    await page.waitForTimeout(700);
+    await expect(page.locator('#rangeIndicator')).toContainText(/out of range/i);
   });
 
   test('should grey out Calculate button when target is out of range', async ({ page }) => {
@@ -303,21 +297,41 @@ test.describe('Ballistic Calculations', () => {
       { gridX: '050', gridY: '050', z: 0 },
       { gridX: '055', gridY: '055', z: 0 }
     );
+    // Wait for debounce so rangeIndicator text is populated before asserting enabled state
     await page.waitForTimeout(700);
     await expect(calculateBtn).toBeEnabled();
 
     // Move target far out of range
+    // Note: button disables immediately (synchronous range check); rangeIndicator text updates after debounce
     await page.locator('#targetGridX').fill('099');
     await page.locator('#targetGridY').fill('099');
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(200);
     await expect(calculateBtn).toBeDisabled();
     await expect(page.locator('#rangeIndicator')).toContainText(/out of range/i);
 
     // Move target back in range
     await page.locator('#targetGridX').fill('055');
     await page.locator('#targetGridY').fill('055');
+    await page.waitForTimeout(200);
+    await expect(calculateBtn).toBeEnabled();
+  });
+
+  test('should disable Calculate button immediately on out-of-range input (no debounce delay)', async ({ page }) => {
+    const calculateBtn = page.locator('#calculate');
+
+    await calculatorPage.selectWeapon('M252');
+    await calculatorPage.enterGridCoords(
+      { gridX: '050', gridY: '050', z: 0 },
+      { gridX: '055', gridY: '055', z: 0 }
+    );
     await page.waitForTimeout(700);
     await expect(calculateBtn).toBeEnabled();
+
+    // Move target far out of range — button should disable without waiting for debounce
+    await page.locator('#targetGridX').fill('099');
+    await page.locator('#targetGridY').fill('099');
+    // No waitForTimeout — check immediately
+    await expect(calculateBtn).toBeDisabled();
   });
 
   test('should handle height differences correctly', async ({ page }) => {
