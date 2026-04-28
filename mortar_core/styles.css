@@ -786,16 +786,6 @@ button:disabled {
 .footer a:hover {
     text-decoration: underline;
 }
-.footer-discord {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-.footer-discord img {
-    height: 16px;
-    width: 16px;
-    vertical-align: middle;
-}
 
 /* Helper classes for common patterns */
 .no-margin-top {
@@ -946,9 +936,6 @@ button:disabled {
 /* Additional utility classes */
 .no-margin {
     margin: 0;
-}
-.mb-0 {
-    margin-bottom: 0;
 }
 .mb-12 {
     margin-bottom: 12px;
