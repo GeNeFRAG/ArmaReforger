@@ -818,6 +818,11 @@ button:disabled {
     margin-top: -15px;
 }
 
+.coord-hint.toggle-hint {
+    margin-top: 8px;
+    line-height: 1.6;
+}
+
 /* Range Indicator */
 .range-indicator {
     margin: 10px 0;
