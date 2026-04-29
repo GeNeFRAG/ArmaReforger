@@ -807,7 +807,7 @@ export function initUI() {
     
     debouncedValidateCoordinateRange = debounce(validateCoordinateRange, 500);
     debouncedValidateGridFormat = debounce(validateGridFormat, 300);
-    debouncedUpdateOTBearingDisplay = debounce(() => Corrections.updateOTBearingDisplay(), 200);
+    debouncedUpdateOTBearingDisplay = debounce(() => updateOTBearingDisplay(), 200);
     
     ['mortarX', 'mortarY', 'mortarZ', 'targetX', 'targetY', 'targetZ'].forEach(id => {
         const el = getElement(id, false);
