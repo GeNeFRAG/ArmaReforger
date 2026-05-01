@@ -400,6 +400,8 @@ button:disabled {
     background: rgba(60, 50, 80, 0.4);
     border-color: rgba(143, 105, 188, 0.3);
 }
+.onboarding-intro p { margin: 6px 0; }
+.onboarding-intro .suggestion-btn-dismiss { margin-top: 10px; }
 
 /* Feature Banner */
 .feature-banner {

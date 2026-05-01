@@ -90,6 +90,15 @@
     <div id="loading" role="status" aria-live="polite">Loading ballistic data...</div>
     
     <div id="app" class="cls-hidden">
+        <!-- First-visit onboarding intro -->
+        <div id="onboardingIntro" class="info onboarding-intro cls-hidden" role="region" aria-label="Getting started">
+            <h2 class="no-margin-top">🧭 New here? Start here</h2>
+            <p>This tool computes the <strong>elevation</strong>, <strong>azimuth</strong>, and <strong>charge</strong> needed to hit a target in Arma Reforger. No login, no install — runs in the browser.</p>
+            <p>Enter your <strong>weapon position</strong> and <strong>target position</strong> as grid coordinates from the in-game map, pick a weapon, and press <em>Calculate</em>. Fire corrections and observer mode are optional and only apply to mortars.</p>
+            <p><strong>💣 Mortars</strong> (M252, 2B14) are base-game weapons available on any server. <strong>🔫 Howitzers</strong> and <strong>🚀 MLRS</strong> require mod-added weapons — they only work if the server you're playing on has the relevant mods loaded.</p>
+            <button id="dismissOnboarding" class="suggestion-btn-dismiss" type="button">Got it, don't show again</button>
+        </div>
+
         <!-- Supported Weapon Systems -->
         <div class="container">
             <h2 class="no-margin-top">🎯 Supported Weapon Systems</h2>
@@ -152,6 +161,7 @@
                     <select id="mortarType">
                         <!-- Populated dynamically from ballistic-data.json -->
                     </select>
+                    <small class="coord-hint">Affects available charges, max range, and mil system. Fire corrections and FFE patterns are mortar-only features.</small>
                 </div>
                 
                 <div class="form-group">
@@ -377,8 +387,9 @@
                                 <input type="text" id="observerGridY" placeholder="080" maxlength="4" inputmode="numeric" pattern="[0-9]*" class="observer-input observer-input-grid" onkeydown="if(event.key === 'Enter') event.preventDefault();">
                             </div>
                         </div>
+                        <small class="coord-hint" style="margin-top: 6px;">Forward Observer's own map position — used to translate left/right and add/drop adjustments into a corrected aim point.</small>
                     </div>
-                    
+
                     <div id="observerMetersMode" class="coord-mode">
                         <div class="correction-form-grid correction-grid-sm">
                             <div>
@@ -390,6 +401,7 @@
                                 <input type="number" id="observerY" placeholder="8000" step="0.1" min="0" max="99999.9" class="observer-input" onkeydown="if(event.key === 'Enter') event.preventDefault();">
                             </div>
                         </div>
+                        <small class="coord-hint" style="margin-top: 6px;">Forward Observer's own position in meters — used to translate left/right and add/drop adjustments into a corrected aim point.</small>
                     </div>
                     
                     <div id="otBearingDisplay" class="correction-bearing-display" style="display: none;">

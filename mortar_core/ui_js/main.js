@@ -16,6 +16,7 @@ import * as Calculator from './calculator.js';
 import * as History from './history.js';
 import * as Corrections from './corrections.js';
 import * as Share from './share.js';
+import * as Onboarding from './onboarding.js';
 import { setDisplay, populateSelect } from './utils.js';
 import * as DOMCache from './dom-cache.js';
 import * as CoordManager from './coord-manager.js';
@@ -148,6 +149,7 @@ async function init() {
         FFE.initFFE();
         History.setupHistoryListeners();
         await History.restoreHistoryFromStorage();
+        Onboarding.init();
         Calculator.setupCalculatorListeners();
         Corrections.setupCorrectionListeners();
         Corrections.setupDynamicListeners(); // Setup correction input listeners
