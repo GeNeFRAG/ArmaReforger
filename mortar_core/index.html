@@ -94,7 +94,7 @@
         <div id="onboardingIntro" class="info onboarding-intro cls-hidden" role="region" aria-label="Getting started">
             <h2 class="no-margin-top">🧭 New here? Start here</h2>
             <p>This tool computes the <strong>elevation</strong>, <strong>azimuth</strong>, and <strong>charge</strong> needed to hit a target in Arma Reforger. No login, no install — runs in the browser.</p>
-            <p>Enter your <strong>weapon position</strong>, <strong>target position</strong>, and <strong>elevation</strong> as grid coordinates from the in-game map, pick a weapon, and press <em>Calculate</em>. Fire corrections and observer mode are optional.</p>
+            <p>Enter your <strong>weapon position</strong>, <strong>target position</strong>, and <strong>elevation</strong> as grid coordinates from the in-game map, pick a weapon, and press <em>Calculate</em>. Fire corrections and observer mode are optional, but a teammate acting as forward observer gives the most accurate fire.</p>
             <p><strong>💣 Mortars</strong> (M252, 2B14) are base-game weapons available on any server. <strong>🔫 Howitzers</strong> and <strong>🚀 MLRS</strong> require mod-added weapons — they only work if the server you're playing on has the relevant mods loaded. They also don't have height correction.</p>
             <button id="dismissOnboarding" class="suggestion-btn-dismiss" type="button">Got it, don't show again</button>
         </div>
@@ -188,10 +188,10 @@
                                 <input type="text" id="mortarGridY" placeholder="069 or 0695" maxlength="4" inputmode="numeric" pattern="[0-9]*">
                             </div>
                         </div>
-                        <small class="coord-hint">3-digit (100m squares) or 4-digit (10m precision)</small>
+                        <small class="coord-hint">3-digit grids mark 100×100 m squares; add a 4th digit to point to a 10×10 m sub-square (e.g. <code>150 450</code> → <code>1505 4505</code> = center of that square). The in-game ruler helps you read sub-square offsets.</small>
                     </div>
                 </div>
-                
+
                 <!-- Meters Mode -->
                 <div id="mortarMetersMode" class="coord-mode">
                     <div class="form-group">
@@ -230,10 +230,10 @@
                                 <input type="text" id="targetGridY" placeholder="105 or 1050" maxlength="4" inputmode="numeric" pattern="[0-9]*">
                             </div>
                         </div>
-                        <small class="coord-hint">3-digit (100m squares) or 4-digit (10m precision)</small>
+                        <small class="coord-hint">3-digit grids mark 100×100 m squares; add a 4th digit to point to a 10×10 m sub-square (e.g. <code>150 450</code> → <code>1505 4505</code> = center of that square). The in-game ruler helps you read sub-square offsets.</small>
                     </div>
                 </div>
-                
+
                 <!-- Meters Mode -->
                 <div id="targetMetersMode" class="coord-mode">
                     <div class="form-group">
@@ -388,7 +388,7 @@
                                 <input type="text" id="observerGridY" placeholder="080" maxlength="4" inputmode="numeric" pattern="[0-9]*" class="observer-input observer-input-grid" onkeydown="if(event.key === 'Enter') event.preventDefault();">
                             </div>
                         </div>
-                        <small class="coord-hint" style="margin-top: 6px;">Forward Observer's own map position — used to translate left/right and add/drop adjustments into a corrected aim point.</small>
+                        <small class="coord-hint" style="margin-top: 6px;">Forward Observer's own map position — used to translate left/right and add/drop adjustments into a corrected aim point. Best accuracy comes from a teammate acting as forward observer with eyes on the target.</small>
                     </div>
 
                     <div id="observerMetersMode" class="coord-mode">
@@ -402,7 +402,7 @@
                                 <input type="number" id="observerY" placeholder="8000" step="0.1" min="0" max="99999.9" class="observer-input" onkeydown="if(event.key === 'Enter') event.preventDefault();">
                             </div>
                         </div>
-                        <small class="coord-hint" style="margin-top: 6px;">Forward Observer's own position in meters — used to translate left/right and add/drop adjustments into a corrected aim point.</small>
+                        <small class="coord-hint" style="margin-top: 6px;">Forward Observer's own position in meters — used to translate left/right and add/drop adjustments into a corrected aim point. Best accuracy comes from a teammate acting as forward observer with eyes on the target.</small>
                     </div>
                     
                     <div id="otBearingDisplay" class="correction-bearing-display" style="display: none;">
