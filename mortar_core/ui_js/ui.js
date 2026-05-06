@@ -978,11 +978,6 @@ function setupUIListeners() {
         }
     });
 
-    // FFE toggle: stale if toggled after a result is shown
-    const ffeEnabledEl = document.getElementById('ffeEnabled');
-    if (ffeEnabledEl) {
-        ffeEnabledEl.addEventListener('change', () => markResultStale());
-    }
 }
 
 /**
