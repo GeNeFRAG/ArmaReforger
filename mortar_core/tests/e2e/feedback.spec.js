@@ -117,7 +117,7 @@ test.describe('Stale-result hint', () => {
     await expect(page.locator('#resultStaleNotice')).not.toHaveClass(/cls-hidden/);
   });
 
-  test('FFE checkbox toggle does NOT mark the result stale', async () => {
+  test('checking FFE checkbox does NOT mark the result stale', async () => {
     await calculator.enterGridCoords(
       VALID_COORDS.mortar_short.gun,
       VALID_COORDS.mortar_short.target
@@ -125,13 +125,28 @@ test.describe('Stale-result hint', () => {
     await calculator.calculate();
     await expect(page.locator('#output')).toHaveClass(/success/);
 
-    // Toggling FFE on and off should not affect the base fire mission result.
+    await page.locator('#ffeEnabled').check();
+
+    // Give any debounced/async path a chance to fire.
+    await page.waitForTimeout(650);
+
+    await expect(page.locator('#output')).not.toHaveClass(/stale/);
+    await expect(page.locator('#resultStaleNotice')).toHaveClass(/cls-hidden/);
+    await expect(page.locator('#calculate')).not.toHaveClass(/stale-btn/);
+    await expect(page.locator('#calculate')).toHaveText('Compute Fire Mission');
+  });
+
+  test('unchecking FFE checkbox does NOT mark the result stale', async () => {
+    await calculator.enterGridCoords(
+      VALID_COORDS.mortar_short.gun,
+      VALID_COORDS.mortar_short.target
+    );
+    await calculator.calculate();
     await page.locator('#ffeEnabled').check();
     await page.locator('#ffeEnabled').uncheck();
+    await page.waitForTimeout(650);
 
-    await expect(page.locator('#resultStaleNotice')).toHaveClass(/cls-hidden/);
     await expect(page.locator('#output')).not.toHaveClass(/stale/);
-    await expect(page.locator('#calculate')).not.toHaveClass(/stale-btn/);
     await expect(page.locator('#calculate')).toHaveText('Compute Fire Mission');
   });
 
