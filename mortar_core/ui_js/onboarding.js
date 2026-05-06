@@ -1,3 +1,9 @@
+/**
+ * Onboarding Module
+ * First-visit intro overlay and inline coordinate hints
+ * Version: 1.0.0
+ */
+
 import { getElement } from './dom-cache.js';
 
 const STORAGE_KEY = 'mortar_app_onboarding_seen';

@@ -1,7 +1,7 @@
 /**
  * Corrections Module
  * Fire correction logic (Add/Drop, Left/Right, FO mode)
- * Version: 2.4.0
+ * Version: 2.4.1
  * 
  * Architecture: Uses dependency injection to avoid circular dependencies
  */

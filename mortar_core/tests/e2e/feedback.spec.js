@@ -207,6 +207,22 @@ test.describe('Stale-result hint', () => {
     await expect(page.locator('#calculate')).not.toHaveClass(/stale-btn/);
   });
 
+  test('Reset hides output panel (prevents gap before footer)', async () => {
+    await calculator.enterGridCoords(
+      VALID_COORDS.mortar_short.gun,
+      VALID_COORDS.mortar_short.target
+    );
+    await calculator.calculate();
+    await expect(page.locator('#output')).toHaveClass(/active/);
+
+    await calculator.clear();
+
+    // Output must be display:none — not merely visibility:hidden — so it
+    // cannot reserve space and create an empty gap above the footer.
+    await expect(page.locator('#output')).toHaveClass(/cls-hidden/);
+    await expect(page.locator('#output')).not.toHaveClass(/active/);
+  });
+
   test('complete UI state lifecycle from fresh to recalculate', async () => {
     // State 1: Fresh — no calc yet
     await expect(page.locator('#calculate')).toBeDisabled();

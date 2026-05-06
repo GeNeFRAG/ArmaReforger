@@ -1,7 +1,7 @@
 /**
  * UI Management Module
  * Handles DOM interactions, event listeners, input validation
- * Version: 2.8.0
+ * Version: 2.8.1
  * 
  * Architecture: Uses dependency injection for calculator functions
  */
@@ -540,7 +540,7 @@ export function performReset() {
     // Reset output
     clearResultStale();
     const output = getElement('output');
-    output.className = 'result';
+    output.className = 'result cls-hidden';
     output.innerHTML = '<p>Configure your mortar and target positions, then click Calculate.</p>';
     
     // Disable share button
@@ -575,7 +575,7 @@ export function setCoordMode(mode) {
     clearResultStale();
     const output = getElement('output');
     if (output) {
-        output.className = 'result';
+        output.className = 'result cls-hidden';
         output.innerHTML = '<p>Configure your mortar and target positions, then click Calculate.</p>';
     }
 

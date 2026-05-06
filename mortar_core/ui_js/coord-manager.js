@@ -1,7 +1,7 @@
 /**
  * Coordinate Manager Module
  * Consolidated position parsing, validation, and coordinate mode management
- * Version: 2.3.0
+ * Version: 2.3.1
  * 
  * Eliminates 120+ lines of duplicated position parsing logic
  * Single source of truth for grid/meters conversions

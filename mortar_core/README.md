@@ -328,6 +328,29 @@ mortar_core/
 
 ## 📝 Changelog
 
+### v2.13.0 - UX Refinements & Stability (May 2026)
+
+**New Features:**
+- ✅ **First-visit onboarding** - Guided intro overlay on first load with key usage tips
+- ✅ **Inline coordinate hints** - Contextual help text for Grid vs Meters modes, grid subdivision, and FO accuracy
+- ✅ **Height field hints** - Inline help explaining weapon-specific height coverage
+
+**Improvements:**
+- ✅ **Stale-result UX** - Immediate out-of-range disable; mixed 3/4-digit grids handled correctly
+- ✅ **Calculate button** - Greyed out instantly when target is out of range (no debounce delay)
+- ✅ **Observer mode** - Observer coordinate fields now wired correctly; FO silent-fail surfaced as user error
+- ✅ **Mobile** - Active coordinate panel card styling; emphasized Calculate CTA on small screens
+- ✅ **Hint polish** - Weapon-type hint no longer overlaps dropdown; wording and detail pass on all hints
+
+**Bug Fixes:**
+- ✅ **App height after Reset** - Resetting no longer leaves an empty gap above the footer; `#output` correctly returns to `display:none` and `#app` no longer holds a fixed minimum height
+- ✅ **FFE checkbox** - Checking/unchecking Fire for Effect no longer incorrectly triggers Recalculate mode
+- ✅ **FFE container** - Collapsed state no longer reserves excess vertical space
+- ✅ **TypeError on null coordinates** - Guarded `null` x/y/z before `.toFixed()` calls
+- ✅ **Null z-values** - Guarded null z in `setPosition` and `loadFromHistory`
+- ✅ **ReferenceError in debounce** - Fixed undefined `Corrections` reference in `ui.js`
+- ✅ **Footer layout shift** - Eliminated layout shift on initial page load
+
 ### v2.11.0 - Dead-Click UX Fixes (April 2026)
 **Improvements:**
 - ✅ **Coord-mode toggle** - Converted from non-interactive divs to `<button>` elements with `aria-pressed`, `:active` press feedback, and `:focus-visible` keyboard ring

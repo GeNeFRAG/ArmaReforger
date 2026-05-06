@@ -1,7 +1,7 @@
 /**
  * Arma Reforger Ballistic Calculator
  * Framework-agnostic calculation engine for mortar and MLRS weapon systems
- * Version: 2.6.0
+ * Version: 2.6.1
  * 
  * Features:
  * - Precision ballistic calculations for mortar and MLRS fire missions
