@@ -100,7 +100,7 @@ main {
     min-height: 100px;
 }
 
-#ffeContainer:not(.cls-hidden) {
+#ffeContainer:not(.cls-hidden):has(#ffeEnabled:checked) {
     min-height: 150px;
 }
 
