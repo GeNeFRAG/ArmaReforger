@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ballistic-data.schema.json",
+  "title": "Ballistic Data",
+  "description": "Schema for mortar_core/ballistic-data.json. All weapon systems: mortars, howitzers, MLRS.",
+  "type": "object",
+  "required": ["version", "weaponSystems"],
+  "properties": {
+    "version": { "type": "string" },
+    "source": { "type": "string" },
+    "lastUpdated": { "type": "string", "format": "date-time" },
+    "weaponSystems": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/WeaponSystem" }
+    }
+  },
+  "$defs": {
+    "MilSystem": {
+      "type": "object",
+      "required": ["name", "milsPerCircle", "milsPerDegree"],
+      "properties": {
+        "name": { "type": "string", "examples": ["NATO", "Warsaw Pact"] },
+        "milsPerCircle": { "type": "number", "enum": [6400, 6000] },
+        "milsPerDegree": { "type": "number" }
+      }
+    },
+    "RangeTableEntry": {
+      "description": "Used by mortar charges (rangeTable)",
+      "type": "object",
+      "required": ["range", "elevation", "tof", "dElev", "tofPer100m"],
+      "properties": {
+        "range": { "type": "number" },
+        "elevation": { "type": "number" },
+        "tof": { "type": "number" },
+        "dElev": { "type": "number" },
+        "tofPer100m": { "type": "number" }
+      }
+    },
+    "Charge": {
+      "type": "object",
+      "required": ["level", "minRange", "maxRange", "rangeTable"],
+      "properties": {
+        "level": { "type": "integer", "minimum": 0 },
+        "minRange": { "type": "number" },
+        "maxRange": { "type": "number" },
+        "rangeTable": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RangeTableEntry" }
+        }
+      }
+    },
+    "ShellType": {
+      "description": "Used by mortars",
+      "type": "object",
+      "required": ["type", "name", "charges"],
+      "properties": {
+        "type": { "type": "string", "examples": ["HE", "Smoke", "Illum"] },
+        "name": { "type": "string" },
+        "charges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Charge" }
+        }
+      }
+    },
+    "BallisticTableEntry": {
+      "description": "Used by MLRS and howitzer projectileTypes (ballisticTable)",
+      "type": "object",
+      "required": ["range", "elevation"],
+      "properties": {
+        "range": { "type": "number" },
+        "elevation": { "type": "number" },
+        "tof": { "type": ["number", "null"] },
+        "windDrift100m": { "type": ["number", "null"] },
+        "angleOfFall": { "type": ["number", "null"] },
+        "dElev": { "type": ["number", "null"] },
+        "tofPer100m": { "type": ["number", "null"] }
+      }
+    },
+    "ProjectileType": {
+      "description": "Used by MLRS and howitzers",
+      "type": "object",
+      "required": ["id", "name", "type", "minRange", "maxRange", "ballisticTable"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string", "examples": ["HE", "Smoke", "AP"] },
+        "variant": { "type": "string", "examples": ["low_angle", "high_angle", "standard"] },
+        "minRange": { "type": "number" },
+        "maxRange": { "type": "number" },
+        "ballisticTable": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/BallisticTableEntry" }
+        }
+      }
+    },
+    "WeaponSystem": {
+      "type": "object",
+      "required": ["systemType", "id", "name", "caliber", "milSystem"],
+      "properties": {
+        "systemType": {
+          "type": "string",
+          "enum": ["mortar", "howitzer", "mlrs"],
+          "description": "Controls available features: mortar=corrections+FFE+charges; howitzer=FFE+projectileTypes; mlrs=projectileTypes only"
+        },
+        "id": {
+          "type": "string",
+          "description": "Unique identifier used as dropdown value. Never hardcode in JS or HTML."
+        },
+        "name": { "type": "string" },
+        "caliber": { "type": "number" },
+        "milSystem": { "$ref": "#/$defs/MilSystem" },
+        "shellTypes": {
+          "description": "Required for systemType=mortar",
+          "type": "array",
+          "items": { "$ref": "#/$defs/ShellType" }
+        },
+        "projectileTypes": {
+          "description": "Required for systemType=howitzer or mlrs",
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProjectileType" }
+        }
+      },
+      "if": { "properties": { "systemType": { "const": "mortar" } } },
+      "then": { "required": ["shellTypes"] },
+      "else": { "required": ["projectileTypes"] }
+    }
+  }
+}

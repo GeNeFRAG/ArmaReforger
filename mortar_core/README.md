@@ -2,6 +2,16 @@
 
 Ballistic calculation engine for Arma Reforger mortar and MLRS weapon systems.
 
+## For AI agents and contributors
+
+| Resource | Contents |
+|----------|---------|
+| [AGENT.md](AGENT.md) | Project orientation, code map, conventions, quick-start commands |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Module graph, data flow, engine sections |
+| [docs/ADDING_A_WEAPON.md](docs/ADDING_A_WEAPON.md) | How to add a mortar, howitzer, or MLRS to `ballistic-data.json` |
+| [docs/ADDING_A_TEST.md](docs/ADDING_A_TEST.md) | How to add a Playwright e2e test |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Hard rules and pre-push checklist |
+
 ## 🎯 Quick Reference
 
 | Action | Input | Example |

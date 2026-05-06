@@ -6,7 +6,7 @@ This file provides guidance to AI coding agents when working with code in this r
 
 This repository contains independent tools for Arma Reforger:
 
-- **mortar_core/** - The armamortars.org web app (live at armamortars.org). Pure vanilla JavaScript ballistic mission planner (zero production dependencies) with a framework-agnostic calculation engine (`BallisticCalculator.js`) and an ES6 module-based UI (`ui_js/`). Served via Nginx in Docker.
+- **mortar_core/** - The armamortars.org web app (live at armamortars.org). Pure vanilla JavaScript ballistic mission planner (zero production dependencies) with a framework-agnostic calculation engine (`BallisticCalculator.js`) and an ES6 module-based UI (`ui_js/`). Served via Nginx in Docker. See `mortar_core/AGENT.md` for project-specific guidance, runbooks, and the add-a-weapon procedure.
 - **maps_core/** - Map metadata (`all_arma_maps.json` for 23 maps) and elevation data (`height_data/`). Includes a Python tile generator and JS map viewer.
 - **server_tools/** - Python scripts for Arma Reforger server management (mod extraction, server comparison, config cloning). Requires `requests` and `beautifulsoup4`.
 

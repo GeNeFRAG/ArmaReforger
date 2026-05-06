@@ -8,7 +8,9 @@
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:chromium": "playwright test --project=chromium"
+    "test:e2e:chromium": "playwright test --project=chromium",
+    "validate:data": "node -e \"JSON.parse(require('fs').readFileSync('ballistic-data.json'))\"",
+    "engine:demo": "node examples/node-example.js"
   },
   "keywords": [
     "arma-reforger",
