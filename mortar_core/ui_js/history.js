@@ -357,8 +357,8 @@ export async function setInputsFromData(data) {
                 setValue('observerGridY', observerGrid[1]);
             }
         } else {
-            setValue('observerX', data.observerPos.x.toFixed(1));
-            setValue('observerY', data.observerPos.y.toFixed(1));
+            setValue('observerX', data.observerPos.x != null ? data.observerPos.x.toFixed(1) : '');
+            setValue('observerY', data.observerPos.y != null ? data.observerPos.y.toFixed(1) : '');
         }
     } else {
         INPUT_IDS.OBSERVER_FIELDS.forEach(id => {
@@ -488,7 +488,7 @@ export async function updateHistoryDisplay() {
                     <button class="history-delete" data-index="${index}" title="Delete mission">🗑️</button>
                 </div>
                 <div class="history-details">
-                    📍 ${mortarDisplay} → 🎯 ${targetDisplay} | ${entry.distance.toFixed(0)}m${modeInfo}${foInfo}${correctionInfo}
+                    📍 ${mortarDisplay} → 🎯 ${targetDisplay} | ${entry.distance != null ? entry.distance.toFixed(0) : '—'}m${modeInfo}${foInfo}${correctionInfo}
                     ${currentSolutionInfo}
                     ${correctionDetails}
                 </div>

@@ -312,7 +312,7 @@ export async function undoCorrection() {
             // Restore exact grid values (preserves 3-4 digit format)
             setValue('targetGridX', original.gridX);
             setValue('targetGridY', original.gridY);
-            setValue('targetZ', original.meters.z.toFixed(1));
+            setValue('targetZ', (original.meters.z ?? 0).toFixed(1));
         } else {
             // Fallback or meters mode
             dependencies.setPositionInputs(weaponPos, original.meters);

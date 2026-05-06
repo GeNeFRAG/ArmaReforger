@@ -193,14 +193,14 @@ export function setPosition(prefix, position) {
             const yEl = getElement(`${prefix}Y`, false, true);
             // Only set if fields are empty
             if (xEl && yEl && !xEl.value.trim() && !yEl.value.trim()) {
-                setValue(`${prefix}X`, position.x.toFixed(1));
-                setValue(`${prefix}Y`, position.y.toFixed(1));
+                if (position.x != null) setValue(`${prefix}X`, position.x.toFixed(1));
+                if (position.y != null) setValue(`${prefix}Y`, position.y.toFixed(1));
             }
             return;
         }
-        
-        setValue(`${prefix}X`, position.x.toFixed(1));
-        setValue(`${prefix}Y`, position.y.toFixed(1));
+
+        if (position.x != null) setValue(`${prefix}X`, position.x.toFixed(1));
+        if (position.y != null) setValue(`${prefix}Y`, position.y.toFixed(1));
     }
     
     if (position.z !== undefined && position.z !== null) {
