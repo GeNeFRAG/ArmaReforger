@@ -132,18 +132,6 @@ export async function generateFFEPattern() {
         return;
     }
     
-    // Check if weapon is MLRS - FFE not supported
-    const weaponId = lastInput.weaponId || lastInput.mortarType;
-    try {
-        const config = BallisticCalculator.getWeaponConfig(weaponId, lastInput.shellType);
-        if (config.systemType === 'mlrs') {
-            throw new Error('Fire for Effect patterns are not supported for MLRS systems');
-        }
-    } catch (e) {
-        if (e.message.includes('not supported for MLRS')) throw e;
-        // Continue for other errors (weapon config might not be critical)
-    }
-    
     try {
         const ffePattern = getValue('ffePattern');
         const ffeRounds = parseInt(getValue('ffeRounds'));

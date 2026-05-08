@@ -39,7 +39,7 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 - ✅ **Coordinate-system independent** - Uses simple 3D positions or grid format
 - ✅ **Height correction** - Automatic elevation adjustment with correction factors displayed (currently only for Mortars)
 - ✅ **Fire correction** - Gun-Target or Observer-Target line adjustments
-- ✅ **Fire for Effect** - Multiple pattern types for Mortars and Howitzers (Lateral/Linear sheaf, Circular saturation)
+- ✅ **Fire for Effect** - Multiple pattern types for Mortars, Howitzers, and MLRS (Lateral/Linear sheaf, Circular saturation)
 - ✅ **Automatic Mortar charge selection** - Or force specific charge
 - ✅ **Optimal projectile suggestions for MLRS and Howitzers** - Optional user override
 
@@ -241,10 +241,10 @@ All weapon data is dynamically loaded from `ballistic-data.json`:
 
 ### Mortars
 
-| Weapon ID | Name | Caliber | Mil System | Shell Types |
-|-----------|------|---------|------------|-------------|
-| `M252` | US M252 | 81mm | NATO (6400) | HE, SMOKE, ILLUM |
-| `2B14` | Soviet 2B14 | 82mm | Warsaw Pact (6000) | HE, SMOKE, ILLUM |
+| Weapon ID | Name | Caliber | Mil System | Shell Types | Range (HE) |
+|-----------|------|---------|------------|-------------|------------|
+| `M252` | US M252 | 81mm | NATO (6400) | HE, SMOKE, ILLUM | 0.05km – 2.9km (charge 0–4) |
+| `2B14` | Soviet 2B14 | 82mm | Warsaw Pact (6000) | HE, SMOKE, ILLUM | 0.05km – 2.3km (charge 0–4) |
 
 ### MLRS
 
@@ -258,8 +258,8 @@ All weapon data is dynamically loaded from `ballistic-data.json`:
 
 | Weapon ID | Name | Caliber | Shell Types | Range |
 |-----------|------|---------|-------------|-------|
-| `D30` | [D-30](https://reforger.armaplatform.com/workshop/611ABE2F73802440-WZTurrets) | 122mm | HE | 0.8km - 4.8km |
-| `M119` | [M119](https://reforger.armaplatform.com/workshop/611ABE2F73802440-WZTurrets) | 105mm | HE | 0.8km - 4.8km |
+| `D30` | [D-30](https://reforger.armaplatform.com/workshop/611ABE2F73802440-WZTurrets) | 122mm | HE (Low / High) | 0.5km – 4.75km (Low) / 0.8km – 4.75km (High) |
+| `M119` | [M119](https://reforger.armaplatform.com/workshop/611ABE2F73802440-WZTurrets) | 105mm | HE (Low / High) | 0.5km – 4.75km (Low) / 0.8km – 4.75km (High) |
 
 ## 🛠️ Development
 
@@ -445,7 +445,7 @@ mortar_core/
 **Architecture Improvements:**
 - ✅ Generic variable naming - `weaponPos`/`weaponId` instead of `mortarPos`/`mortarId`
 - ✅ System type detection - Automatic MLRS vs mortar feature toggling
-- ✅ FFE disabled for MLRS - Fire for Effect only available for mortars
+- ✅ FFE disabled for MLRS - Fire for Effect only available for mortars *(reversed in v2.13: FFE now works for all weapon systems)*
 - ✅ Fire corrections disabled for MLRS - Tactical feature specific to mortars
 - ✅ Mission history shows weapon and projectile names instead of IDs
 

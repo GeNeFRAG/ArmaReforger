@@ -77,7 +77,7 @@ main.js
 - No production dependencies (`devDependencies` has only `@playwright/test`)
 - NATO weapons use **6400 mils/circle** (milsPerDegree ≈ 17.7778)
 - Warsaw Pact weapons use **6000 mils/circle** (milsPerDegree ≈ 16.6667)
-- Mortar-only features: fire corrections and FFE patterns (howitzers have FFE but not GT/OT corrections in the same way; MLRS has neither)
+- Fire corrections (GT/OT line) and FFE patterns work for all weapon systems (mortars, howitzers, MLRS). Height correction is the only mortar-only feature.
 - Grid coordinates: 3-digit = 100m precision, 4-digit = 10m precision — `coord-manager.js` is the single parse/validate source
 - Weapon data is fully JSON-driven — **never hardcode a weapon ID or name in JS or HTML**
 - The `systemType` field (`mortar` / `howitzer` / `mlrs`) in `ballistic-data.json` is what the engine and UI branch on
