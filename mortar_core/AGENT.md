@@ -51,6 +51,8 @@ npm run docker:down
 | `ui_js/constants.js` | INPUT_IDS, COLORS, BTN_STYLES, SHARE_CONSTANTS | adding new DOM IDs or shared constants |
 | `ui_js/utils.js` | Pure helpers: debounce, setDisplay, formatPositionDisplay | adding generic utilities |
 | `ui_js/onboarding.js` | First-visit overlay | changing onboarding UX |
+| `sw.js` | Service worker — versioned cache-first PWA offline support | updating cache strategy or bumping `CACHE_VERSION` on release |
+| `manifest.webmanifest` | PWA manifest for browser install prompts | changing app name, theme, or icons |
 | `index.html` | App shell — static HTML + `<script type="module">` | adding DOM structure |
 | `styles.css` | All styles (~27KB) | changing appearance |
 | `tests/e2e/` | Playwright tests (13 specs) | adding tests |
@@ -81,6 +83,7 @@ main.js
 - Grid coordinates: 3-digit = 100m precision, 4-digit = 10m precision — `coord-manager.js` is the single parse/validate source
 - Weapon data is fully JSON-driven — **never hardcode a weapon ID or name in JS or HTML**
 - The `systemType` field (`mortar` / `howitzer` / `mlrs`) in `ballistic-data.json` is what the engine and UI branch on
+- On every release, bump `CACHE_VERSION` in `sw.js` (e.g. `'v2.14.0'`) alongside the version strings in `package.json` and `index.html` — this evicts the old SW cache and forces clients to re-download updated assets
 
 ## Common tasks
 

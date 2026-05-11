@@ -33,7 +33,13 @@
     
     <!-- Preload critical resources for LCP -->
     <link rel="preload" as="image" href="arma-reforger-logo.png" fetchpriority="high">
-    
+    <!-- Start fetching ballistic data while JS modules are still downloading -->
+    <link rel="preload" as="fetch" href="ballistic-data.json" type="application/json">
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
     <!-- Theme Color -->
     <meta name="theme-color" content="#6b8e23">
     

@@ -140,6 +140,8 @@ Add the weapon to the "Multiple ballistic weapon systems" bullet in `mortar_core
 
 - `ballistic-data.json` → update `lastUpdated` to the current ISO timestamp
 - `package.json` → bump `version` (if releasing a new build)
+- `sw.js` → bump `CACHE_VERSION` to match the new version (e.g. `'v2.14.0'`) — forces deployed users to re-download updated assets
+- `index.html` → update the `?v=` query strings on `styles.css` and `BallisticCalculator.js` if those files changed
 
 ## What NOT to do
 
