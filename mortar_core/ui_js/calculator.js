@@ -253,7 +253,7 @@ export function generateSolutionGridHTML(solution, previousChargeForDisplay) {
             </div>
             <div class="solution-item">
                 <strong>TIME OF FLIGHT</strong>
-                <div class="value">${solution.timeOfFlight}s</div>
+                <div class="value">${solution.timeOfFlight != null ? solution.timeOfFlight + 's' : 'n/a'}</div>
                 ${solution.tofCorrection && solution.tofCorrection !== 0 ? `<div style="color: ${COLORS.textMuted}; font-size: 11px; margin-top: 2px;">Correction: ${solution.tofCorrection > 0 ? '+' : ''}${solution.tofCorrection.toFixed(1)}s (TOF/100m: ${solution.tofPer100m})</div>` : ''}
             </div>
         </div>

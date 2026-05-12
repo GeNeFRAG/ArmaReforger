@@ -734,7 +734,7 @@ function interpolateFromTable(rangeTable, distance) {
     }
     
     const elevation = lerp(distance, lower.range, upper.range, lower.elevation, upper.elevation);
-    const tof = lerp(distance, lower.range, upper.range, lower.tof, upper.tof);
+    const tof = (lower.tof == null || upper.tof == null) ? null : lerp(distance, lower.range, upper.range, lower.tof, upper.tof);
     const dElev = lerp(distance, lower.range, upper.range, lower.dElev, upper.dElev);
     const tofPer100m = lerp(distance, lower.range, upper.range, lower.tofPer100m || 0, upper.tofPer100m || 0);
     
@@ -774,6 +774,7 @@ function applyHeightCorrection(baseElevation, heightDifference, dElev) {
  * @returns {number} Corrected time of flight in seconds
  */
 function applyTOFCorrection(baseTOF, heightDifference, tofPer100m) {
+    if (baseTOF == null) return null;
     if (heightDifference === 0) return baseTOF;
     
     const correction = (heightDifference / 100) * tofPer100m;
@@ -1030,7 +1031,7 @@ function calculateForMLRS(projectile, input) {
         elevationDegrees: parseFloat(elevationDegrees.toFixed(1)),
         azimuth: parseFloat(input.bearing.toFixed(1)),
         azimuthMils: Math.round(azimuthMils),
-        timeOfFlight: parseFloat(tof.toFixed(1)),
+        timeOfFlight: tof == null ? null : parseFloat(tof.toFixed(1)),
         tofCorrection: 0,  // Future enhancement
         tofPer100m: 0,
         minRange: projectile.minRange,
@@ -1093,8 +1094,8 @@ function calculateForCharge(charge, input) {
         elevationDegrees: parseFloat(elevationDegrees.toFixed(1)),
         azimuth: parseFloat(input.bearing.toFixed(1)),
         azimuthMils: Math.round(azimuthMils),
-        timeOfFlight: parseFloat(correctedTOF.toFixed(1)),
-        tofCorrection: parseFloat(tofCorrection.toFixed(1)),
+        timeOfFlight: correctedTOF == null ? null : parseFloat(correctedTOF.toFixed(1)),
+        tofCorrection: correctedTOF == null ? 0 : parseFloat(tofCorrection.toFixed(1)),
         tofPer100m: ballistics.tofPer100m || 0,
         minRange: charge.minRange,
         maxRange: charge.maxRange,
@@ -1191,13 +1192,13 @@ function calculate(input) {
         elevationDegrees: parseFloat(elevationDegrees.toFixed(1)),
         azimuth: parseFloat(input.bearing.toFixed(1)),
         azimuthMils: Math.round(azimuthMils),
-        timeOfFlight: parseFloat(correctedTOF.toFixed(1)),
-        tofCorrection: parseFloat(tofCorrection.toFixed(1)),
+        timeOfFlight: correctedTOF == null ? null : parseFloat(correctedTOF.toFixed(1)),
+        tofCorrection: correctedTOF == null ? 0 : parseFloat(tofCorrection.toFixed(1)),
         tofPer100m: ballistics.tofPer100m || 0,
         minRange: charge.minRange,
         maxRange: charge.maxRange
     };
-    
+
     return solution;
 }
 
