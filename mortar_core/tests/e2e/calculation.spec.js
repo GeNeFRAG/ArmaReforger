@@ -229,6 +229,10 @@ test.describe('Ballistic Calculations', () => {
     expect(result.elevation).toBeTruthy();
     expect(result.elevation.value).toBeGreaterThan(0);
     expect(result.elevation.value).toBeLessThan(6400);
+
+    // TOF data is null for D-30 — tile must show n/a, not a numeric value
+    const tofTile = page.locator('.solution-item:has(strong:text("TIME OF FLIGHT")) .value');
+    await expect(tofTile).toHaveText('n/a');
   });
 
   test('should calculate solution for M119 howitzer', async ({ page }) => {
@@ -253,6 +257,10 @@ test.describe('Ballistic Calculations', () => {
     expect(result.elevation).toBeTruthy();
     expect(result.elevation.value).toBeGreaterThan(0);
     expect(result.elevation.value).toBeLessThan(6400);
+
+    // TOF data is null for M119 — tile must show n/a, not a numeric value
+    const tofTile = page.locator('.solution-item:has(strong:text("TIME OF FLIGHT")) .value');
+    await expect(tofTile).toHaveText('n/a');
   });
 
   // ============================================================================
