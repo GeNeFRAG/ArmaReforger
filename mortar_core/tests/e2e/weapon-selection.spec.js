@@ -38,6 +38,12 @@ test.describe('Weapon Selection', () => {
       text.includes('M119')
     );
     expect(hasWeapons).toBeTruthy();
+
+    const optionValuesById = await mortarTypeSelect.locator('option').evaluateAll(options =>
+      options.map(option => option.value)
+    );
+    expect(optionValuesById).toContain('INTEGRITY_BM21');
+    expect(optionValuesById).not.toContain('SH_BM21');
   });
 
   test('should update shell options when selecting 2B14 mortar', async ({ page }) => {

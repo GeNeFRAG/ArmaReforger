@@ -95,7 +95,7 @@ async function main() {
     const mortarTypes = BallisticCalculator.getAllMortarTypes();
     console.log(`getAllMortarTypes() → ${mortarTypes.map(m => m.id).join(', ')}`);
 
-    for (const weaponId of ['2B14', 'M252', 'INTEGRITY_BM21', 'SH_BM21', 'D30', 'M119', 'TYPE63']) {
+    for (const weaponId of ['2B14', 'M252', 'INTEGRITY_BM21', 'D30', 'M119', 'TYPE63']) {
         const ammo = BallisticCalculator.getAmmunitionOptions(weaponId);
         const names = ammo.map(a => a.name).join(', ');
         console.log(`  ${weaponId.padEnd(16)} → ${names}`);

@@ -30,7 +30,7 @@ Visit **[armamortars.org](https://armamortars.org)** for the online calculator, 
 ## 🚀 Features
 - ✅ **Pure JavaScript** - No external dependencies
 - ✅ **Framework-agnostic** - Works in Node.js and browsers
-- ✅ **Multiple ballistic weapon systems** - Mortars (M252, 2B14), MLRS (SH BM-21, Integrity BM-21, Type-63) and Howitzers (D-30, M119)
+- ✅ **Multiple ballistic weapon systems** - Mortars (M252, 2B14), MLRS (Integrity BM-21, Type-63), and Howitzers (D-30, M119)
 - ✅ **Session sharing** - Share fire missions via URL with squad members
 - ✅ **Persistent history** - Mission history survives browser refresh via localStorage
 - ✅ **Real-time validation** - Instant format and range checking while typing
@@ -250,7 +250,6 @@ All weapon data is dynamically loaded from `ballistic-data.json`:
 
 | Weapon ID | Name | Caliber | Projectile Types | Range |
 |-----------|------|---------|------------------|-------|
-| `SH_BM21` | [SH BM-21 Grad](https://reforger.armaplatform.com/workshop/6854D8DBA436768F-SH-BM21) | 122mm | HE | 0.2km - 5.8km |
 | `INTEGRITY_BM21` | [Integrity BM-21 Grad](https://reforger.armaplatform.com/workshop/68DA62B40A976334-Integrity-BM-21Grad) | 122mm | 9M22M HE, 9M43 Smoke, 3M16 AP | 0.4km - 8.0km |
 | `TYPE63` | [Type-63](https://reforger.armaplatform.com/workshop/611ABE2F73802440-WZTurrets) | 107mm | HE | 0.5km - 2.25km |
 
@@ -297,13 +296,13 @@ const mortarSolution = BallisticCalculator.calculate({
 
 console.log(`Mortar: Charge ${mortarSolution.charge}, Elevation ${mortarSolution.elevation} mils`);
 
-// MLRS calculation (SH BM-21)
+// MLRS calculation (Integrity BM-21)
 const mlrsSolution = BallisticCalculator.calculate({
     distance: 3000,
     heightDifference: 50,
     bearing: 180,
-    weaponId: "SH_BM21",
-    shellType: "sh_122mm_he"
+    weaponId: "INTEGRITY_BM21",
+    shellType: "9M22M_122mm_he"
 });
 
 console.log(`MLRS: Elevation ${mlrsSolution.elevation} mils, TOF ${mlrsSolution.timeOfFlight}s`);
@@ -337,6 +336,12 @@ mortar_core/
 - **Node.js:** 12+
 
 ## 📝 Changelog
+
+### v2.14.0 - Retired Mod Cleanup
+
+**Changes:**
+- Removed the retired BM-21 mod, its ballistic data, and its calculator option.
+- Updated the MLRS support banner to reflect the currently supported Integrity BM-21 Grad mod.
 
 ### v2.13.0 - UX Refinements & Stability (May 2026)
 
@@ -377,17 +382,16 @@ mortar_core/
 ### v2.9.0 - BM-21 Mod Support Rework (April 2026)
 **Breaking Changes:**
 - Replaced single `BM21` weapon ID with two mod-specific weapon systems
-- Old `BM21` weapon ID is no longer valid; use `SH_BM21` or `INTEGRITY_BM21`
+- Old `BM21` weapon ID is no longer valid; use `INTEGRITY_BM21`
 
 **New Features:**
-- ✅ **SH BM-21 Grad** - [SpearHead mod](https://reforger.armaplatform.com/workshop/6854D8DBA436768F-SH-BM21) support with 122mm HE (200-5800m)
 - ✅ **Integrity BM-21 Grad** - [Integrity Gaming mod](https://reforger.armaplatform.com/workshop/68DA62B40A976334-Integrity-BM-21Grad) support with 3 rocket types: 9M22M HE, 9M43 Smoke, 3M16 Anti-Personnel
 - ✅ **Weapon dropdown ordering** - Matches supported weapons list (Mortars, Howitzers, MLRS)
 
 **Data Changes:**
 - Removed old BM-21 ballistic data (no longer valid for any current mod)
 - Removed unverified smoke/AP/AT mine projectile types
-- Added verified ballistic tables from both workshop mods
+- Added verified ballistic tables for supported workshop mods
 
 **Fixes:**
 - Closes [#7](https://github.com/GeNeFRAG/ArmaReforger/issues/7) - Add new ammunition for BM-21 mods

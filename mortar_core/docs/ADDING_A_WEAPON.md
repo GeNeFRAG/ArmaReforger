@@ -8,7 +8,7 @@ The weapon dropdown is populated automatically from `ballistic-data.json` via `g
 |---|---|---|
 | `mortar` | M252, 2B14 | Fire corrections + FFE + charge selection |
 | `howitzer` | M119, D30 | FFE only; HA/LA variants as separate `projectileTypes` |
-| `mlrs` | TYPE63, SH_BM21, INTEGRITY_BM21 | Range-based auto projectile selection; no corrections or FFE |
+| `mlrs` | TYPE63, INTEGRITY_BM21 | Range-based auto projectile selection; no corrections or FFE |
 
 ## Step 2 — Add the entry to `ballistic-data.json`
 

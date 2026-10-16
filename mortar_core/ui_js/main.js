@@ -198,7 +198,7 @@ function updateWeaponSystems() {
         if (bIndex !== -1) return 1;
         return a.name.localeCompare(b.name);
     });
-    const mlrsOrder = ['SH_BM21', 'INTEGRITY_BM21'];
+    const mlrsOrder = ['INTEGRITY_BM21', 'TYPE63'];
     const mlrs = allWeapons.filter(w => w.systemType === 'mlrs').sort((a, b) => {
         const aIndex = mlrsOrder.indexOf(a.id);
         const bIndex = mlrsOrder.indexOf(b.id);

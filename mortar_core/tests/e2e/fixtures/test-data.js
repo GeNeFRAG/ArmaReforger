@@ -16,10 +16,6 @@ export const WEAPONS = {
     name: 'Integrity BM-21 Grad MLRS',
     projectileTypes: ['HE']
   },
-  'SH_BM21': {
-    name: 'SH BM-21 Grad MLRS',
-    projectileTypes: ['HE']
-  },
   'TYPE63': {
     name: 'Type-63 MLRS',
     projectileTypes: ['HE']

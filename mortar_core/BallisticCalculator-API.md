@@ -214,7 +214,7 @@ Calculate firing solution for a target.
     distance: number,          // Horizontal distance in meters
     heightDifference: number,  // Target height - weapon height (meters)
     bearing: number,           // Azimuth angle in degrees (0-360)
-    weaponId: string,          // Weapon ID (e.g., "2B14", "M252", "SH_BM21", "INTEGRITY_BM21", "D30", "M119")
+    weaponId: string,          // Weapon ID (e.g., "2B14", "M252", "INTEGRITY_BM21", "D30", "M119")
     shellType: string,         // Shell/projectile type (e.g., "HE", "SMOKE", "sh_122mm_he", "9M22M_122mm_he")
     chargeLevel?: number       // Optional: Force specific charge (0-4 for mortars, 0 for MLRS/howitzers)
 }
@@ -403,7 +403,7 @@ Convert degrees to mils using the weapon's specific mil system.
 
 **Parameters:**
 - `degrees` (number) - Angle in degrees
-- `mortarType` (string) - Weapon type ID (e.g., "2B14", "M252", "SH_BM21", "INTEGRITY_BM21", "D30", "M119")
+- `mortarType` (string) - Weapon type ID (e.g., "2B14", "M252", "INTEGRITY_BM21", "D30", "M119")
 
 **Returns:**
 - `number` - Angle in mils (rounded to integer)
@@ -676,7 +676,7 @@ Get all available weapon systems or filter by type.
 **Returned Object Structure:**
 ```javascript
 {
-    id: string,          // Weapon ID (e.g., "M252", "SH_BM21", "INTEGRITY_BM21", "D30")
+    id: string,          // Weapon ID (e.g., "M252", "INTEGRITY_BM21", "D30")
     name: string,        // Display name
     caliber: number,     // Caliber in mm
     systemType: string   // "mortar", "mlrs", or "howitzer"
@@ -705,7 +705,7 @@ const howitzers = BallisticCalculator.getAllWeaponSystems('howitzer');
 Get available ammunition types for a specific weapon system.
 
 **Parameters:**
-- `weaponId` (string) - Weapon system ID (e.g., "M252", "SH_BM21", "INTEGRITY_BM21", "D30")
+- `weaponId` (string) - Weapon system ID (e.g., "M252", "INTEGRITY_BM21", "D30")
 
 **Returns:**
 - `Array<Object>` - Array of ammunition option objects
@@ -777,7 +777,7 @@ console.log(milSystem.milsPerDegree);  // 16.6667
 Get the mil system name and configuration for display purposes.
 
 **Parameters:**
-- `mortarType` (string) - Weapon type ID (e.g., "2B14", "M252", "SH_BM21", "INTEGRITY_BM21", "D30", "M119")
+- `mortarType` (string) - Weapon type ID (e.g., "2B14", "M252", "INTEGRITY_BM21", "D30", "M119")
 
 **Returns:**
 - `string` - Formatted mil system name with mils per circle
@@ -798,7 +798,7 @@ const systemM252 = BallisticCalculator.getMilSystemName("M252");
 Get weapon configuration from ballistic data.
 
 **Parameters:**
-- `weaponId` (string) - Weapon ID (e.g., "2B14", "M252", "SH_BM21", "INTEGRITY_BM21", "D30", "M119")
+- `weaponId` (string) - Weapon ID (e.g., "2B14", "M252", "INTEGRITY_BM21", "D30", "M119")
 - `shellType` (string) - Shell/projectile type
 
 **Returns:**
@@ -894,7 +894,7 @@ Convert mils to degrees using the weapon's specific mil system.
 
 **Parameters:**
 - `mils` (number) - Angle in mils
-- `mortarType` (string) - Weapon type ID (e.g., "2B14", "M252", "SH_BM21", "INTEGRITY_BM21", "D30", "M119")
+- `mortarType` (string) - Weapon type ID (e.g., "2B14", "M252", "INTEGRITY_BM21", "D30", "M119")
 
 **Returns:**
 - `number` - Angle in degrees (2 decimal places)
@@ -995,7 +995,7 @@ Convert 3D positions or grid coordinates into calculator input.
 **Parameters:**
 - `weaponPos` (Position3D|string) - Weapon position (object or grid string like "047/069")
 - `targetPos` (Position3D|string) - Target position (object or grid string like "058/071")
-- `weaponId` (string) - Weapon ID (e.g., "M252", "2B14", "SH_BM21", "INTEGRITY_BM21")
+- `weaponId` (string) - Weapon ID (e.g., "M252", "2B14", "INTEGRITY_BM21")
 - `shellType` (string) - Shell/projectile type
 
 **Position3D Type:**
@@ -1113,7 +1113,6 @@ sortedSolutions.forEach((sol, idx) => {
 
 | ID | Name | Caliber | Mod | System Type |
 |----|------|---------|-----|-------------|
-| `SH_BM21` | SH BM-21 Grad | 122mm | [SpearHead](https://reforger.armaplatform.com/workshop/6854D8DBA436768F-SH-BM21) | mlrs |
 | `INTEGRITY_BM21` | Integrity BM-21 Grad | 122mm | [Integrity Gaming](https://reforger.armaplatform.com/workshop/68DA62B40A976334-Integrity-BM-21Grad) | mlrs |
 | `TYPE63` | Type-63 | 107mm | [WZ Turrets](https://reforger.armaplatform.com/workshop/611ABE2F73802440-WZTurrets) | mlrs |
 
@@ -1261,38 +1260,22 @@ async function mlrsFireMission() {
     const distance = BallisticCalculator.calculateHorizontalDistance(weaponPos, targetPos);
     console.log(`Target distance: ${distance.toFixed(0)}m`);
     
-    // SH BM-21: single shell type (122mm HE), 200-5800m
+    // Integrity BM-21: three projectile variants, 400-8000m
     const input = BallisticCalculator.prepareInput(
-        weaponPos, 
-        targetPos, 
-        "SH_BM21", 
-        "sh_122mm_he"
+        weaponPos,
+        targetPos,
+        "INTEGRITY_BM21",
+        "9M22M_122mm_he"
     );
     
     const solution = BallisticCalculator.calculate(input);
     
     if (solution.inRange) {
-        console.log(`\nSH BM-21 Grad Fire Mission:`);
+        console.log(`\nIntegrity BM-21 Grad Fire Mission:`);
         console.log(`Azimuth: ${solution.azimuth}° (${solution.azimuthMils} mils)`);
         console.log(`Elevation: ${solution.elevation} mils (${solution.elevationDegrees}°)`);
         console.log(`Time of Flight: ${solution.timeOfFlight}s`);
         console.log(`Range: ${solution.minRange}m - ${solution.maxRange}m`);
-    }
-    
-    // Integrity BM-21: 3 charge variants, 400-8000m
-    const integrityInput = BallisticCalculator.prepareInput(
-        weaponPos, 
-        targetPos, 
-        "INTEGRITY_BM21", 
-        "9M22M_122mm_he"  // Full charge (no rings)
-    );
-    
-    const integritySolution = BallisticCalculator.calculate(integrityInput);
-    
-    if (integritySolution.inRange) {
-        console.log(`\nIntegrity BM-21 Grad Fire Mission:`);
-        console.log(`Elevation: ${integritySolution.elevation} mils`);
-        console.log(`Time of Flight: ${integritySolution.timeOfFlight}s`);
     }
     
     return solution;
@@ -1335,7 +1318,7 @@ function calculateFromMap(map, mortarMarker, targetMarker) {
 | Error | Meaning | Solution |
 |-------|---------|----------|
 | `Ballistic data not loaded` | `loadBallisticData()` not called | Call `loadBallisticData()` first |
-| `Unknown weapon ID` | Invalid weapon ID | Use valid ID: "M252", "2B14", "SH_BM21", "INTEGRITY_BM21" |
+| `Unknown weapon ID` | Invalid weapon ID | Use a valid ID such as "M252", "2B14", or "INTEGRITY_BM21" |
 | `Unknown shell type` | Invalid shell/projectile type | Use valid type for weapon system |
 | `Invalid distance` | Distance < 0 or undefined | Provide valid distance > 0 |
 | `Bearing must be between 0 and 360` | Invalid bearing | Provide bearing 0-360 |
