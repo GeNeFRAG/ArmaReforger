@@ -1,11 +1,11 @@
 // Update CACHE_VERSION on every release (same cadence as ?v= query strings in index.html).
-const CACHE_VERSION = 'v2.14.0';
+const CACHE_VERSION = 'v2.14.1';
 const CACHE_NAME = `armamortars-${CACHE_VERSION}`;
 
 const PRECACHE_ASSETS = [
     'index.html',
     'styles.css?v=5',
-    'BallisticCalculator.js?v=2.14.0',
+    'BallisticCalculator.js?v=2.14.1',
     'ballistic-data.json',
     'manifest.webmanifest',
     'arma-reforger-logo.png',
